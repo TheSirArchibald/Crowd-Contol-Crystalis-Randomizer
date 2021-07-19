@@ -1,0 +1,3484 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
+using System.Drawing;
+using System.IO;
+using System.Linq;
+using System.Net;
+using System.Reflection;
+using System.Runtime.CompilerServices;
+using System.Runtime.Serialization;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+using ConnectorLib;
+using CrowdControl.Common;
+using JetBrains.Annotations;
+using Newtonsoft.Json;
+using ConnectorType = CrowdControl.Common.ConnectorType;
+using Log = CrowdControl.Common.Log;
+using NotNullAttribute = JetBrains.Annotations.NotNullAttribute;
+#if DEBUG
+
+#endif
+
+namespace CrowdControl.Games.Packs
+{
+    [UsedImplicitly]
+    public class Crystalis : NESEffectPack
+    {
+        public Crystalis([NotNull] IPlayer player, [NotNull] Func<CrowdControlBlock, bool> responseHandler, [NotNull] Action<object> statusUpdateHandler) : base(player, responseHandler, statusUpdateHandler) { }
+
+       
+
+        //Position
+        //private const ushort ADDR_PosXl = 0x0070;
+        private const ushort ADDR_PosX = 0x0090;
+        //private const ushort ADDR_PosYl = 0x00CF;
+        private const ushort ADDR_PosY = 0x00EF;
+        private const ushort ADDR_Controller = 0x0048;
+
+        //Sprites
+        private const ushort ADDR_SPRITE_RAM = 0x0200;
+        private const ushort ADDR_SPRITE_RAM_PATTERN = 0x0201;
+        private const ushort ADDR_SPRITE_RAM_ATTRIBUTES = 0x0202;
+        private const ushort ADDR_SPRITE_RAM_X = 0x0203;
+        private const ushort ADDR_SPRITE_Y = 0x05e0;
+        private const ushort ADDR_SPRITE_TYPE_BASE = 0x0000;
+        private const ushort ADDR_SPRITE_STATUS_BASE = 0x000;
+        private const ushort ADDR_SPRITE_POS_Y_LOW_BASE = 0x000;
+        private const ushort ADDR_SPRITE_POS_Y_HIGH_BASE = 0x000;
+
+        //UI
+        private const ushort ADDR_Money = 0x0702;
+        private const ushort ADDR_EXP = 0x0704;
+        private const ushort ADDR_HP = 0x03C1;
+        private const ushort ADDR_MPC = 0x0708;
+        private const ushort ADDR_MPF = 0x0708;
+        private const ushort ADDR_HEALTH_MAX = 0x0040;
+        private const ushort ADDR_SHOP_CURRENT_PRICE = 0x6474;
+        private const ushort ADDR_SCALING = 0x648F;
+        private const ushort ADDR_LEVEL = 0x0421;
+
+        // Powerup
+        private const ushort ADDR_SwordSlot1 = 0x6430;
+        private const ushort ADDR_SwordSlot2 = 0x6431;
+        private const ushort ADDR_SwordSlot3 = 0x6432;
+        private const ushort ADDR_SwordSlot4 = 0x6433;
+        private const ushort ADDR_PowerSlot1 = 0x643C;
+        private const ushort ADDR_PowerSlot2 = 0x643D;
+        private const ushort ADDR_PowerSlot3 = 0x643E;
+        private const ushort ADDR_PowerSlot4 = 0x643F;
+        private const ushort ADDR_ArmorSlot1 = 0x6434;
+        private const ushort ADDR_ArmorSlot2 = 0x6435;
+        private const ushort ADDR_ArmorSlot3 = 0x6436;
+        private const ushort ADDR_ArmorSlot4 = 0x6437;
+        private const ushort ADDR_ShieldSlot1 = 0x6438;
+        private const ushort ADDR_ShieldSlot2 = 0x6439;
+        private const ushort ADDR_ShieldSlot3 = 0x643A;
+        private const ushort ADDR_ShieldSlot4 = 0x643B;
+
+        //Equipable
+
+        //Consumables
+        private const ushort ADDR_ConsumeSlot1 = 0x6440;
+        private const ushort ADDR_ConsumeSlot2 = 0x6441;
+        private const ushort ADDR_ConsumeSlot3 = 0x6442;
+        private const ushort ADDR_ConsumeSlot4 = 0x6443;
+        private const ushort ADDR_ConsumeSlot5 = 0x6444;
+        private const ushort ADDR_ConsumeSlot6 = 0x6445;
+        private const ushort ADDR_ConsumeSlot7 = 0x6446;
+        private const ushort ADDR_ConsumeSlot8 = 0x6447;
+
+        //Spells
+        private const ushort ADDR_Spell1 = 0x6458;
+        private const ushort ADDR_Spell2 = 0x6469;
+        private const ushort ADDR_Spell3 = 0x645A;
+        private const ushort ADDR_Spell4 = 0x645B;
+        private const ushort ADDR_Spell5 = 0x645C;
+        private const ushort ADDR_Spell6 = 0x645D;
+        private const ushort ADDR_Spell7 = 0x645E;
+        private const ushort ADDR_Spell8 = 0x645F;
+
+        //Status
+        private const ushort ADDR_Condition = 0x0710;
+        private const ushort ADDR_Warrior = 0x06C0;
+        private const ushort ADDR_ChargeLvl = 0x0719;
+        private const ushort ADDR_Speed = 0x0341;
+        private const ushort ADDR_Jump = 0x0620;
+        private const ushort ADDR_Equip_Sword = 0x0711;
+
+        //Boss
+        private const ushort ADDR_Kelby = 0x0;
+        private const ushort ADDR_Sabera = 0x0;
+        private const ushort ADDR_Mado = 0x0;
+        private const ushort ADDR_Kelby2 = 0x0;
+        private const ushort ADDR_Sabera2 = 0x0;
+        private const ushort ADDR_Mado2 = 0x0;
+        private const ushort ADDR_Karmine = 0x0;
+        private const ushort ADDR_Draygon = 0x0;
+
+        //Need to fix Bosses later just a placeholder for now
+        private Dictionary<string, (string bossName, byte value, BossDefeated bossFlag, ushort address, byte limit)> _wType = new Dictionary<string, (string, byte, BossDefeated, ushort, byte)>(StringComparer.InvariantCultureIgnoreCase)
+        {
+            {"Kelby", ("Kelby", 0, BossDefeated.Kelby, ADDR_Kelby, 0)},
+            {"Sabera", ("Sabera", 1, BossDefeated.Sabera, ADDR_Sabera, 14)},
+            {"Mado", ("Mado", 2, BossDefeated.Mado, ADDR_Mado, 14)},
+            {"Kelby2", ("Kelby2,", 3, BossDefeated.Kelby2, ADDR_Kelby2, 14)},
+            {"Sabera2", ( "Sabera2", 4, BossDefeated.Sabera2, ADDR_Sabera2, 14)},
+            {"Mado2", ("Mado2", 5, BossDefeated.Mado2, ADDR_Mado2, 14)},
+            {"Karmine", ("Karmine", 6, BossDefeated.Karmine, ADDR_Karmine, 14)},
+            {"Draygon", ("Draygon", 7, BossDefeated.Draygon, ADDR_Draygon, 14)},
+        };
+
+        [Flags]
+        private enum BossDefeated : byte
+        {
+            Kelby = 0x01,
+            Sabera = 0x02,
+            Mado = 0x04,
+            Kelby2 = 0x08,
+            Sabera2 = 0x10,
+            Mado2 = 0x20,
+            Karmine = 0x40,
+            Draygon = 0x80,
+            All = 0xFF
+        }
+        
+        //    private bool SpawnEnemy() =>
+//                            Connector.Read8(ADDR_PosX, out ushort xPos) &&
+//                            Connector.Read8(ADDR_PosY, out ushort yPos) &&
+//                            SpawnSprite(SpriteName.FlyingDevil, (ushort)(xPos + 24u), yPos) ! = 0xFF;
+//                        
+//    private bool SpawnSprite (byte slot, SpriteName name, ushort xPos, ushort yPos)
+//                        {
+//                            bool result = Connector.Write8(ADDR_SPRITE_POS_X_LOW_BASE + slot, unchecked((byte)xPos));
+//                            result = result && Connector.Write8(ADDR_SPRITE_POS_X_HIGH_BASE + slot, unchecked((byte)(xpos >> 8)));
+//                            result = result && Connector.Write8(ADDR_SPRITE_POS_Y_LOW_BASE + slot, unchecked((byte)ypos));
+//                            result = result && Connector.Write8(ADDR_SPRITE_POS_Y_HIGH_BASE + slot, unchecked((byte)(ypos >> 8)));
+//                            result = result && Connector.Write8(ADDR_SPRITE_TYPE_BASE + slot, (byte)name);
+//                            result = result && Connector.Write8(ADDR_SPRITE_STATUS_BASE +slot, (byte)SpriteStatus.Spawning);
+//                            
+//                            return result;
+//                        }
+//                        
+//    private byte SpawnSprite(SpriteName name, ushort xPos, ushort ypos)
+//                       {
+//                            if (Connector.Isequal8(ADDR_SPRITE_STATUS_BASE + i, (byte)SpriteStatus.Empty)
+//                                && SpawnSprite (i, name, xPos, yPos))
+//                               {
+//                                    return i;
+//                                }
+//                            return 0xff;
+//                       }
+//        
+//   private enum SpriteName : byte
+//                        {
+//                        //Flying
+//                       BlueBat	= 0x1B327
+//                        RedFlyingBug	= 0x1B387,
+//                        GreenFlyingBug	= 0x1B3CD,            
+//                        FlyingHead	= 0x1B57B,
+//                        Red_PurpleBirds	= 0x1B592,
+//                        Moth	= 0x1B6C4,
+//                        BomberBird	= 0x1B72D,
+//                        FlyingDevil	= 0x1B7EF,
+//                        
+//                        //Walking
+//                        Mummy	= 0x1B94E,
+//                        Warlock	= 0x1B967,
+//                        DraygoniaArcher	= 0x1B714,
+//                        Green_PurpleFlailGuy	= 0x1B75B,
+//                        Burt	= 0x1B7A5,
+//                        Ninja	= 0x1B7D6,
+//                        Mimic	= 0x1B5E7,
+//                        Shadowmonster	= 0x1B6A7,
+//                        BlackKnight	= 0x1B8F0,
+//                        
+//                        //Bosses
+//                        Vampire	= 0x1B356,
+//                        BigBug	= 0x1B3FC,
+//                        Kelbesque	= 0x1B4EC,
+//                        Sabera	= 0x1B6DB,
+//                        Mado	= 0x1B7BD,               
+//                        KelbesqueTwo = 0x1B806,
+//                        SaberaTwo	= 0x1B84E,
+//                        MadoTwo	= 0x1B8BF,
+//                       Karmine = 0x1B920,
+//                        Draygon	= 0x1B980,
+//                        Dyna	= 0x1BA54,
+//                        
+//                        //Robots
+//                        GreenRobots =	0x1B9F4,
+//                        WhiteRobots	= 0x1BA0D,
+//                        Helicopter =	0x1BA3D,
+//                        }                          
+                      
+     //private byte CheckForSprite(SpriteType type)
+     //                   return result;
+            
+        private bool TryAlterHealth([NotNull] EffectRequest request, sbyte amount)
+    {
+            if (!Connector.Read8(ADDR_HEALTH_MAX, out byte health))
+            {
+                DelayEffect(request);
+                return false;
+            }
+
+            if ((health + amount) < 0x18)
+            {
+                Respond(request, EffectStatus.FailTemporary, "Health already at minimum.");
+                return false;
+            }
+
+            if ((health + amount) > 0xA0)
+            {
+                Respond(request, EffectStatus.FailTemporary, "Health already at minimum.");
+                return false;
+            }
+
+            if (Connector.Write8(ADDR_HEALTH_MAX, (byte)(health + amount)))
+            {
+                Respond(request, EffectStatus.Success);
+                return true;
+            }
+
+            DelayEffect(request);
+            return false;
+    }
+
+        public override List<Effect> Effects
+        {
+            get
+            {
+                List<Effect> effects = new List<Effect>
+                {
+                 
+                    // General
+                    new Effect("Free Shopping", "freeshops"),
+                    new Effect("Scaling Increase", "scaleup"),
+                    new Effect("Scaling Decrease", "scaledown"),
+                    new Effect("Level Increase", "levelup"),
+                    new Effect("Level Decrease", "leveldown"),
+                    //new Effect("Heal Boss", "healboss"),  Note need to learn how Sabera/Dyna work as they are the weird ones right now.
+
+                    // Projectile Effects
+                    new Effect("Projectile Effects", "projectile", ItemKind.Folder),
+                    new Effect("Warrior Mode", "lvl1shot", "projectile"),
+                    new Effect("Beast Mode", "lvl2shot", "projectile"),
+                    new Effect("Thunder Mode", "trishot", "projectile"),  
+
+                    //Combat Effects
+                    new Effect("Timed Combat Effects", "combat", ItemKind.Folder),
+                    new Effect("Equip Wind Sword", "windsword", "combat"),
+                    new Effect("Equip Fire Sword", "firesword", "combat"),
+                    new Effect("Equip Water Sword", "watersword", "combat"),
+                    new Effect("Equip Thunder Sword", "thundersword", "combat"),
+                    new Effect("Equip Crystalis Sword", "crystalissword", "combat"),
+                    
+                    // Movement Effects
+                    new Effect("Movement Effects", "moveeffect", ItemKind.Folder),
+                    new Effect("Jump Mode", "jump", "moveeffect"),
+                    //new Effect("Flight Mode", "flight", "moveeffect"),  Note: Need to write a freeze and restore MP function"
+                    new Effect("Heavy Mode", "heavy", "moveeffect"),
+                    
+                    // Status Conditions
+                    new Effect("Change Condition", "changecondition", ItemKind.Folder),
+                    new Effect("One Hit KO", "ohko", "changecondition"),
+                    new Effect("UnTimed Posion", "poison", "changecondition"),
+                    new Effect("UnTimed Paralysis", "paralysis", "changecondition"),
+                    new Effect("UnTimed Slime", "slime", "changecondition"),
+                    new Effect("Timed Posion", "timedpoison", "changecondition"),
+                    new Effect("Timed Paralysis", "timedparalysis", "changecondition"),
+                    //new Effect("Timed Stone", "timestoning", "changecondition"),          Note: Effect doesn't trigger maybe another RAM location?
+                    new Effect("Timed Slime", "timedslime", "changecondition"),
+
+                    // Power Down/Upgrade
+                    new Effect("Give Power","givepower", ItemKind.Folder),
+                    new Effect("Give Ball of Wind", "bowind", "givepower"),
+                    new Effect("Give Ball of Fire", "bofire", "givepower"),
+                    new Effect("Give Ball of Water", "bowater", "givepower"),
+                    new Effect("Give Ball of Thunder", "bothunder", "givepower"),
+                    new Effect("Give Bracelet of Wind", "brwind",  "givepower"),
+                    new Effect("Give Bracelet of Fire", "brfire",  "givepower"),
+                    new Effect("Give Bracelet of Water", "brwater",  "givepower"),
+                    new Effect("Give Bracelet of Thunder", "brthunder",  "givepower"),
+
+                    new Effect("Take Power","takepower", ItemKind.Folder),
+                    new Effect("Steal Wind Sword", "removewindsword", "takepower"),
+                    new Effect("Steal Fire Sword", "removefiresword", "takepower"),
+                    new Effect("Steal Water Sword", "removewatersword", "takepower"),
+                    new Effect("Steal Thunder Sword", "removethundersword", "takepower"),
+                    new Effect("Steal Ball of Wind", "stealbowind", "takepower"),
+                    new Effect("Steal Ball of Fire", "stealbofire",  "takepower"),
+                    new Effect("Steal Ball of Water", "stealbowater", "takepower"),
+                    new Effect("Steal Ball of Thunder", "stealbothunder",   "takepower"),
+                    new Effect("Steal Bracelet of Wind", "stealbrwind",  "takepower"),
+                    new Effect("Steal Bracelet of Fire", "stealbrfire", "takepower"),
+                    new Effect("Steal Bracelet of Water", "stealbrwater", "takepower"),
+                    new Effect("Steal Bracelet of Thunder", "stealbrthunder", "takepower"),
+                    
+                    // Slider Effects
+                    // Note: Need to workout max magic at X lvl.
+                    // Note: Need to workout two bytes for money system.
+                    //new Effect("Money +", "moneyup", new[] {"quantity256"}),
+                    //new Effect("Money -", "moneydown", new[] {"quantity256"}),
+                    //new Effect("Magic +", "magicup", new[] {"quantity256"}),
+                    //new Effect("Magic -", "magicdown", new[] {"quantity256"}),
+                    
+                    // Direct Effect
+                    new Effect("Direct Effect", "directeffect", ItemKind.Folder),
+                    //new Effect("Heal Player", "sendherb", "directeffect"),        Note: Need to Identify how to force controller inputs.
+                    //new Effect("Hurt Player", "damage", "directeffect"),          Note: Need to Identify how to force controller inputs.
+                    //new Effect("Cure Player", "recover", "directeffect"),         Note: Need to Identify how to force controller inputs.
+                    //new Effect("Aliments Removed", "cure", "directeffect"),       Note: Need to Identify how to force controller inputs.
+                    //new Effect("Wild Warp", "wild", "directeffect"),              /*Note: Need to find workaround as input of 0xD0 into controller doesn't work*/
+                    
+                    //Armor and Shields
+                    new Effect("Give Defense Item","givedef", ItemKind.Folder),
+                    new Effect("Send Sacred Shield", "sshield","givedef"),
+                    new Effect("Send Psycho Shield", "pshield","givedef"),
+                    new Effect("Send Battle Armor ", "barmor","givedef"),                    
+                    new Effect("Send Psycho Armor", "parmor", "givedef"),
+
+                    //Spells
+                    // Note not sure if all are useful, but teleport and recover should be done. still lacking mapping of areas for telport and controller force inputs.
+                    //new Effect("Spells","spells", ItemKind.Folder),
+                    //new Effect("Use Refresh", "refresh", "spells"),
+                    //new Effect("Use Telepathy", "telepathy", "spells"),
+                    //new Effect("Use Teleport", "teleport", "spells"),
+                    //new Effect("Use Paralysis", "paralysis", "spells"),
+                    //new Effect("Use Recover", "recover", "spells"),
+                    //new Effect("Use Barrier", "barrier", "spells"),
+                    //new Effect("Use Change", "change", "spells"),
+                    //new Effect("Use Flight", "flight", "spells"),
+                    
+                    //Consumables
+                    new Effect("Give Consumable","giveconsumable", ItemKind.Folder),                    
+                    new Effect("Give Medical Herb", "giveherb","giveconsumable"),
+                    new Effect("Give Antidote", "giveanti","giveconsumable"),
+                    new Effect("Give Magic Ring", "givemr","giveconsumable"),
+                    new Effect("Give Lysis Plant", "givelysis","giveconsumable"),
+                    new Effect("Give Warp Boots", "givewp","giveconsumable"),
+                    new Effect("Give Fruit of Power", "givefop","giveconsumable"),
+                    new Effect("Give Fruit of Repun", "givefor","giveconsumable"),
+                    new Effect("Give Fruit of Lime", "givefol","giveconsumable"),
+                    new Effect("Give Opel Statue", "giveopel","giveconsumable"),
+                    new Effect("Give Love Package Special", "allfol","giveconsumable"),
+
+                    new Effect("Take Consumable","takeconsumable", ItemKind.Folder),
+                    new Effect("Clear Inventory", "clear","takeconsumable"),
+                    new Effect("Steal Herb", "stealherb","takeconsumable"),
+                    new Effect("Steal Antidote", "stealanti","takeconsumable"),
+                    new Effect("Steal Magic Ring", "stealmr","takeconsumable"),
+                    new Effect("Steal Lysis Plant", "steallysis","takeconsumable"),
+                    new Effect("Steal Warp Boots", "stealwp","takeconsumable"),
+                    new Effect("Steal Fruit of Power", "stealfop","takeconsumable"),
+                    new Effect("Steal Fruit of Repun", "stealfor","takeconsumable"),
+                    new Effect("Steal Fruit of Lime", "stealfol","takeconsumable"),
+                    new Effect("Steal Opel Statue", "stealopel","takeconsumable"),
+                   
+//  To Be Built Out (ASM)
+                    //Spawn Enemy
+                    // Note unclear how to read spawn tables to get proper spawn or any for now.
+                    //new Effect("Spawn Enemy", "spawn"),
+                    
+                    // Blackout Mode (need to talk with Steve)
+                    //new Effect("Blackout", "blackout"),
+
+                    // Respawn Boss (Hard to code but possible I think)
+                    //new Effect("Spawn Boss", "spawnboss"),
+
+                    // Modify Triggers
+                    //new Effect("Deactivate Dolphin", "dolphin"),
+
+                    // Cave Opening (Windmill) and Dolphin Check
+                    //new Effect("Seal Windmill", "windmill"),
+                    //new Effect("Reset Dolphin", "dolphin"),
+                            
+                };
+
+                return effects;
+            }
+        }
+
+        public override List<Common.ItemType> ItemTypes => new List<Common.ItemType>(new[]
+        {
+            new Common.ItemType("Quantity", "quantity256", Common.ItemType.Subtype.Slider, "{\"min\":1,\"max\":256}")
+        });
+
+        public override List<(string, Action)> MenuActions => new List<(string, Action)>();
+
+        public override Game Game { get; } = new Game(100, "Crystalis", "Crystalis", "NES", ConnectorType.NESConnector);
+
+        protected override bool IsReady(EffectRequest request) => Connector.Read8(0x00b1, out byte b) && (b < 0x80);
+
+        protected override void RequestData(DataRequest request) => Respond(request, request.Key, null, false, $"Variable name \"{request.Key}\" not known");
+
+        protected override void StartEffect(EffectRequest request)
+        {
+            if (!IsReady(request))
+            {
+                DelayEffect(request);
+                return;
+            }
+            string[] effectT = request.FinalCode.Split('_');
+            switch (effectT[0])
+            {
+                case "ohko":
+                    {
+                        //Requires UI refresh at start and end
+
+                        byte origHP = 01;
+                        var w = RepeatAction(request, TimeSpan.FromSeconds(30),
+                            () => Connector.Read8(ADDR_HP, out origHP) && (origHP > 1),
+                            () => Connector.SendMessage($"{request.DisplayViewer} sent One Hit KO Mode."), TimeSpan.FromSeconds(1),
+                            () => Connector.IsNonZero8(ADDR_HP), TimeSpan.FromSeconds(1),
+                            () => Connector.Write8(ADDR_HP, 0x02), TimeSpan.FromSeconds(1), true, "health");
+                        w.WhenCompleted.Then(t =>
+                        {
+                            Connector.Write8(ADDR_HP, origHP);
+                            Connector.SendMessage("One Hit KO Removed.");
+                        });
+                        return;
+                    }
+
+                //case "wild":  ASM Fix?
+                //    {
+                //        TryEffect(request,
+                //            () => Connector.Freeze8(ADDR_Controller, 0xC0),
+                //            () => Connector.Write8(ADDR_Controller, 0xD0),
+                //            () =>
+                //            {
+                //                Connector.SendMessage($"{request.DisplayViewer} wild warped you.");
+                //            }
+                //                    );
+                //        return;
+                //    }
+
+                case "kill":
+                    {
+                        TryEffect(request,
+                        () => Connector.IsNonZero8(ADDR_HP),
+                        () => Connector.Write8(ADDR_HP, 0),
+                        () => { Connector.SendMessage($"{request.DisplayViewer} killed you."); });
+                        return;
+                    }
+
+                case "jump":
+                    {
+                        RepeatAction(request, TimeSpan.FromSeconds(15),
+                      () => Connector.IsZero8(ADDR_Jump),
+                      () => Connector.Write8(ADDR_Jump, 32) && Connector.SendMessage($"{request.DisplayViewer} has granted you jump mode."), TimeSpan.FromSeconds(0.5),
+                      () => true, TimeSpan.FromSeconds(5),
+                      () => Connector.Write8(ADDR_Jump, 32), TimeSpan.FromSeconds(0.5), true)
+                      .WhenCompleted.ContinueWith(t => Connector.SendMessage($"{request.DisplayViewer} has removed your jump mode."));
+                        return;
+                    }
+
+                //case "flight":  Need a Freeze Function or will be jumping.  Repeat fuction for MP restore.
+                    {
+                    //        RepeatAction(request, TimeSpan.FromSeconds(15),
+                    //        () => Connector.IsZero8(ADDR_Jump),
+                    //        () => Connector.Write8(ADDR_Jump, 13) && Connector.SendMessage($"{request.DisplayViewer} has granted you flight mode."), TimeSpan.FromSeconds(0.5),
+                    //        () => true, TimeSpan.FromSeconds(5),
+                    //        () => Connector.Write8(ADDR_Jump, 13), TimeSpan.FromSeconds(0.5), true)
+                    //        .WhenCompleted.ContinueWith(t => Connector.SendMessage($"{request.DisplayViewer} has removed your flight mode."));
+                    //        return;
+                    //  "Needs to freeze ADDR_Jump but unknown right now
+                    }
+
+                case "heavy":                   
+                    {
+                        StartTimed(request,
+                          () => Connector.Read8(ADDR_Speed, out byte b) && (b == 0x06),
+                          () =>
+                          {
+                              bool result = Connector.Write8(ADDR_Speed, 0x03);
+                              if (result) { Connector.SendMessage($"{request.DisplayViewer} lowered your speed (45s)."); }
+                              return result;
+                          },
+                          TimeSpan.FromSeconds(45));
+                        return;
+                    }
+
+                case "lvl1shot":
+                    {
+                        var a = RepeatAction(request,
+                        TimeSpan.FromSeconds(15),
+                        () => Connector.IsZero8(ADDR_Warrior), /*Effect Start Condition*/
+                        () => Connector.Freeze8(ADDR_Warrior, 0x08), /*Start Action*/
+                        TimeSpan.FromSeconds(1), /*Retry Timer*/
+                        () => Connector.IsNonZero8(ADDR_Condition), /*Refresh Condtion*/
+                        TimeSpan.FromMilliseconds(500), /*Refresh Retry Timer*/
+                        () => true, /*Action*/
+                        TimeSpan.FromSeconds(0.5),
+                        true);
+                        a.WhenStarted.Then(t => Connector.SendMessage($"{request.DisplayViewer} deployed an Mosaic Effect."));
+                        a.WhenCompleted.Then(t => Connector.SendMessage($"{request.DisplayViewer}'s Mosaic Effect has dispered."));
+                        return;
+                    }
+
+                case "lvl2shot":
+                    {
+                        var a = RepeatAction(request,
+                        TimeSpan.FromSeconds(15),
+                        () => Connector.IsZero8(ADDR_Warrior), /*Effect Start Condition*/
+                        () => Connector.Freeze8(ADDR_Warrior, 0x10), /*Start Action*/
+                        TimeSpan.FromSeconds(1), /*Retry Timer*/
+                        () => Connector.IsNonZero8(ADDR_Warrior), /*Refresh Condtion*/
+                        TimeSpan.FromMilliseconds(500), /*Refresh Retry Timer*/
+                        () => true, /*Action*/
+                        TimeSpan.FromSeconds(0.5),
+                        true);
+                        a.WhenStarted.Then(t => Connector.SendMessage($"{request.DisplayViewer} deployed an Mosaic Effect."));
+                        a.WhenCompleted.Then(t => Connector.SendMessage($"{request.DisplayViewer}'s Mosaic Effect has dispered."));
+                        return;
+                    }                                    
+
+                case "trishot":                
+                    {
+                        var a = RepeatAction(request,
+                        TimeSpan.FromSeconds(15),
+                        () => Connector.IsZero8(ADDR_Warrior), /*Effect Start Condition*/
+                        () => Connector.Freeze8(ADDR_Warrior, 0x68), /*Start Action*/
+                        TimeSpan.FromSeconds(1), /*Retry Timer*/
+                        () => Connector.IsNonZero8(ADDR_Warrior), /*Refresh Condtion*/
+                        TimeSpan.FromMilliseconds(500), /*Refresh Retry Timer*/
+                        () => true, /*Action*/
+                        TimeSpan.FromSeconds(0.5),
+                        true);
+                        a.WhenStarted.Then(t => Connector.SendMessage($"{request.DisplayViewer} deployed an Mosaic Effect."));
+                        a.WhenCompleted.Then(t => Connector.SendMessage($"{request.DisplayViewer}'s Mosaic Effect has dispered."));
+                        return;
+                    }
+
+                case "paralysis":
+                    {
+                        if (!Connector.Read8(ADDR_Condition, out byte con))
+                        {
+                            DelayEffect(request);
+                        }
+                        else if ((con) >= 0x01)
+                        {
+                            Respond(request, EffectStatus.FailPermanent, "Condition affected already");
+                        }
+                        else if (!Connector.SetBits(ADDR_Condition, 01, out _))
+                        {
+                            DelayEffect(request);
+                        }
+                        else
+                        {
+                            Connector.Write8(ADDR_Condition, 01);
+                            Connector.SendMessage($"{request.DisplayViewer} paralysis you");
+                        }
+                        return;
+                    }
+
+                case "timedparalysis":
+                    {
+                        StartTimed(request,
+                          () => Connector.Read8(ADDR_Condition, out byte b) && (b == 0x00),
+                          () =>
+                          {
+                              bool result = Connector.Write8(ADDR_Condition, 0x01);
+                              if (result) { Connector.SendMessage($"{request.DisplayViewer} paralysised you (15s)."); }
+                              return result;
+                          },
+                          TimeSpan.FromSeconds(15));
+                        return;
+                    }
+                               
+                case "poison":
+                    {
+                        if (!Connector.Read8(ADDR_Condition, out byte con))
+                        {
+                            DelayEffect(request);
+                        }
+                        else if ((con) >= 0x01)
+                        {
+                            Respond(request, EffectStatus.FailPermanent, "Condition affected already");
+                        }
+                        else if (!Connector.SetBits(ADDR_Condition, 03, out _))
+                        {
+                            DelayEffect(request);
+                        }
+                        else
+                        {
+                            Connector.Write8(ADDR_Condition, 03);
+                            Connector.SendMessage($"{request.DisplayViewer} poisoned you");
+                        }
+                        return;
+                    }
+
+                case "timedpoison":
+                    {
+                    StartTimed(request,
+                      () => Connector.Read8(ADDR_Condition, out byte b) && (b == 0x00),
+                      () =>
+                      {
+                          bool result = Connector.Write8(ADDR_Condition, 0x03);
+                          if (result) { Connector.SendMessage($"{request.DisplayViewer} poisoned you (15s)."); }
+                          return result;
+                      },
+                      TimeSpan.FromSeconds(15));
+                    return;
+                }
+
+                case "slime":  //Consider redoing this one to be repeat to ensure screen transition doesn't work.
+                    {
+                        if (!Connector.Read8(ADDR_Condition, out byte con))
+                        {
+                            DelayEffect(request);
+                        }
+                        else if ((con) >= 0x01)
+                        {
+                            Respond(request, EffectStatus.FailPermanent, "Condition affected already");
+                        }
+                        else if (!Connector.SetBits(ADDR_Condition, 04, out _))
+                        {
+                            DelayEffect(request);
+                        }
+                        else
+                        {
+                            Connector.Write8(ADDR_Condition, 04);
+                            Connector.SendMessage($"{request.DisplayViewer} slimed you");
+                        }
+                        return;
+                    }
+
+                case "timedslime": //Consider redoing this one to be repeat to ensure screen transition doesn't work.
+                    {
+                    StartTimed(request,
+                      () => Connector.Read8(ADDR_Condition, out byte b) && (b == 0x00),
+                      () =>
+                      {
+                          bool result = Connector.Write8(ADDR_Condition, 0x04);
+                          if (result) { Connector.SendMessage($"{request.DisplayViewer} slimed you (15s)."); }
+                          return result;
+                      },
+                      TimeSpan.FromSeconds(45));
+                    return;
+                }
+
+                case "bowind":
+                    {
+                        if (!Connector.Read8(ADDR_PowerSlot1, out byte bwind))
+                        {
+                            DelayEffect(request);
+                        }
+                        else if ((bwind) == 0x05)
+                        {
+                            Respond(request, EffectStatus.FailPermanent, "Ball of Wind already acqurired");
+                        }
+                        else if (!Connector.SetBits(ADDR_PowerSlot1, 05, out _))
+                        {
+                            DelayEffect(request);
+                        }
+                        else
+                        {
+                            Connector.Write8(ADDR_PowerSlot1, 05);
+                            Connector.SendMessage($"{request.DisplayViewer} sent Ball of Wind");
+                        }
+                        return;
+                    }
+
+                case "bofire":
+                    {
+                        if (!Connector.Read8(ADDR_PowerSlot2, out byte bfire))
+                        {
+                            DelayEffect(request);
+                        }
+                        else if ((bfire) == 0x07)
+                        {
+                            Respond(request, EffectStatus.FailPermanent, "Ball of Fire already acqurired");
+                        }
+                        else if (!Connector.SetBits(ADDR_PowerSlot2, 07, out _))
+                        {
+                            DelayEffect(request);
+                        }
+                        else
+                        {
+                            Connector.Write8(ADDR_PowerSlot2, 07);
+                            Connector.SendMessage($"{request.DisplayViewer} sent Ball of Fire");
+                        }
+                        return;
+                    }
+
+                case "bowater":
+                    {
+                        if (!Connector.Read8(ADDR_PowerSlot3, out byte bwater))
+                        {
+                            DelayEffect(request);
+                        }
+                        else if ((bwater) == 0x09)
+                        {
+                            Respond(request, EffectStatus.FailPermanent, "Ball of Water already acqurired");
+                        }
+                        else if (!Connector.SetBits(ADDR_PowerSlot3, 09, out _))
+                        {
+                            DelayEffect(request);
+                        }
+                        else
+                        {
+                            Connector.Write8(ADDR_PowerSlot3, 09);
+                            Connector.SendMessage($"{request.DisplayViewer} sent Ball of Water");
+                        }
+                        return;
+                    }
+
+                case "bothunder":
+                    {
+                        if (!Connector.Read8(ADDR_PowerSlot4, out byte bthunder))
+                        {
+                            DelayEffect(request);
+                        }
+                        else if ((bthunder) == 0x0B)
+                        {
+                            Respond(request, EffectStatus.FailPermanent, "Ball of Thunder already acqurired");
+                        }
+                        else if (!Connector.SetBits(ADDR_PowerSlot4, 0x0B, out _))
+                        {
+                            DelayEffect(request);
+                        }
+                        else
+                        {
+                            Connector.Write8(ADDR_PowerSlot4, 0x0B);
+                            Connector.SendMessage($"{request.DisplayViewer} sent Ball of Thunder");
+                        }
+                        return;
+                    }
+
+                case "brwind":
+                    {
+                        if (!Connector.Read8(ADDR_PowerSlot1, out byte brwind))
+                        {
+                            DelayEffect(request);
+                        }
+                        else if ((brwind) == 0xFF)
+                        {
+                            Respond(request, EffectStatus.FailPermanent, "Send Ball of Wind First");
+                        }
+                        else if ((brwind) == 0x06)
+                        {
+                            Respond(request, EffectStatus.FailPermanent, "Tornado Bracelet already acqurired");
+                        }
+                        else if (!Connector.SetBits(ADDR_PowerSlot1, 0x06, out _))
+                        {
+                            DelayEffect(request);
+                        }
+                        else
+                        {
+                            Connector.Write8(ADDR_PowerSlot1, 0x06);
+                            Connector.SendMessage($"{request.DisplayViewer} sent Tornado Bracelet.");
+                        }
+                        return;
+                    }
+
+                case "brfire":
+                    {
+                        if (!Connector.Read8(ADDR_PowerSlot2, out byte brfire))
+                        {
+                            DelayEffect(request);
+                        }
+                        else if ((brfire) == 0xFF)
+                        {
+                            Respond(request, EffectStatus.FailPermanent, "Send Ball of Fire First");
+                        }
+                        else if ((brfire) == 0x08)
+                        {
+                            Respond(request, EffectStatus.FailPermanent, "Flame Bracelet  already acqurired");
+                        }
+                        else if (!Connector.SetBits(ADDR_PowerSlot2, 0x08, out _))
+                        {
+                            DelayEffect(request);
+                        }
+                        else
+                        {
+                            Connector.Write8(ADDR_PowerSlot2, 0x08);
+                            Connector.SendMessage($"{request.DisplayViewer} sent Flame Bracelet.");
+                        }
+                        return;
+                    }
+
+                case "brwater":
+                    {
+                        if (!Connector.Read8(ADDR_PowerSlot3, out byte brwater))
+                        {
+                            DelayEffect(request);
+                        }
+                        else if ((brwater) == 0xFF)
+                        {
+                            Respond(request, EffectStatus.FailPermanent, "Send Ball of Water First");
+                        }
+                        else if ((brwater) == 0x0A)
+                        {
+                            Respond(request, EffectStatus.FailPermanent, "Blizzard Bracelet already acqurired");
+                        }
+                        else if (!Connector.SetBits(ADDR_PowerSlot3, 0x0A, out _))
+                        {
+                            DelayEffect(request);
+                        }
+                        else
+                        {
+                            Connector.Write8(ADDR_PowerSlot3, 0x0A);
+                            Connector.SendMessage($"{request.DisplayViewer} sent Blizzard Bracelet");
+                        }
+                        return;
+                    }
+
+                case "brthunder":
+                    {
+                        if (!Connector.Read8(ADDR_PowerSlot4, out byte brthunder))
+                        {
+                            DelayEffect(request);
+                        }
+                        else if ((brthunder) == 0xFF)
+                        {
+                            Respond(request, EffectStatus.FailPermanent, "Send Ball of Thunder First");
+                        }
+                        else if ((brthunder) == 0x0C)
+                        {
+                            Respond(request, EffectStatus.FailPermanent, "Storm Bracelet already acqurired");
+                        }
+                        else if (!Connector.SetBits(ADDR_PowerSlot4, 0x0C, out _))
+                        {
+                            DelayEffect(request);
+                        }
+                        else
+                        {
+                            Connector.Write8(ADDR_PowerSlot4, 0x0C);
+                            Connector.SendMessage($"{request.DisplayViewer} sent Storm Bracelet");
+                        }
+                        return;
+                    }
+
+                case "stealbowind":
+                    {
+                        if (!Connector.Read8(ADDR_PowerSlot1, out byte bwind))
+                        {
+                            DelayEffect(request);
+                        }
+                        else if ((bwind) == 0x06)
+                        {
+                            Respond(request, EffectStatus.FailPermanent, "Steal Tornado Bracelet First");
+                        }
+                        else if ((bwind) == 0xFF)
+                        {
+                            Respond(request, EffectStatus.FailPermanent, "Ball of Wind not acqurired");
+                        }
+                        else if (!Connector.SetBits(ADDR_PowerSlot1, 0xFF, out _))
+                        {
+                            DelayEffect(request);
+                        }
+                        else
+                        {
+                            Connector.Write8(ADDR_PowerSlot1, 0xFF);
+                            Connector.SendMessage($"{request.DisplayViewer} stole Ball of Wind");
+                        }
+                        return;
+                    }
+
+                case "stealbofire":
+                    {
+                        if (!Connector.Read8(ADDR_PowerSlot2, out byte bfire))
+                        {
+                            DelayEffect(request);
+                        }
+                        else if ((bfire) == 0x07)
+                        {
+                            Respond(request, EffectStatus.FailPermanent, "Steal Flame Bracelet First");
+                        }
+                        else if ((bfire) == 0xFF)
+                        {
+                            Respond(request, EffectStatus.FailPermanent, "Ball of Fire not acqurired");
+                        }
+                        else if (!Connector.SetBits(ADDR_PowerSlot2, 0xFF, out _))
+                        {
+                            DelayEffect(request);
+                        }
+                        else
+                        {
+                            Connector.Write8(ADDR_PowerSlot2, 0xFF);
+                            Connector.SendMessage($"{request.DisplayViewer} stole Ball of Fire");
+                        }
+                        return;
+                    }
+
+                case "stealbowater":
+                    {
+                        if (!Connector.Read8(ADDR_PowerSlot3, out byte bwater))
+                        {
+                            DelayEffect(request);
+                        }
+                        else if ((bwater) == 0x0A)
+                        {
+                            Respond(request, EffectStatus.FailPermanent, "Steal Blizzard Bracelet First");
+                        }
+                        else if ((bwater) == 0xFF)
+                        {
+                            Respond(request, EffectStatus.FailPermanent, "Ball of Water not acqurired");
+                        }
+                        else if (!Connector.SetBits(ADDR_PowerSlot3, 0xFF, out _))
+                        {
+                            DelayEffect(request);
+                        }
+                        else
+                        {
+                            Connector.Write8(ADDR_PowerSlot3, 0xFF);
+                            Connector.SendMessage($"{request.DisplayViewer} stole Ball of Water");
+                        }
+                        return;
+                    }
+
+                case "stealbothunder":
+                    {
+                        if (!Connector.Read8(ADDR_PowerSlot4, out byte bthunder))
+                        {
+                            DelayEffect(request);
+                        }
+                        else if ((bthunder) == 0x0B)
+                        {
+                            Respond(request, EffectStatus.FailPermanent, "Steal Storm Bracelet First");
+                        }
+                        else if ((bthunder) == 0xFF)
+                        {
+                            Respond(request, EffectStatus.FailPermanent, "Ball of Thunder not acqurired");
+                        }
+                        else if (!Connector.SetBits(ADDR_PowerSlot4, 0xFF, out _))
+                        {
+                            DelayEffect(request);
+                        }
+                        else
+                        {
+                            Connector.Write8(ADDR_PowerSlot4, 0xFF);
+                            Connector.SendMessage($"{request.DisplayViewer} stole Ball of Thunder");
+                        }
+                        return;
+                    }
+
+                case "stealbrwind":
+                    {
+                        if (!Connector.Read8(ADDR_PowerSlot1, out byte bwind))
+                        {
+                            DelayEffect(request);
+                        }
+                        else if ((bwind) == 0xFF)
+                        {
+                            Respond(request, EffectStatus.FailPermanent, "No Wind Upgrade not acqurired");
+                        }
+                        else if ((bwind) == 0x05)
+                        {
+                            Respond(request, EffectStatus.FailPermanent, "Tornado Bracelet not acqurired");
+                        }
+                        else if (!Connector.SetBits(ADDR_PowerSlot1, 0x05, out _))
+                        {
+                            DelayEffect(request);
+                        }
+                        else
+                        {
+                            Connector.Write8(ADDR_PowerSlot1, 0x05);
+                            Connector.SendMessage($"{request.DisplayViewer} stole Tornado Bracelet");
+                        }
+                        return;
+                    }
+
+                case "stealbrfire":
+                    {
+                        if (!Connector.Read8(ADDR_PowerSlot2, out byte bfire))
+                        {
+                            DelayEffect(request);
+                        }
+                        else if ((bfire) == 0xFF)
+                        {
+                            Respond(request, EffectStatus.FailPermanent, "No Fire Upgrade not acqurired");
+                        }
+                        else if ((bfire) == 0x07)
+                        {
+                            Respond(request, EffectStatus.FailPermanent, "Flame Bracelet not acqurired");
+                        }
+                        else if (!Connector.SetBits(ADDR_PowerSlot2, 0x07, out _))
+                        {
+                            DelayEffect(request);
+                        }
+                        else
+                        {
+                            Connector.Write8(ADDR_PowerSlot2, 0x07);
+                            Connector.SendMessage($"{request.DisplayViewer} stole Flame Bracelet.");
+                        }
+                        return;
+                    }
+
+                case "stealbrwater":
+                    {
+                        if (!Connector.Read8(ADDR_PowerSlot3, out byte bwater))
+                        {
+                            DelayEffect(request);
+                        }
+                        else if ((bwater) == 0xFF)
+                        {
+                            Respond(request, EffectStatus.FailPermanent, "No Water Upgrade not acqurired");
+                        }
+                        else if ((bwater) == 0x09)
+                        {
+                            Respond(request, EffectStatus.FailPermanent, "Blizzard Bracelet not acqurired");
+                        }
+                        else if (!Connector.SetBits(ADDR_PowerSlot3, 0x09, out _))
+                        {
+                            DelayEffect(request);
+                        }
+                        else
+                        {
+                            Connector.Write8(ADDR_PowerSlot3, 0x09);
+                            Connector.SendMessage($"{request.DisplayViewer} stole Blizzard Bracelet.");
+                        }
+                        return;
+                    }
+
+                case "stealbrthunder":
+                    {
+                        if (!Connector.Read8(ADDR_PowerSlot4, out byte bthunder))
+                        {
+                            DelayEffect(request);
+                        }
+                        else if ((bthunder) == 0xFF)
+                        {
+                            Respond(request, EffectStatus.FailPermanent, "No Thunder Upgrade not acqurired");
+                        }
+                        else if ((bthunder) == 0x0B)
+                        {
+                            Respond(request, EffectStatus.FailPermanent, "Storm Bracelet not acqurired");
+                        }
+                        else if (!Connector.SetBits(ADDR_PowerSlot4, 0x0B, out _))
+                        {
+                            DelayEffect(request);
+                        }
+                        else
+                        {
+                            Connector.Write8(ADDR_PowerSlot4, 0x0B);
+                            Connector.SendMessage($"{request.DisplayViewer} stole Storm Bracelet.");
+                        }
+                        return;
+                    }
+
+                case "barmor":
+                    {
+                        //Slot 1 Check
+                        if (!Connector.Read8(ADDR_ArmorSlot1, out byte barmorone))
+                        {
+                            DelayEffect(request);
+                        }
+                        else if ((barmorone) < 0xFF)
+                        {
+                            //Slot 2 Check
+                            if (!Connector.Read8(ADDR_ArmorSlot2, out byte barmor2))
+                            {
+                                DelayEffect(request);
+                            }
+                            //Battle Armor Sent Already Check
+                            else if ((barmorone) == 0x1B)
+                            {
+                                Respond(request, EffectStatus.FailPermanent, "Battle Armor aquired already slot 1");
+                            }
+                            else if ((barmor2) == 0x1B)
+                            {
+                                Respond(request, EffectStatus.FailPermanent, "Battle Armor aquired already slot 2");
+                            }
+
+                            else if ((barmor2) < 0xFF)
+                            {
+                                //Slot 3 Check
+                                if (!Connector.Read8(ADDR_ArmorSlot3, out byte barmor3))
+                                {
+                                    DelayEffect(request);
+                                }
+                                //Battle Armor Sent Already Check
+                                else if ((barmor3) == 0x1B)
+                                {
+                                    Respond(request, EffectStatus.FailPermanent, "Battle Armor aquired already slot 3");
+                                }
+                                else if ((barmor3) < 0xFF)
+                                {
+                                    //Slot 4 Check
+                                    if (!Connector.Read8(ADDR_ArmorSlot4, out byte barmor4))
+                                    {
+                                        DelayEffect(request);
+                                    }
+                                    //Battle Armor Sent Already Check
+                                    else if ((barmor4) == 0x1B)
+                                    {
+                                        Respond(request, EffectStatus.FailPermanent, "Battle Armor aquired already slot 4");
+                                    }
+                                    else if ((barmor4) < 0xFF)
+                                    {
+                                        Respond(request, EffectStatus.FailPermanent, "Slot 4 not open");
+                                    }
+                                    //Slot 4 Write
+                                    else if (!Connector.SetBits(ADDR_ArmorSlot4, 0x1B, out _))
+                                    {
+                                        DelayEffect(request);
+                                    }
+                                    else
+                                    {
+                                        Connector.Write8(ADDR_ArmorSlot4, 0x1B);
+                                        Connector.SendMessage($"{request.DisplayViewer} gave you Battle Armor");
+                                    }
+                                    return;
+                                }
+                                //Slot 3 Write
+                                else if (!Connector.SetBits(ADDR_ArmorSlot3, 0x1B, out _))
+                                {
+                                    DelayEffect(request);
+                                }
+                                else
+                                {
+                                    Connector.Write8(ADDR_ArmorSlot3, 0x1B);
+                                    Connector.SendMessage($"{request.DisplayViewer} gave you Battle Armor");
+                                }
+                                return;
+                            }
+                            //Slot 2 Write
+                            else if (!Connector.SetBits(ADDR_ArmorSlot2, 0x1B, out _))
+                            {
+                                DelayEffect(request);
+                            }
+                            else
+                            {
+                                Connector.Write8(ADDR_ArmorSlot2, 0x1B);
+                                Connector.SendMessage($"{request.DisplayViewer} gave you Battle Armor");
+                            }
+                            return;
+                        }
+
+                        else if (!Connector.SetBits(ADDR_ArmorSlot1, 0x1B, out _))
+                        {
+                            DelayEffect(request);
+                        }
+                        else
+                        {
+                            Connector.Write8(ADDR_ArmorSlot1, 0x1B);
+                            Connector.SendMessage($"{request.DisplayViewer} gave you Battle Armor");
+                        }
+                        return;
+                    }
+
+                case "parmor":
+                    {
+                        //Slot 1 Check
+                        if (!Connector.Read8(ADDR_ArmorSlot1, out byte parmor1))
+                        {
+                            DelayEffect(request);
+                        }
+                        else if ((parmor1) < 0xFF)
+                        {
+                            //Slot 2 Check
+                            if (!Connector.Read8(ADDR_ArmorSlot2, out byte parmor2))
+                            {
+                                DelayEffect(request);
+                            }
+                            //Psycho Armor Sent Already Check
+                            else if ((parmor1) == 0x1C)
+                            {
+                                Respond(request, EffectStatus.FailPermanent, "Psycho Armor aquired already slot 1");
+                            }
+                            else if ((parmor2) == 0x1C)
+                            {
+                                Respond(request, EffectStatus.FailPermanent, "Psycho Armor aquired already slot 2");
+                            }
+
+                            else if ((parmor2) < 0xFF)
+                            {
+                                //Slot 3 Check
+                                if (!Connector.Read8(ADDR_ArmorSlot3, out byte parmor3))
+                                {
+                                    DelayEffect(request);
+                                }
+                                //Psycho Armor Sent Already Check
+                                else if ((parmor3) == 0x1C)
+                                {
+                                    Respond(request, EffectStatus.FailPermanent, "Psycho Armor aquired already slot 3");
+                                }
+                                else if ((parmor3) < 0xFF)
+                                {
+                                    //Slot 4 Check
+                                    if (!Connector.Read8(ADDR_ArmorSlot4, out byte parmor4))
+                                    {
+                                        DelayEffect(request);
+                                    }
+                                    //Psycho Armor Sent Already Check
+                                    else if ((parmor4) == 0x1C)
+                                    {
+                                        Respond(request, EffectStatus.FailPermanent, "Psycho Armor aquired already slot 4");
+                                    }
+                                    else if ((parmor4) < 0xFF)
+                                    {
+                                        Respond(request, EffectStatus.FailPermanent, "Slot 4 not open");
+                                    }
+                                    //Slot 4 Write
+                                    else if (!Connector.SetBits(ADDR_ArmorSlot4, 0x1C, out _))
+                                    {
+                                        DelayEffect(request);
+                                    }
+                                    else
+                                    {
+                                        Connector.Write8(ADDR_ArmorSlot4, 0x1C);
+                                        Connector.SendMessage($"{request.DisplayViewer} gave you Psycho Armor");
+                                    }
+                                    return;
+                                }
+                                //Slot 3 Write
+                                else if (!Connector.SetBits(ADDR_ArmorSlot3, 0x1C, out _))
+                                {
+                                    DelayEffect(request);
+                                }
+                                else
+                                {
+                                    Connector.Write8(ADDR_ArmorSlot3, 0x1C);
+                                    Connector.SendMessage($"{request.DisplayViewer} gave you Psycho Armor");
+                                }
+                                return;
+                            }
+                            //Slot 2 Write
+                            else if (!Connector.SetBits(ADDR_ArmorSlot2, 0x1C, out _))
+                            {
+                                DelayEffect(request);
+                            }
+                            else
+                            {
+                                Connector.Write8(ADDR_ArmorSlot2, 0x1C);
+                                Connector.SendMessage($"{request.DisplayViewer} gave you Psycho Armor");
+                            }
+                            return;
+                        }
+
+                        else if (!Connector.SetBits(ADDR_ArmorSlot1, 0x1C, out _))
+                        {
+                            DelayEffect(request);
+                        }
+                        else
+                        {
+                            Connector.Write8(ADDR_ArmorSlot1, 0x1C);
+                            Connector.SendMessage($"{request.DisplayViewer} gave you Psycho Armor");
+                        }
+                        return;
+                    }
+
+                case "pshield":
+                    {
+                        //Slot 1 Check
+                        if (!Connector.Read8(ADDR_ShieldSlot1, out byte pshield1))
+                        {
+                            DelayEffect(request);
+                        }
+                        else if ((pshield1) < 0xFF)
+                        {
+                            //Slot 2 Check
+                            if (!Connector.Read8(ADDR_ShieldSlot2, out byte pshield2))
+                            {
+                                DelayEffect(request);
+                            }
+                            //Psycho Shield Sent Already Check
+                            else if ((pshield1) == 0x14)
+                            {
+                                Respond(request, EffectStatus.FailPermanent, "Psycho Shield aquired already slot 1");
+                            }
+                            else if ((pshield2) == 0x14)
+                            {
+                                Respond(request, EffectStatus.FailPermanent, "Psycho Shield aquired already slot 2");
+                            }
+
+                            else if ((pshield2) < 0xFF)
+                            {
+                                //Slot 3 Check
+                                if (!Connector.Read8(ADDR_ShieldSlot3, out byte pshield3))
+                                {
+                                    DelayEffect(request);
+                                }
+                                //Psycho Shield Sent Already Check
+                                else if ((pshield3) == 0x14)
+                                {
+                                    Respond(request, EffectStatus.FailPermanent, "Psycho Shield aquired already slot 3");
+                                }
+                                else if ((pshield3) < 0xFF)
+                                {
+                                    //Slot 4 Check
+                                    if (!Connector.Read8(ADDR_ShieldSlot4, out byte pshield4))
+                                    {
+                                        DelayEffect(request);
+                                    }
+                                    //Psycho Shield Sent Already Check
+                                    else if ((pshield4) == 0x14)
+                                    {
+                                        Respond(request, EffectStatus.FailPermanent, "Psycho Shield aquired already slot 4");
+                                    }
+                                    else if ((pshield4) < 0xFF)
+                                    {
+                                        Respond(request, EffectStatus.FailPermanent, "Slot 4 not open");
+                                    }
+                                    //Slot 4 Write
+                                    else if (!Connector.SetBits(ADDR_ShieldSlot4, 0x14, out _))
+                                    {
+                                        DelayEffect(request);
+                                    }
+                                    else
+                                    {
+                                        Connector.Write8(ADDR_ShieldSlot4, 0x14);
+                                        Connector.SendMessage($"{request.DisplayViewer} gave you Psycho Shield");
+                                    }
+                                    return;
+                                }
+                                //Slot 3 Write
+                                else if (!Connector.SetBits(ADDR_ArmorSlot3, 0x14, out _))
+                                {
+                                    DelayEffect(request);
+                                }
+                                else
+                                {
+                                    Connector.Write8(ADDR_ShieldSlot3, 0x14);
+                                    Connector.SendMessage($"{request.DisplayViewer} gave you Psycho Shield");
+                                }
+                                return;
+                            }
+                            //Slot 2 Write
+                            else if (!Connector.SetBits(ADDR_ShieldSlot2, 0x14, out _))
+                            {
+                                DelayEffect(request);
+                            }
+                            else
+                            {
+                                Connector.Write8(ADDR_ShieldSlot2, 0x14);
+                                Connector.SendMessage($"{request.DisplayViewer} gave you Psycho Shield");
+                            }
+                            return;
+                        }
+                        //Slot 1 Write
+                        else if (!Connector.SetBits(ADDR_ShieldSlot1, 0x14, out _))
+                        {
+                            DelayEffect(request);
+                        }
+                        else
+                        {
+                            Connector.Write8(ADDR_ShieldSlot1, 0x14);
+                            Connector.SendMessage($"{request.DisplayViewer} gave you Psycho Shield");
+                        }
+                        return;
+                    }
+
+                case "sshield":
+                    {
+                        //Slot 1 Check
+                        if (!Connector.Read8(ADDR_ShieldSlot1, out byte sshield1))
+                        {
+                            DelayEffect(request);
+                        }
+                        else if ((sshield1) < 0xFF)
+                        {
+                            //Slot 2 Check
+                            if (!Connector.Read8(ADDR_ShieldSlot2, out byte sshield2))
+                            {
+                                DelayEffect(request);
+                            }
+                            //Sacred Shield Sent Already Check
+                            else if ((sshield1) == 0x12)
+                            {
+                                Respond(request, EffectStatus.FailPermanent, "Sacred Shield aquired already slot 1");
+                            }
+                            else if ((sshield2) == 0x12)
+                            {
+                                Respond(request, EffectStatus.FailPermanent, "Sacred Shield aquired already slot 2");
+                            }
+
+                            else if ((sshield2) < 0xFF)
+                            {
+                                //Slot 3 Check
+                                if (!Connector.Read8(ADDR_ShieldSlot3, out byte sshield3))
+                                {
+                                    DelayEffect(request);
+                                }
+                                //Sacred Shield Sent Already Check
+                                else if ((sshield3) == 0x12)
+                                {
+                                    Respond(request, EffectStatus.FailPermanent, "Sacred Shield aquired already slot 3");
+                                }
+                                else if ((sshield3) < 0xFF)
+                                {
+                                    //Slot 4 Check
+                                    if (!Connector.Read8(ADDR_ShieldSlot4, out byte sshield4))
+                                    {
+                                        DelayEffect(request);
+                                    }
+                                    //Sacred Shield Sent Already Check
+                                    else if ((sshield4) == 0x12)
+                                    {
+                                        Respond(request, EffectStatus.FailPermanent, "Sacred Shield aquired already slot 4");
+                                    }
+                                    else if ((sshield4) < 0xFF)
+                                    {
+                                        Respond(request, EffectStatus.FailPermanent, "Slot 4 not open");
+                                    }
+                                    //Slot 4 Write
+                                    else if (!Connector.SetBits(ADDR_ShieldSlot4, 0x12, out _))
+                                    {
+                                        DelayEffect(request);
+                                    }
+                                    else
+                                    {
+                                        Connector.Write8(ADDR_ShieldSlot4, 0x12);
+                                        Connector.SendMessage($"{request.DisplayViewer} gave you Sacred Shield");
+                                    }
+                                    return;
+                                }
+                                //Slot 3 Write
+                                else if (!Connector.SetBits(ADDR_ArmorSlot3, 0x12, out _))
+                                {
+                                    DelayEffect(request);
+                                }
+                                else
+                                {
+                                    Connector.Write8(ADDR_ShieldSlot3, 0x12);
+                                    Connector.SendMessage($"{request.DisplayViewer} gave you Sacred Shield");
+                                }
+                                return;
+                            }
+                            //Slot 2 Write
+                            else if (!Connector.SetBits(ADDR_ShieldSlot2, 0x12, out _))
+                            {
+                                DelayEffect(request);
+                            }
+                            else
+                            {
+                                Connector.Write8(ADDR_ShieldSlot2, 0x12);
+                                Connector.SendMessage($"{request.DisplayViewer} gave you Sacred Shield");
+                            }
+                            return;
+                        }
+                        //Slot 1 Write
+                        else if (!Connector.SetBits(ADDR_ShieldSlot1, 0x12, out _))
+                        {
+                            DelayEffect(request);
+                        }
+                        else
+                        {
+                            Connector.Write8(ADDR_ShieldSlot1, 0x12);
+                            Connector.SendMessage($"{request.DisplayViewer} gave you Sacred Shield");
+                        }
+                        return;
+                    }
+
+                case "clear":
+                    {
+                        if (!Connector.Read8(ADDR_ConsumeSlot1, out byte con1))
+                        {
+                            DelayEffect(request);
+                        }
+                        else if ((con1) < 0xFF)
+
+                            if (!Connector.Read8(ADDR_ConsumeSlot2, out byte con2))
+                            {
+                                DelayEffect(request);
+                            }
+                            else if ((con2) < 0xFF)
+
+                                if (!Connector.Read8(ADDR_ConsumeSlot3, out byte con3))
+                                {
+                                    DelayEffect(request);
+                                }
+                                else if ((con3) < 0xFF)
+
+                                    if (!Connector.Read8(ADDR_ConsumeSlot4, out byte con4))
+                                    {
+                                        DelayEffect(request);
+                                    }
+                                    else if ((con4) < 0xFF)
+
+                                        if (!Connector.Read8(ADDR_ConsumeSlot5, out byte con5))
+                                        {
+                                            DelayEffect(request);
+                                        }
+                                        else if ((con5) < 0xFF)
+
+                                            if (!Connector.Read8(ADDR_ConsumeSlot6, out byte con6))
+                                            {
+                                                DelayEffect(request);
+                                            }
+                                            else if ((con6) < 0xFF)
+
+                                                if (!Connector.Read8(ADDR_ConsumeSlot7, out byte con7))
+                                                {
+                                                    DelayEffect(request);
+                                                }
+                                                else if ((con7) < 0xFF)
+
+
+
+                                                    if (!Connector.Read8(ADDR_ConsumeSlot8, out byte con8))
+                                                    {
+                                                        DelayEffect(request);
+                                                    }
+                                                    else if ((con8) < 0xFF)
+
+                                                        if (!Connector.SetBits(ADDR_ConsumeSlot8, 0xFF, out _))
+                                                            DelayEffect(request);
+
+                                                        else
+                                                        {
+                                                            Connector.Write8(ADDR_ConsumeSlot8, 0xFF);
+                                                            Connector.SendMessage($"{request.DisplayViewer} stole your inventory SLOT 8");
+                                                        }
+
+                        if (!Connector.SetBits(ADDR_ConsumeSlot7, 0xFF, out _))
+                            DelayEffect(request);
+
+                        else
+                        {
+                            Connector.Write8(ADDR_ConsumeSlot7, 0xFF);
+                            Connector.SendMessage($"{request.DisplayViewer} stole your inventory SLOT 7");
+                        }
+
+
+                        if (!Connector.SetBits(ADDR_ConsumeSlot6, 0xFF, out _))
+                            DelayEffect(request);
+
+                        else
+                        {
+                            Connector.Write8(ADDR_ConsumeSlot6, 0xFF);
+                            Connector.SendMessage($"{request.DisplayViewer} stole your inventory SLOT 6");
+                        }
+
+                        if (!Connector.SetBits(ADDR_ConsumeSlot5, 0xFF, out _))
+                            DelayEffect(request);
+
+                        else
+                        {
+                            Connector.Write8(ADDR_ConsumeSlot5, 0xFF);
+                            Connector.SendMessage($"{request.DisplayViewer} stole your inventory SLOT 5");
+                        }
+
+                        if (!Connector.SetBits(ADDR_ConsumeSlot4, 0xFF, out _))
+                            DelayEffect(request);
+
+                        else
+                        {
+                            Connector.Write8(ADDR_ConsumeSlot4, 0xFF);
+                            Connector.SendMessage($"{request.DisplayViewer} stole your inventory SLOT 4");
+                        }
+
+
+                        if (!Connector.SetBits(ADDR_ConsumeSlot3, 0xFF, out _))
+                            DelayEffect(request);
+
+                        else
+                        {
+                            Connector.Write8(ADDR_ConsumeSlot3, 0xFF);
+                            Connector.SendMessage($"{request.DisplayViewer} stole your inventory SLOT 3");
+                        }
+
+
+
+                        if (!Connector.SetBits(ADDR_ConsumeSlot2, 0xFF, out _))
+                            DelayEffect(request);
+
+                        else
+                        {
+                            Connector.Write8(ADDR_ConsumeSlot2, 0xFF);
+                            Connector.SendMessage($"{request.DisplayViewer} stole your inventory SLOT 2");
+                        }
+                        if (!Connector.SetBits(ADDR_ConsumeSlot1, 0xFF, out _))
+                            DelayEffect(request);
+
+                        else
+                        {
+                            Connector.Write8(ADDR_ConsumeSlot1, 0xFF);
+                            Connector.SendMessage($"{request.DisplayViewer} stole your inventory SLOT 1");
+                        }
+                        return;
+
+                    }
+
+                case "allfol":
+                    {                        
+                        if (!Connector.Read8(ADDR_ConsumeSlot1, out byte con1))
+                        {
+                            DelayEffect(request);
+                        }
+                        else if ((con1) <= 0xFF)
+
+                            if (!Connector.Read8(ADDR_ConsumeSlot2, out byte con2))
+                            {
+                                DelayEffect(request);
+                            }
+                            else if ((con2) <= 0xFF)
+
+                                if (!Connector.Read8(ADDR_ConsumeSlot3, out byte con3))
+                                {
+                                    DelayEffect(request);
+                                }
+                                else if ((con3) <= 0xFF)
+
+                                    if (!Connector.Read8(ADDR_ConsumeSlot4, out byte con4))
+                                    {
+                                        DelayEffect(request);
+                                    }
+                                    else if ((con4) <= 0xFF)
+
+                                        if (!Connector.Read8(ADDR_ConsumeSlot5, out byte con5))
+                                        {
+                                            DelayEffect(request);
+                                        }
+                                        else if ((con5) <= 0xFF)
+
+                                            if (!Connector.Read8(ADDR_ConsumeSlot6, out byte con6))
+                                            {
+                                                DelayEffect(request);
+                                            }
+                                            else if ((con6) <= 0xFF)
+
+                                                if (!Connector.Read8(ADDR_ConsumeSlot7, out byte con7))
+                                                {
+                                                    DelayEffect(request);
+                                                }
+                                                else if ((con7) <= 0xFF)
+
+
+
+                                                    if (!Connector.Read8(ADDR_ConsumeSlot8, out byte con8))
+                                                    {
+                                                        DelayEffect(request);
+                                                    }
+                                                    else if ((con8) <= 0xFF)
+
+                                                        if (!Connector.SetBits(ADDR_ConsumeSlot8, 0x20, out _))
+                                                            DelayEffect(request);
+
+                                                        else
+                                                        {
+                                                            Connector.Write8(ADDR_ConsumeSlot8, 0x20);
+                                                            Connector.SendMessage($"{request.DisplayViewer} Stomp");
+                                                        }
+
+                        if (!Connector.SetBits(ADDR_ConsumeSlot7, 0x20, out _))
+                            DelayEffect(request);
+
+                        else
+                        {
+                            Connector.Write8(ADDR_ConsumeSlot7, 0x20);
+                            Connector.SendMessage($"{request.DisplayViewer} Stomp");
+                        }
+
+
+                        if (!Connector.SetBits(ADDR_ConsumeSlot6, 0x20, out _))
+                            DelayEffect(request);
+
+                        else
+                        {
+                            Connector.Write8(ADDR_ConsumeSlot6, 0x20);
+                            Connector.SendMessage($"{request.DisplayViewer} Stomp");
+                        }
+
+                        if (!Connector.SetBits(ADDR_ConsumeSlot5, 0x20, out _))
+                            DelayEffect(request);
+
+                        else
+                        {
+                            Connector.Write8(ADDR_ConsumeSlot5, 0x20);
+                            Connector.SendMessage($"{request.DisplayViewer} Stomp");
+                        }
+
+                        if (!Connector.SetBits(ADDR_ConsumeSlot4, 0x20, out _))
+                            DelayEffect(request);
+
+                        else
+                        {
+                            Connector.Write8(ADDR_ConsumeSlot4, 0x20);
+                            Connector.SendMessage($"{request.DisplayViewer} Stomp");
+                        }
+
+
+                        if (!Connector.SetBits(ADDR_ConsumeSlot3, 0x20, out _))
+                            DelayEffect(request);
+
+                        else
+                        {
+                            Connector.Write8(ADDR_ConsumeSlot3, 0x20);
+                            Connector.SendMessage($"{request.DisplayViewer} Stomp");
+                        }
+
+
+
+                        if (!Connector.SetBits(ADDR_ConsumeSlot2, 0x20, out _))
+                            DelayEffect(request);
+
+                        else
+                        {
+                            Connector.Write8(ADDR_ConsumeSlot2, 0x20);
+                            Connector.SendMessage($"{request.DisplayViewer} Stomp");
+                        }
+                        if (!Connector.SetBits(ADDR_ConsumeSlot1, 0x20, out _))
+                            DelayEffect(request);
+
+                        else
+                        {
+                            Connector.Write8(ADDR_ConsumeSlot1, 0x20);
+                            Connector.SendMessage($"{request.DisplayViewer} Stomp");
+                        }
+                        return;
+
+                    }
+
+                case "giveherb":
+                    {
+                        if (!Connector.Read8(ADDR_ConsumeSlot8, out byte consumeslot))
+                        {
+                            DelayEffect(request);
+                        }
+                        else if ((consumeslot) < 0xFF)
+                        {
+                            Respond(request, EffectStatus.FailPermanent, "No slot avaliable");
+                        }
+                        else if (!Connector.SetBits(ADDR_ConsumeSlot8, 0x1D, out _))
+                        {
+                            DelayEffect(request);
+                        }
+                        else
+                        {
+                            Connector.Write8(ADDR_ConsumeSlot8, 0x1D);
+                            Connector.SendMessage($"{request.DisplayViewer} sent Medical Herb");
+                        }
+                        return;
+                    }
+
+                case "stealherb":
+                    var herb = 0x1D;
+                    {
+                        if (!Connector.Read8(ADDR_ConsumeSlot1, out byte con1))
+                        {
+                            DelayEffect(request);
+                        }
+                        else if ((con1) != herb)
+                        {                            
+                            if (!Connector.Read8(ADDR_ConsumeSlot2, out byte con2))
+                            {
+                                DelayEffect(request);
+                            }
+                            else if ((con2) != herb)
+                            {                                
+                                if (!Connector.Read8(ADDR_ConsumeSlot3, out byte con3))
+                                {
+                                    DelayEffect(request);
+                                }
+                                else if ((con3) != herb)
+                                {
+                                    if (!Connector.Read8(ADDR_ConsumeSlot4, out byte con4))
+                                    {
+                                        DelayEffect(request);
+                                    }
+                                    else if ((con4) != herb)
+                                    {
+                                        if (!Connector.Read8(ADDR_ConsumeSlot5, out byte con5))
+                                        {
+                                            DelayEffect(request);
+                                        }
+                                        else if ((con5) != herb)
+                                        {
+                                            if (!Connector.Read8(ADDR_ConsumeSlot6, out byte con6))
+                                            {
+                                                DelayEffect(request);
+                                            }
+                                            else if ((con6) != herb)
+                                            {
+                                                if (!Connector.Read8(ADDR_ConsumeSlot7, out byte con7))
+                                                {
+                                                    DelayEffect(request);
+                                                }
+                                                else if ((con7) != herb)
+                                                {
+                                                    if (!Connector.Read8(ADDR_ConsumeSlot8, out byte con8))
+                                                    {
+                                                        DelayEffect(request);
+                                                    }
+                                                    else if ((con8) != herb)
+                                                    {
+                                                        Respond(request, EffectStatus.FailPermanent, "No Medical Herb in inventory");
+                                                    }
+                                                    else if (!Connector.SetBits(ADDR_ConsumeSlot8, 0xFF, out _))
+                                                    {
+                                                        DelayEffect(request);
+                                                    }
+                                                    else
+                                                    {
+                                                        Connector.Write8(ADDR_ConsumeSlot8, 0xFF);
+                                                        Connector.SendMessage($"{request.DisplayViewer} took Medical Herb");
+                                                    }
+                                                }
+                                                else if (!Connector.SetBits(ADDR_ConsumeSlot7, 0xFF, out _))
+                                                {
+                                                    DelayEffect(request);
+                                                }
+                                                else
+                                                {
+                                                    Connector.Write8(ADDR_ConsumeSlot7, 0xFF);
+                                                    Connector.SendMessage($"{request.DisplayViewer} took Medical Herb");
+                                                }
+                                            }
+                                            else if (!Connector.SetBits(ADDR_ConsumeSlot6, 0xFF, out _))
+                                            {
+                                                DelayEffect(request);
+                                            }
+                                            else
+                                            {
+                                                Connector.Write8(ADDR_ConsumeSlot6, 0xFF);
+                                                Connector.SendMessage($"{request.DisplayViewer} took Medical Herb");
+                                            }
+                                        }
+                                        else if (!Connector.SetBits(ADDR_ConsumeSlot5, 0xFF, out _))
+                                        {
+                                            DelayEffect(request);
+                                        }
+                                        else
+                                        {
+                                            Connector.Write8(ADDR_ConsumeSlot5, 0xFF);
+                                            Connector.SendMessage($"{request.DisplayViewer} took Medical Herb");
+                                        }
+                                    }
+                                    else if (!Connector.SetBits(ADDR_ConsumeSlot4, 0xFF, out _))
+                                    {
+                                        DelayEffect(request);
+                                    }
+                                    else
+                                    {
+                                        Connector.Write8(ADDR_ConsumeSlot4, 0xFF);
+                                        Connector.SendMessage($"{request.DisplayViewer} took Medical Herb");
+                                    }
+                                }
+                                else if (!Connector.SetBits(ADDR_ConsumeSlot3, 0xFF, out _))
+                                {
+                                    DelayEffect(request);
+                                }
+                                else
+                                {
+                                    Connector.Write8(ADDR_ConsumeSlot3, 0xFF);
+                                    Connector.SendMessage($"{request.DisplayViewer} took Medical Herb");
+                                }
+                            }
+                            else if (!Connector.SetBits(ADDR_ConsumeSlot2, 0xFF, out _))
+                            {
+                                DelayEffect(request);
+                            }
+                            else
+                            {
+                                Connector.Write8(ADDR_ConsumeSlot2, 0xFF);
+                                Connector.SendMessage($"{request.DisplayViewer} took Medical Herb");
+                            }
+                        }
+                        else if (!Connector.SetBits(ADDR_ConsumeSlot1, 0xFF, out _))
+                        {
+                            DelayEffect(request);
+                        }
+                        else
+                        {
+                            Connector.Write8(ADDR_ConsumeSlot1, 0xFF);
+                            Connector.SendMessage($"{request.DisplayViewer} took Medical Herb");
+                        }
+                        return;
+                    }
+
+                case "giveanti":
+                    {
+                        if (!Connector.Read8(ADDR_ConsumeSlot8, out byte consumeslot))
+                        {
+                            DelayEffect(request);
+                        }
+                        else if ((consumeslot) < 0xFF)
+                        {
+                            Respond(request, EffectStatus.FailPermanent, "No slot avaliable");
+                        }
+                        else if (!Connector.SetBits(ADDR_ConsumeSlot8, 0x1E, out _))
+                        {
+                            DelayEffect(request);
+                        }
+                        else
+                        {
+                            Connector.Write8(ADDR_ConsumeSlot8, 0x1E);
+                            Connector.SendMessage($"{request.DisplayViewer} sent Antidote");
+                        }
+                        return;
+                    }
+
+                case "stealanti":
+                    var anti = 0x1E;
+                    {
+                        if (!Connector.Read8(ADDR_ConsumeSlot1, out byte con1))
+                        {
+                            DelayEffect(request);
+                        }
+                        else if ((con1) != anti)
+                        {
+                            if (!Connector.Read8(ADDR_ConsumeSlot2, out byte con2))
+                            {
+                                DelayEffect(request);
+                            }
+                            else if ((con2) != anti)
+                            {
+                                if (!Connector.Read8(ADDR_ConsumeSlot3, out byte con3))
+                                {
+                                    DelayEffect(request);
+                                }
+                                else if ((con3) != anti)
+                                {
+                                    if (!Connector.Read8(ADDR_ConsumeSlot4, out byte con4))
+                                    {
+                                        DelayEffect(request);
+                                    }
+                                    else if ((con4) != anti)
+                                    {
+                                        if (!Connector.Read8(ADDR_ConsumeSlot5, out byte con5))
+                                        {
+                                            DelayEffect(request);
+                                        }
+                                        else if ((con5) != anti)
+                                        {
+                                            if (!Connector.Read8(ADDR_ConsumeSlot6, out byte con6))
+                                            {
+                                                DelayEffect(request);
+                                            }
+                                            else if ((con6) != anti)
+                                            {
+                                                if (!Connector.Read8(ADDR_ConsumeSlot7, out byte con7))
+                                                {
+                                                    DelayEffect(request);
+                                                }
+                                                else if ((con7) != anti)
+                                                {
+                                                    if (!Connector.Read8(ADDR_ConsumeSlot8, out byte con8))
+                                                    {
+                                                        DelayEffect(request);
+                                                    }
+                                                    else if ((con8) != anti)
+                                                    {
+                                                        Respond(request, EffectStatus.FailPermanent, "No Antidote in inventory");
+                                                    }
+                                                    else if (!Connector.SetBits(ADDR_ConsumeSlot8, 0xFF, out _))
+                                                    {
+                                                        DelayEffect(request);
+                                                    }
+                                                    else
+                                                    {
+                                                        Connector.Write8(ADDR_ConsumeSlot8, 0xFF);
+                                                        Connector.SendMessage($"{request.DisplayViewer} took Antidote");
+                                                    }
+                                                }
+                                                else if (!Connector.SetBits(ADDR_ConsumeSlot7, 0xFF, out _))
+                                                {
+                                                    DelayEffect(request);
+                                                }
+                                                else
+                                                {
+                                                    Connector.Write8(ADDR_ConsumeSlot7, 0xFF);
+                                                    Connector.SendMessage($"{request.DisplayViewer} took Antidote");
+                                                }
+                                            }
+                                            else if (!Connector.SetBits(ADDR_ConsumeSlot6, 0xFF, out _))
+                                            {
+                                                DelayEffect(request);
+                                            }
+                                            else
+                                            {
+                                                Connector.Write8(ADDR_ConsumeSlot6, 0xFF);
+                                                Connector.SendMessage($"{request.DisplayViewer} took Antidote");
+                                            }
+                                        }
+                                        else if (!Connector.SetBits(ADDR_ConsumeSlot5, 0xFF, out _))
+                                        {
+                                            DelayEffect(request);
+                                        }
+                                        else
+                                        {
+                                            Connector.Write8(ADDR_ConsumeSlot5, 0xFF);
+                                            Connector.SendMessage($"{request.DisplayViewer} took Antidote");
+                                        }
+                                    }
+                                    else if (!Connector.SetBits(ADDR_ConsumeSlot4, 0xFF, out _))
+                                    {
+                                        DelayEffect(request);
+                                    }
+                                    else
+                                    {
+                                        Connector.Write8(ADDR_ConsumeSlot4, 0xFF);
+                                        Connector.SendMessage($"{request.DisplayViewer} took Antidote");
+                                    }
+                                }
+                                else if (!Connector.SetBits(ADDR_ConsumeSlot3, 0xFF, out _))
+                                {
+                                    DelayEffect(request);
+                                }
+                                else
+                                {
+                                    Connector.Write8(ADDR_ConsumeSlot3, 0xFF);
+                                    Connector.SendMessage($"{request.DisplayViewer} took Antidote");
+                                }
+                            }
+                            else if (!Connector.SetBits(ADDR_ConsumeSlot2, 0xFF, out _))
+                            {
+                                DelayEffect(request);
+                            }
+                            else
+                            {
+                                Connector.Write8(ADDR_ConsumeSlot2, 0xFF);
+                                Connector.SendMessage($"{request.DisplayViewer} took Antidote");
+                            }
+                        }
+                        else if (!Connector.SetBits(ADDR_ConsumeSlot1, 0xFF, out _))
+                        {
+                            DelayEffect(request);
+                        }
+                        else
+                        {
+                            Connector.Write8(ADDR_ConsumeSlot1, 0xFF);
+                            Connector.SendMessage($"{request.DisplayViewer} took Antidote");
+                        }
+                        return;
+                    }
+
+                case "givelp":
+                    {
+                        if (!Connector.Read8(ADDR_ConsumeSlot8, out byte consumeslot))
+                        {
+                            DelayEffect(request);
+                        }
+                        else if ((consumeslot) < 0xFF)
+                        {
+                            Respond(request, EffectStatus.FailPermanent, "No slot avaliable");
+                        }
+                        else if (!Connector.SetBits(ADDR_ConsumeSlot8, 0x1F, out _))
+                        {
+                            DelayEffect(request);
+                        }
+                        else
+                        {
+                            Connector.Write8(ADDR_ConsumeSlot8, 0x1F);
+                            Connector.SendMessage($"{request.DisplayViewer} sent Lysis Plant");
+                        }
+                        return;
+                    }
+
+                case "steallysis":
+                    { var lp = 0x1F;
+                    
+                        if (!Connector.Read8(ADDR_ConsumeSlot1, out byte con1))
+                        {
+                            DelayEffect(request);
+                        }
+                        else if ((con1) != lp)
+                        {
+                            if (!Connector.Read8(ADDR_ConsumeSlot2, out byte con2))
+                            {
+                                DelayEffect(request);
+                            }
+                            else if ((con2) != lp)
+                            {
+                                if (!Connector.Read8(ADDR_ConsumeSlot3, out byte con3))
+                                {
+                                    DelayEffect(request);
+                                }
+                                else if ((con3) != lp)
+                                {
+                                    if (!Connector.Read8(ADDR_ConsumeSlot4, out byte con4))
+                                    {
+                                        DelayEffect(request);
+                                    }
+                                    else if ((con4) != lp)
+                                    {
+                                        if (!Connector.Read8(ADDR_ConsumeSlot5, out byte con5))
+                                        {
+                                            DelayEffect(request);
+                                        }
+                                        else if ((con5) != lp)
+                                        {
+                                            if (!Connector.Read8(ADDR_ConsumeSlot6, out byte con6))
+                                            {
+                                                DelayEffect(request);
+                                            }
+                                            else if ((con6) != lp)
+                                            {
+                                                if (!Connector.Read8(ADDR_ConsumeSlot7, out byte con7))
+                                                {
+                                                    DelayEffect(request);
+                                                }
+                                                else if ((con7) != lp)
+                                                {
+                                                    if (!Connector.Read8(ADDR_ConsumeSlot8, out byte con8))
+                                                    {
+                                                        DelayEffect(request);
+                                                    }
+                                                    else if ((con8) != lp)
+                                                    {
+                                                        Respond(request, EffectStatus.FailPermanent, "No Lysis Plant in inventory");
+                                                    }
+                                                    else if (!Connector.SetBits(ADDR_ConsumeSlot8, 0xFF, out _))
+                                                    {
+                                                        DelayEffect(request);
+                                                    }
+                                                    else
+                                                    {
+                                                        Connector.Write8(ADDR_ConsumeSlot8, 0xFF);
+                                                        Connector.SendMessage($"{request.DisplayViewer} took Lysis Plant");
+                                                    }
+                                                }
+                                                else if (!Connector.SetBits(ADDR_ConsumeSlot7, 0xFF, out _))
+                                                {
+                                                    DelayEffect(request);
+                                                }
+                                                else
+                                                {
+                                                    Connector.Write8(ADDR_ConsumeSlot7, 0xFF);
+                                                    Connector.SendMessage($"{request.DisplayViewer} took Lysis Plant");
+                                                }
+                                            }
+                                            else if (!Connector.SetBits(ADDR_ConsumeSlot6, 0xFF, out _))
+                                            {
+                                                DelayEffect(request);
+                                            }
+                                            else
+                                            {
+                                                Connector.Write8(ADDR_ConsumeSlot6, 0xFF);
+                                                Connector.SendMessage($"{request.DisplayViewer} took Lysis Plant");
+                                            }
+                                        }
+                                        else if (!Connector.SetBits(ADDR_ConsumeSlot5, 0xFF, out _))
+                                        {
+                                            DelayEffect(request);
+                                        }
+                                        else
+                                        {
+                                            Connector.Write8(ADDR_ConsumeSlot5, 0xFF);
+                                            Connector.SendMessage($"{request.DisplayViewer} took Lysis Plant");
+                                        }
+                                    }
+                                    else if (!Connector.SetBits(ADDR_ConsumeSlot4, 0xFF, out _))
+                                    {
+                                        DelayEffect(request);
+                                    }
+                                    else
+                                    {
+                                        Connector.Write8(ADDR_ConsumeSlot4, 0xFF);
+                                        Connector.SendMessage($"{request.DisplayViewer} took Lysis Plant");
+                                    }
+                                }
+                                else if (!Connector.SetBits(ADDR_ConsumeSlot3, 0xFF, out _))
+                                {
+                                    DelayEffect(request);
+                                }
+                                else
+                                {
+                                    Connector.Write8(ADDR_ConsumeSlot3, 0xFF);
+                                    Connector.SendMessage($"{request.DisplayViewer} took Lysis Plant");
+                                }
+                            }
+                            else if (!Connector.SetBits(ADDR_ConsumeSlot2, 0xFF, out _))
+                            {
+                                DelayEffect(request);
+                            }
+                            else
+                            {
+                                Connector.Write8(ADDR_ConsumeSlot2, 0xFF);
+                                Connector.SendMessage($"{request.DisplayViewer} took Lysis Plant");
+                            }
+                        }
+                        else if (!Connector.SetBits(ADDR_ConsumeSlot1, 0xFF, out _))
+                        {
+                            DelayEffect(request);
+                        }
+                        else
+                        {
+                            Connector.Write8(ADDR_ConsumeSlot1, 0xFF);
+                            Connector.SendMessage($"{request.DisplayViewer} took Lysis Plant");
+                        }
+                        return;
+                    }
+
+                case "givefol":
+                    {
+                        if (!Connector.Read8(ADDR_ConsumeSlot8, out byte consumeslot))
+                        {
+                            DelayEffect(request);
+                        }
+                        else if ((consumeslot) < 0xFF)
+                        {
+                            Respond(request, EffectStatus.FailPermanent, "No slot avaliable");
+                        }
+                        else if (!Connector.SetBits(ADDR_ConsumeSlot8, 0x20, out _))
+                        {
+                            DelayEffect(request);
+                        }
+                        else
+                        {
+                            Connector.Write8(ADDR_ConsumeSlot8, 0x20);
+                            Connector.SendMessage($"{request.DisplayViewer} sent Fruit of Lime");
+                        }
+                        return;
+                    }
+
+                case "stealfol":
+                    { var fol = 0x20;
+                    
+                        if (!Connector.Read8(ADDR_ConsumeSlot1, out byte con1))
+                        {
+                            DelayEffect(request);
+                        }
+                        else if ((con1) != fol)
+                        {
+                            if (!Connector.Read8(ADDR_ConsumeSlot2, out byte con2))
+                            {
+                                DelayEffect(request);
+                            }
+                            else if ((con2) != fol)
+                            {
+                                if (!Connector.Read8(ADDR_ConsumeSlot3, out byte con3))
+                                {
+                                    DelayEffect(request);
+                                }
+                                else if ((con3) != fol)
+                                {
+                                    if (!Connector.Read8(ADDR_ConsumeSlot4, out byte con4))
+                                    {
+                                        DelayEffect(request);
+                                    }
+                                    else if ((con4) != fol)
+                                    {
+                                        if (!Connector.Read8(ADDR_ConsumeSlot5, out byte con5))
+                                        {
+                                            DelayEffect(request);
+                                        }
+                                        else if ((con5) != fol)
+                                        {
+                                            if (!Connector.Read8(ADDR_ConsumeSlot6, out byte con6))
+                                            {
+                                                DelayEffect(request);
+                                            }
+                                            else if ((con6) != fol)
+                                            {
+                                                if (!Connector.Read8(ADDR_ConsumeSlot7, out byte con7))
+                                                {
+                                                    DelayEffect(request);
+                                                }
+                                                else if ((con7) != fol)
+                                                {
+                                                    if (!Connector.Read8(ADDR_ConsumeSlot8, out byte con8))
+                                                    {
+                                                        DelayEffect(request);
+                                                    }
+                                                    else if ((con8) != fol)
+                                                    {
+                                                        Respond(request, EffectStatus.FailPermanent, "No Fruit of Lime in inventory");
+                                                    }
+                                                    else if (!Connector.SetBits(ADDR_ConsumeSlot8, 0xFF, out _))
+                                                    {
+                                                        DelayEffect(request);
+                                                    }
+                                                    else
+                                                    {
+                                                        Connector.Write8(ADDR_ConsumeSlot8, 0xFF);
+                                                        Connector.SendMessage($"{request.DisplayViewer} took Fruit of Lime");
+                                                    }
+                                                }
+                                                else if (!Connector.SetBits(ADDR_ConsumeSlot7, 0xFF, out _))
+                                                {
+                                                    DelayEffect(request);
+                                                }
+                                                else
+                                                {
+                                                    Connector.Write8(ADDR_ConsumeSlot7, 0xFF);
+                                                    Connector.SendMessage($"{request.DisplayViewer} took Fruit of Lime");
+                                                }
+                                            }
+                                            else if (!Connector.SetBits(ADDR_ConsumeSlot6, 0xFF, out _))
+                                            {
+                                                DelayEffect(request);
+                                            }
+                                            else
+                                            {
+                                                Connector.Write8(ADDR_ConsumeSlot6, 0xFF);
+                                                Connector.SendMessage($"{request.DisplayViewer} took Fruit of Lime");
+                                            }
+                                        }
+                                        else if (!Connector.SetBits(ADDR_ConsumeSlot5, 0xFF, out _))
+                                        {
+                                            DelayEffect(request);
+                                        }
+                                        else
+                                        {
+                                            Connector.Write8(ADDR_ConsumeSlot5, 0xFF);
+                                            Connector.SendMessage($"{request.DisplayViewer} took Fruit of Lime");
+                                        }
+                                    }
+                                    else if (!Connector.SetBits(ADDR_ConsumeSlot4, 0xFF, out _))
+                                    {
+                                        DelayEffect(request);
+                                    }
+                                    else
+                                    {
+                                        Connector.Write8(ADDR_ConsumeSlot4, 0xFF);
+                                        Connector.SendMessage($"{request.DisplayViewer} took Fruit of Lime");
+                                    }
+                                }
+                                else if (!Connector.SetBits(ADDR_ConsumeSlot3, 0xFF, out _))
+                                {
+                                    DelayEffect(request);
+                                }
+                                else
+                                {
+                                    Connector.Write8(ADDR_ConsumeSlot3, 0xFF);
+                                    Connector.SendMessage($"{request.DisplayViewer} took Fruit of Lime");
+                                }
+                            }
+                            else if (!Connector.SetBits(ADDR_ConsumeSlot2, 0xFF, out _))
+                            {
+                                DelayEffect(request);
+                            }
+                            else
+                            {
+                                Connector.Write8(ADDR_ConsumeSlot2, 0xFF);
+                                Connector.SendMessage($"{request.DisplayViewer} took Fruit of Lime");
+                            }
+                        }
+                        else if (!Connector.SetBits(ADDR_ConsumeSlot1, 0xFF, out _))
+                        {
+                            DelayEffect(request);
+                        }
+                        else
+                        {
+                            Connector.Write8(ADDR_ConsumeSlot1, 0xFF);
+                            Connector.SendMessage($"{request.DisplayViewer} took Fruit of Lime");
+                        }
+                        return;
+                    }
+
+                case "givefop":
+                    {
+                        if (!Connector.Read8(ADDR_ConsumeSlot8, out byte consumeslot))
+                        {
+                            DelayEffect(request);
+                        }
+                        else if ((consumeslot) < 0xFF)
+                        {
+                            Respond(request, EffectStatus.FailPermanent, "No slot avaliable");
+                        }
+                        else if (!Connector.SetBits(ADDR_ConsumeSlot8, 0x21, out _))
+                        {
+                            DelayEffect(request);
+                        }
+                        else
+                        {
+                            Connector.Write8(ADDR_ConsumeSlot8, 0x21);
+                            Connector.SendMessage($"{request.DisplayViewer} sent Fruit of Power");
+                        }
+                        return;
+                    }
+
+                case "stealfop":
+                    {
+                       var fop = 0x21;                    
+                        if (!Connector.Read8(ADDR_ConsumeSlot1, out byte con1))
+                        {
+                            DelayEffect(request);
+                        }
+                        else if ((con1) != fop)
+                        {
+                            if (!Connector.Read8(ADDR_ConsumeSlot2, out byte con2))
+                            {
+                                DelayEffect(request);
+                            }
+                            else if ((con2) != fop)
+                            {
+                                if (!Connector.Read8(ADDR_ConsumeSlot3, out byte con3))
+                                {
+                                    DelayEffect(request);
+                                }
+                                else if ((con3) != fop)
+                                {
+                                    if (!Connector.Read8(ADDR_ConsumeSlot4, out byte con4))
+                                    {
+                                        DelayEffect(request);
+                                    }
+                                    else if ((con4) != fop)
+                                    {
+                                        if (!Connector.Read8(ADDR_ConsumeSlot5, out byte con5))
+                                        {
+                                            DelayEffect(request);
+                                        }
+                                        else if ((con5) != fop)
+                                        {
+                                            if (!Connector.Read8(ADDR_ConsumeSlot6, out byte con6))
+                                            {
+                                                DelayEffect(request);
+                                            }
+                                            else if ((con6) != fop)
+                                            {
+                                                if (!Connector.Read8(ADDR_ConsumeSlot7, out byte con7))
+                                                {
+                                                    DelayEffect(request);
+                                                }
+                                                else if ((con7) != fop)
+                                                {
+                                                    if (!Connector.Read8(ADDR_ConsumeSlot8, out byte con8))
+                                                    {
+                                                        DelayEffect(request);
+                                                    }
+                                                    else if ((con8) != fop)
+                                                    {
+                                                        Respond(request, EffectStatus.FailPermanent, "No Fruit of Power in inventory");
+                                                    }
+                                                    else if (!Connector.SetBits(ADDR_ConsumeSlot8, 0xFF, out _))
+                                                    {
+                                                        DelayEffect(request);
+                                                    }
+                                                    else
+                                                    {
+                                                        Connector.Write8(ADDR_ConsumeSlot8, 0xFF);
+                                                        Connector.SendMessage($"{request.DisplayViewer} took Fruit of Power");
+                                                    }
+                                                }
+                                                else if (!Connector.SetBits(ADDR_ConsumeSlot7, 0xFF, out _))
+                                                {
+                                                    DelayEffect(request);
+                                                }
+                                                else
+                                                {
+                                                    Connector.Write8(ADDR_ConsumeSlot7, 0xFF);
+                                                    Connector.SendMessage($"{request.DisplayViewer} took Fruit of Power");
+                                                }
+                                            }
+                                            else if (!Connector.SetBits(ADDR_ConsumeSlot6, 0xFF, out _))
+                                            {
+                                                DelayEffect(request);
+                                            }
+                                            else
+                                            {
+                                                Connector.Write8(ADDR_ConsumeSlot6, 0xFF);
+                                                Connector.SendMessage($"{request.DisplayViewer} took Fruit of Power");
+                                            }
+                                        }
+                                        else if (!Connector.SetBits(ADDR_ConsumeSlot5, 0xFF, out _))
+                                        {
+                                            DelayEffect(request);
+                                        }
+                                        else
+                                        {
+                                            Connector.Write8(ADDR_ConsumeSlot5, 0xFF);
+                                            Connector.SendMessage($"{request.DisplayViewer} took Fruit of Power");
+                                        }
+                                    }
+                                    else if (!Connector.SetBits(ADDR_ConsumeSlot4, 0xFF, out _))
+                                    {
+                                        DelayEffect(request);
+                                    }
+                                    else
+                                    {
+                                        Connector.Write8(ADDR_ConsumeSlot4, 0xFF);
+                                        Connector.SendMessage($"{request.DisplayViewer} took Fruit of Power");
+                                    }
+                                }
+                                else if (!Connector.SetBits(ADDR_ConsumeSlot3, 0xFF, out _))
+                                {
+                                    DelayEffect(request);
+                                }
+                                else
+                                {
+                                    Connector.Write8(ADDR_ConsumeSlot3, 0xFF);
+                                    Connector.SendMessage($"{request.DisplayViewer} took Fruit of Power");
+                                }
+                            }
+                            else if (!Connector.SetBits(ADDR_ConsumeSlot2, 0xFF, out _))
+                            {
+                                DelayEffect(request);
+                            }
+                            else
+                            {
+                                Connector.Write8(ADDR_ConsumeSlot2, 0xFF);
+                                Connector.SendMessage($"{request.DisplayViewer} took Fruit of Power");
+                            }
+                        }
+                        else if (!Connector.SetBits(ADDR_ConsumeSlot1, 0xFF, out _))
+                        {
+                            DelayEffect(request);
+                        }
+                        else
+                        {
+                            Connector.Write8(ADDR_ConsumeSlot1, 0xFF);
+                            Connector.SendMessage($"{request.DisplayViewer} took Fruit of Power");
+                        }
+                        return;
+                    }
+
+                case "givemr":
+                    {
+                        if (!Connector.Read8(ADDR_ConsumeSlot8, out byte consumeslot))
+                        {
+                            DelayEffect(request);
+                        }
+                        else if ((consumeslot) < 0xFF)
+                        {
+                            Respond(request, EffectStatus.FailPermanent, "No slot avaliable");
+                        }
+                        else if (!Connector.SetBits(ADDR_ConsumeSlot8, 0x22, out _))
+                        {
+                            DelayEffect(request);
+                        }
+                        else
+                        {
+                            Connector.Write8(ADDR_ConsumeSlot8, 0x22);
+                            Connector.SendMessage($"{request.DisplayViewer} sent Magic Ring");
+                        }
+                        return;
+                    }
+
+                case "stealmr":
+                    {
+                        var mr = 0x22;                    
+                        if (!Connector.Read8(ADDR_ConsumeSlot1, out byte con1))
+                        {
+                            DelayEffect(request);
+                        }
+                        else if ((con1) != mr)
+                        {
+                            if (!Connector.Read8(ADDR_ConsumeSlot2, out byte con2))
+                            {
+                                DelayEffect(request);
+                            }
+                            else if ((con2) != mr)
+                            {
+                                if (!Connector.Read8(ADDR_ConsumeSlot3, out byte con3))
+                                {
+                                    DelayEffect(request);
+                                }
+                                else if ((con3) != mr)
+                                {
+                                    if (!Connector.Read8(ADDR_ConsumeSlot4, out byte con4))
+                                    {
+                                        DelayEffect(request);
+                                    }
+                                    else if ((con4) != mr)
+                                    {
+                                        if (!Connector.Read8(ADDR_ConsumeSlot5, out byte con5))
+                                        {
+                                            DelayEffect(request);
+                                        }
+                                        else if ((con5) != mr)
+                                        {
+                                            if (!Connector.Read8(ADDR_ConsumeSlot6, out byte con6))
+                                            {
+                                                DelayEffect(request);
+                                            }
+                                            else if ((con6) != mr)
+                                            {
+                                                if (!Connector.Read8(ADDR_ConsumeSlot7, out byte con7))
+                                                {
+                                                    DelayEffect(request);
+                                                }
+                                                else if ((con7) != mr)
+                                                {
+                                                    if (!Connector.Read8(ADDR_ConsumeSlot8, out byte con8))
+                                                    {
+                                                        DelayEffect(request);
+                                                    }
+                                                    else if ((con8) != mr)
+                                                    {
+                                                        Respond(request, EffectStatus.FailPermanent, "No Magic Ring in inventory");
+                                                    }
+                                                    else if (!Connector.SetBits(ADDR_ConsumeSlot8, 0xFF, out _))
+                                                    {
+                                                        DelayEffect(request);
+                                                    }
+                                                    else
+                                                    {
+                                                        Connector.Write8(ADDR_ConsumeSlot8, 0xFF);
+                                                        Connector.SendMessage($"{request.DisplayViewer} took Magic Ring");
+                                                    }
+                                                }
+                                                else if (!Connector.SetBits(ADDR_ConsumeSlot7, 0xFF, out _))
+                                                {
+                                                    DelayEffect(request);
+                                                }
+                                                else
+                                                {
+                                                    Connector.Write8(ADDR_ConsumeSlot7, 0xFF);
+                                                    Connector.SendMessage($"{request.DisplayViewer} took Magic Ring");
+                                                }
+                                            }
+                                            else if (!Connector.SetBits(ADDR_ConsumeSlot6, 0xFF, out _))
+                                            {
+                                                DelayEffect(request);
+                                            }
+                                            else
+                                            {
+                                                Connector.Write8(ADDR_ConsumeSlot6, 0xFF);
+                                                Connector.SendMessage($"{request.DisplayViewer} took Magic Ring");
+                                            }
+                                        }
+                                        else if (!Connector.SetBits(ADDR_ConsumeSlot5, 0xFF, out _))
+                                        {
+                                            DelayEffect(request);
+                                        }
+                                        else
+                                        {
+                                            Connector.Write8(ADDR_ConsumeSlot5, 0xFF);
+                                            Connector.SendMessage($"{request.DisplayViewer} took Magic Ring");
+                                        }
+                                    }
+                                    else if (!Connector.SetBits(ADDR_ConsumeSlot4, 0xFF, out _))
+                                    {
+                                        DelayEffect(request);
+                                    }
+                                    else
+                                    {
+                                        Connector.Write8(ADDR_ConsumeSlot4, 0xFF);
+                                        Connector.SendMessage($"{request.DisplayViewer} took Magic Ring");
+                                    }
+                                }
+                                else if (!Connector.SetBits(ADDR_ConsumeSlot3, 0xFF, out _))
+                                {
+                                    DelayEffect(request);
+                                }
+                                else
+                                {
+                                    Connector.Write8(ADDR_ConsumeSlot3, 0xFF);
+                                    Connector.SendMessage($"{request.DisplayViewer} took Magic Ring");
+                                }
+                            }
+                            else if (!Connector.SetBits(ADDR_ConsumeSlot2, 0xFF, out _))
+                            {
+                                DelayEffect(request);
+                            }
+                            else
+                            {
+                                Connector.Write8(ADDR_ConsumeSlot2, 0xFF);
+                                Connector.SendMessage($"{request.DisplayViewer} took Magic Ring");
+                            }
+                        }
+                        else if (!Connector.SetBits(ADDR_ConsumeSlot1, 0xFF, out _))
+                        {
+                            DelayEffect(request);
+                        }
+                        else
+                        {
+                            Connector.Write8(ADDR_ConsumeSlot1, 0xFF);
+                            Connector.SendMessage($"{request.DisplayViewer} took Magic Ring");
+                        }
+                        return;
+                    }
+
+                case "givefor":
+                    {
+                        if (!Connector.Read8(ADDR_ConsumeSlot8, out byte consumeslot))
+                        {
+                            DelayEffect(request);
+                        }
+                        else if ((consumeslot) < 0xFF)
+                        {
+                            Respond(request, EffectStatus.FailPermanent, "No slot avaliable");
+                        }
+                        else if (!Connector.SetBits(ADDR_ConsumeSlot8, 0x23, out _))
+                        {
+                            DelayEffect(request);
+                        }
+                        else
+                        {
+                            Connector.Write8(ADDR_ConsumeSlot8, 0x23);
+                            Connector.SendMessage($"{request.DisplayViewer} sent Fruit of Repun");
+                        }
+                        return;
+                    }
+
+                case "stealfor":
+                    {
+                        var fruitr = 0x23;                    
+                        if (!Connector.Read8(ADDR_ConsumeSlot1, out byte con1))
+                        {
+                            DelayEffect(request);
+                        }
+                        else if ((con1) != fruitr)
+                        {
+                            if (!Connector.Read8(ADDR_ConsumeSlot2, out byte con2))
+                            {
+                                DelayEffect(request);
+                            }
+                            else if ((con2) != fruitr)
+                            {
+                                if (!Connector.Read8(ADDR_ConsumeSlot3, out byte con3))
+                                {
+                                    DelayEffect(request);
+                                }
+                                else if ((con3) != fruitr)
+                                {
+                                    if (!Connector.Read8(ADDR_ConsumeSlot4, out byte con4))
+                                    {
+                                        DelayEffect(request);
+                                    }
+                                    else if ((con4) != fruitr)
+                                    {
+                                        if (!Connector.Read8(ADDR_ConsumeSlot5, out byte con5))
+                                        {
+                                            DelayEffect(request);
+                                        }
+                                        else if ((con5) != fruitr)
+                                        {
+                                            if (!Connector.Read8(ADDR_ConsumeSlot6, out byte con6))
+                                            {
+                                                DelayEffect(request);
+                                            }
+                                            else if ((con6) != fruitr)
+                                            {
+                                                if (!Connector.Read8(ADDR_ConsumeSlot7, out byte con7))
+                                                {
+                                                    DelayEffect(request);
+                                                }
+                                                else if ((con7) != fruitr)
+                                                {
+                                                    if (!Connector.Read8(ADDR_ConsumeSlot8, out byte con8))
+                                                    {
+                                                        DelayEffect(request);
+                                                    }
+                                                    else if ((con8) != fruitr)
+                                                    {
+                                                        Respond(request, EffectStatus.FailPermanent, "No Fruit of Repun in inventory");
+                                                    }
+                                                    else if (!Connector.SetBits(ADDR_ConsumeSlot8, 0xFF, out _))
+                                                    {
+                                                        DelayEffect(request);
+                                                    }
+                                                    else
+                                                    {
+                                                        Connector.Write8(ADDR_ConsumeSlot8, 0xFF);
+                                                        Connector.SendMessage($"{request.DisplayViewer} took Fruit of Repun");
+                                                    }
+                                                }
+                                                else if (!Connector.SetBits(ADDR_ConsumeSlot7, 0xFF, out _))
+                                                {
+                                                    DelayEffect(request);
+                                                }
+                                                else
+                                                {
+                                                    Connector.Write8(ADDR_ConsumeSlot7, 0xFF);
+                                                    Connector.SendMessage($"{request.DisplayViewer} took Fruit of Repun");
+                                                }
+                                            }
+                                            else if (!Connector.SetBits(ADDR_ConsumeSlot6, 0xFF, out _))
+                                            {
+                                                DelayEffect(request);
+                                            }
+                                            else
+                                            {
+                                                Connector.Write8(ADDR_ConsumeSlot6, 0xFF);
+                                                Connector.SendMessage($"{request.DisplayViewer} took Fruit of Repun");
+                                            }
+                                        }
+                                        else if (!Connector.SetBits(ADDR_ConsumeSlot5, 0xFF, out _))
+                                        {
+                                            DelayEffect(request);
+                                        }
+                                        else
+                                        {
+                                            Connector.Write8(ADDR_ConsumeSlot5, 0xFF);
+                                            Connector.SendMessage($"{request.DisplayViewer} took Fruit of Repun");
+                                        }
+                                    }
+                                    else if (!Connector.SetBits(ADDR_ConsumeSlot4, 0xFF, out _))
+                                    {
+                                        DelayEffect(request);
+                                    }
+                                    else
+                                    {
+                                        Connector.Write8(ADDR_ConsumeSlot4, 0xFF);
+                                        Connector.SendMessage($"{request.DisplayViewer} took Fruit of Repun");
+                                    }
+                                }
+                                else if (!Connector.SetBits(ADDR_ConsumeSlot3, 0xFF, out _))
+                                {
+                                    DelayEffect(request);
+                                }
+                                else
+                                {
+                                    Connector.Write8(ADDR_ConsumeSlot3, 0xFF);
+                                    Connector.SendMessage($"{request.DisplayViewer} took Fruit of Repun");
+                                }
+                            }
+                            else if (!Connector.SetBits(ADDR_ConsumeSlot2, 0xFF, out _))
+                            {
+                                DelayEffect(request);
+                            }
+                            else
+                            {
+                                Connector.Write8(ADDR_ConsumeSlot2, 0xFF);
+                                Connector.SendMessage($"{request.DisplayViewer} took Fruit of Repun");
+                            }
+                        }
+                        else if (!Connector.SetBits(ADDR_ConsumeSlot1, 0xFF, out _))
+                        {
+                            DelayEffect(request);
+                        }
+                        else
+                        {
+                            Connector.Write8(ADDR_ConsumeSlot1, 0xFF);
+                            Connector.SendMessage($"{request.DisplayViewer} took Fruit of Repun");
+                        }
+                        return;
+                    }
+
+                case "givewb":
+                    {
+                        if (!Connector.Read8(ADDR_ConsumeSlot8, out byte consumeslot))
+                        {
+                            DelayEffect(request);
+                        }
+                        else if ((consumeslot) < 0xFF)
+                        {
+                            Respond(request, EffectStatus.FailPermanent, "No slot avaliable");
+                        }
+                        else if (!Connector.SetBits(ADDR_ConsumeSlot8, 0x24, out _))
+                        {
+                            DelayEffect(request);
+                        }
+                        else
+                        {
+                            Connector.Write8(ADDR_ConsumeSlot8, 0x24);
+                            Connector.SendMessage($"{request.DisplayViewer} sent Warp Boots");
+                        }
+                        return;
+                    }
+
+                case "stealwp":
+                    { 
+                    var wp = 0x24;
+                    
+                        if (!Connector.Read8(ADDR_ConsumeSlot1, out byte con1))
+                        {
+                            DelayEffect(request);
+                        }
+                        else if ((con1) != wp)
+                        {
+                            if (!Connector.Read8(ADDR_ConsumeSlot2, out byte con2))
+                            {
+                                DelayEffect(request);
+                            }
+                            else if ((con2) != wp)
+                            {
+                                if (!Connector.Read8(ADDR_ConsumeSlot3, out byte con3))
+                                {
+                                    DelayEffect(request);
+                                }
+                                else if ((con3) != wp)
+                                {
+                                    if (!Connector.Read8(ADDR_ConsumeSlot4, out byte con4))
+                                    {
+                                        DelayEffect(request);
+                                    }
+                                    else if ((con4) != wp)
+                                    {
+                                        if (!Connector.Read8(ADDR_ConsumeSlot5, out byte con5))
+                                        {
+                                            DelayEffect(request);
+                                        }
+                                        else if ((con5) != wp)
+                                        {
+                                            if (!Connector.Read8(ADDR_ConsumeSlot6, out byte con6))
+                                            {
+                                                DelayEffect(request);
+                                            }
+                                            else if ((con6) != wp)
+                                            {
+                                                if (!Connector.Read8(ADDR_ConsumeSlot7, out byte con7))
+                                                {
+                                                    DelayEffect(request);
+                                                }
+                                                else if ((con7) != wp)
+                                                {
+                                                    if (!Connector.Read8(ADDR_ConsumeSlot8, out byte con8))
+                                                    {
+                                                        DelayEffect(request);
+                                                    }
+                                                    else if ((con8) != wp)
+                                                    {
+                                                        Respond(request, EffectStatus.FailPermanent, "No Warp Boots in inventory");
+                                                    }
+                                                    else if (!Connector.SetBits(ADDR_ConsumeSlot8, 0xFF, out _))
+                                                    {
+                                                        DelayEffect(request);
+                                                    }
+                                                    else
+                                                    {
+                                                        Connector.Write8(ADDR_ConsumeSlot8, 0xFF);
+                                                        Connector.SendMessage($"{request.DisplayViewer} took Warp Boots");
+                                                    }
+                                                }
+                                                else if (!Connector.SetBits(ADDR_ConsumeSlot7, 0xFF, out _))
+                                                {
+                                                    DelayEffect(request);
+                                                }
+                                                else
+                                                {
+                                                    Connector.Write8(ADDR_ConsumeSlot7, 0xFF);
+                                                    Connector.SendMessage($"{request.DisplayViewer} took Warp Boots");
+                                                }
+                                            }
+                                            else if (!Connector.SetBits(ADDR_ConsumeSlot6, 0xFF, out _))
+                                            {
+                                                DelayEffect(request);
+                                            }
+                                            else
+                                            {
+                                                Connector.Write8(ADDR_ConsumeSlot6, 0xFF);
+                                                Connector.SendMessage($"{request.DisplayViewer} took Warp Boots");
+                                            }
+                                        }
+                                        else if (!Connector.SetBits(ADDR_ConsumeSlot5, 0xFF, out _))
+                                        {
+                                            DelayEffect(request);
+                                        }
+                                        else
+                                        {
+                                            Connector.Write8(ADDR_ConsumeSlot5, 0xFF);
+                                            Connector.SendMessage($"{request.DisplayViewer} took Warp Boots");
+                                        }
+                                    }
+                                    else if (!Connector.SetBits(ADDR_ConsumeSlot4, 0xFF, out _))
+                                    {
+                                        DelayEffect(request);
+                                    }
+                                    else
+                                    {
+                                        Connector.Write8(ADDR_ConsumeSlot4, 0xFF);
+                                        Connector.SendMessage($"{request.DisplayViewer} took Warp Boots");
+                                    }
+                                }
+                                else if (!Connector.SetBits(ADDR_ConsumeSlot3, 0xFF, out _))
+                                {
+                                    DelayEffect(request);
+                                }
+                                else
+                                {
+                                    Connector.Write8(ADDR_ConsumeSlot3, 0xFF);
+                                    Connector.SendMessage($"{request.DisplayViewer} took Warp Boots");
+                                }
+                            }
+                            else if (!Connector.SetBits(ADDR_ConsumeSlot2, 0xFF, out _))
+                            {
+                                DelayEffect(request);
+                            }
+                            else
+                            {
+                                Connector.Write8(ADDR_ConsumeSlot2, 0xFF);
+                                Connector.SendMessage($"{request.DisplayViewer} took Warp Boots");
+                            }
+                        }
+                        else if (!Connector.SetBits(ADDR_ConsumeSlot1, 0xFF, out _))
+                        {
+                            DelayEffect(request);
+                        }
+                        else
+                        {
+                            Connector.Write8(ADDR_ConsumeSlot1, 0xFF);
+                            Connector.SendMessage($"{request.DisplayViewer} took Warp Boots");
+                        }
+                        return;
+                    }
+
+                case "giveopel":
+                    {
+                        if (!Connector.Read8(ADDR_ConsumeSlot8, out byte consumeslot))
+                        {
+                            DelayEffect(request);
+                        }
+                        else if ((consumeslot) < 0xFF)
+                        {
+                            Respond(request, EffectStatus.FailPermanent, "No slot avaliable");
+                        }
+                        else if (!Connector.SetBits(ADDR_ConsumeSlot8, 0x26, out _))
+                        {
+                            DelayEffect(request);
+                        }
+                        else
+                        {
+                            Connector.Write8(ADDR_ConsumeSlot8, 0x26);
+                            Connector.SendMessage($"{request.DisplayViewer} sent Opel Statue");
+                        }
+                        return;
+                    }
+
+                case "stealopel":
+                    {
+                        var opel = 0x26;                    
+                        if (!Connector.Read8(ADDR_ConsumeSlot1, out byte con1))
+                        {
+                            DelayEffect(request);
+                        }
+                        else if ((con1) != opel)
+                        {
+                            if (!Connector.Read8(ADDR_ConsumeSlot2, out byte con2))
+                            {
+                                DelayEffect(request);
+                            }
+                            else if ((con2) != opel)
+                            {
+                                if (!Connector.Read8(ADDR_ConsumeSlot3, out byte con3))
+                                {
+                                    DelayEffect(request);
+                                }
+                                else if ((con3) != opel)
+                                {
+                                    if (!Connector.Read8(ADDR_ConsumeSlot4, out byte con4))
+                                    {
+                                        DelayEffect(request);
+                                    }
+                                    else if ((con4) != opel)
+                                    {
+                                        if (!Connector.Read8(ADDR_ConsumeSlot5, out byte con5))
+                                        {
+                                            DelayEffect(request);
+                                        }
+                                        else if ((con5) != opel)
+                                        {
+                                            if (!Connector.Read8(ADDR_ConsumeSlot6, out byte con6))
+                                            {
+                                                DelayEffect(request);
+                                            }
+                                            else if ((con6) != opel)
+                                            {
+                                                if (!Connector.Read8(ADDR_ConsumeSlot7, out byte con7))
+                                                {
+                                                    DelayEffect(request);
+                                                }
+                                                else if ((con7) != opel)
+                                                {
+                                                    if (!Connector.Read8(ADDR_ConsumeSlot8, out byte con8))
+                                                    {
+                                                        DelayEffect(request);
+                                                    }
+                                                    else if ((con8) != opel)
+                                                    {
+                                                        Respond(request, EffectStatus.FailPermanent, "No Opel Statue in inventory");
+                                                    }
+                                                    else if (!Connector.SetBits(ADDR_ConsumeSlot8, 0xFF, out _))
+                                                    {
+                                                        DelayEffect(request);
+                                                    }
+                                                    else
+                                                    {
+                                                        Connector.Write8(ADDR_ConsumeSlot8, 0xFF);
+                                                        Connector.SendMessage($"{request.DisplayViewer} took Opel Statue");
+                                                    }
+                                                }
+                                                else if (!Connector.SetBits(ADDR_ConsumeSlot7, 0xFF, out _))
+                                                {
+                                                    DelayEffect(request);
+                                                }
+                                                else
+                                                {
+                                                    Connector.Write8(ADDR_ConsumeSlot7, 0xFF);
+                                                    Connector.SendMessage($"{request.DisplayViewer} took Opel Statue");
+                                                }
+                                            }
+                                            else if (!Connector.SetBits(ADDR_ConsumeSlot6, 0xFF, out _))
+                                            {
+                                                DelayEffect(request);
+                                            }
+                                            else
+                                            {
+                                                Connector.Write8(ADDR_ConsumeSlot6, 0xFF);
+                                                Connector.SendMessage($"{request.DisplayViewer} took Opel Statue");
+                                            }
+                                        }
+                                        else if (!Connector.SetBits(ADDR_ConsumeSlot5, 0xFF, out _))
+                                        {
+                                            DelayEffect(request);
+                                        }
+                                        else
+                                        {
+                                            Connector.Write8(ADDR_ConsumeSlot5, 0xFF);
+                                            Connector.SendMessage($"{request.DisplayViewer} took Opel Statue");
+                                        }
+                                    }
+                                    else if (!Connector.SetBits(ADDR_ConsumeSlot4, 0xFF, out _))
+                                    {
+                                        DelayEffect(request);
+                                    }
+                                    else
+                                    {
+                                        Connector.Write8(ADDR_ConsumeSlot4, 0xFF);
+                                        Connector.SendMessage($"{request.DisplayViewer} took Opel Statue");
+                                    }
+                                }
+                                else if (!Connector.SetBits(ADDR_ConsumeSlot3, 0xFF, out _))
+                                {
+                                    DelayEffect(request);
+                                }
+                                else
+                                {
+                                    Connector.Write8(ADDR_ConsumeSlot3, 0xFF);
+                                    Connector.SendMessage($"{request.DisplayViewer} took Opel Statue");
+                                }
+                            }
+                            else if (!Connector.SetBits(ADDR_ConsumeSlot2, 0xFF, out _))
+                            {
+                                DelayEffect(request);
+                            }
+                            else
+                            {
+                                Connector.Write8(ADDR_ConsumeSlot2, 0xFF);
+                                Connector.SendMessage($"{request.DisplayViewer} took Opel Statue");
+                            }
+                        }
+                        else if (!Connector.SetBits(ADDR_ConsumeSlot1, 0xFF, out _))
+                        {
+                            DelayEffect(request);
+                        }
+                        else
+                        {
+                            Connector.Write8(ADDR_ConsumeSlot1, 0xFF);
+                            Connector.SendMessage($"{request.DisplayViewer} took Opel Statue");
+                        }
+                        return;
+                    }
+
+                case "windsword":
+                    { 
+                    byte windsword = 01;
+                    var f = RepeatAction(request, TimeSpan.FromSeconds(15),
+                        () => Connector.Read8(ADDR_Equip_Sword, out windsword) && (windsword <= 05),
+                        () => Connector.SendMessage($"{request.DisplayViewer} equipped Wind Sword."), TimeSpan.FromSeconds(1),
+                        () => Connector.IsNonZero8(ADDR_Equip_Sword), TimeSpan.FromSeconds(1),
+                        () => Connector.Write8(ADDR_Equip_Sword, 0x01), TimeSpan.FromSeconds(1), true, "windsword");
+                    f.WhenCompleted.Then(t =>
+                    {
+                        Connector.Write8(ADDR_Equip_Sword, 0x01);
+                        Connector.SendMessage("Locked Sword Removed.");
+                    });
+                    return;
+                    }
+
+                case "firesword":
+                    {
+                        byte firesword = 02;
+                        var g = RepeatAction(request, TimeSpan.FromSeconds(15),
+                            () => Connector.Read8(ADDR_Equip_Sword, out firesword) && (firesword <= 05),
+                            () => Connector.SendMessage($"{request.DisplayViewer} equipped Fire Sword."), TimeSpan.FromSeconds(1),
+                            () => Connector.IsNonZero8(ADDR_Equip_Sword), TimeSpan.FromSeconds(1),
+                            () => Connector.Write8(ADDR_Equip_Sword, 0x02), TimeSpan.FromSeconds(1), true, "firesword");
+                        g.WhenCompleted.Then(t =>
+                        {
+                            Connector.Write8(ADDR_Equip_Sword, 0x02);
+                            Connector.SendMessage("Locked Sword Removed.");
+                        });
+                        return;
+                    }
+
+                case "watersword":
+                    {
+                        byte watersword = 03;
+                        var h = RepeatAction(request, TimeSpan.FromSeconds(15),
+                            () => Connector.Read8(ADDR_Equip_Sword, out watersword) && (watersword >= 05),
+                            () => Connector.SendMessage($"{request.DisplayViewer} equipped Water Sword."), TimeSpan.FromSeconds(1),
+                            () => Connector.IsNonZero8(ADDR_Equip_Sword), TimeSpan.FromSeconds(1),
+                            () => Connector.Write8(ADDR_Equip_Sword, 0x03), TimeSpan.FromSeconds(1), true, "watersword");
+                        h.WhenCompleted.Then(t =>
+                        {
+                            Connector.Write8(ADDR_Equip_Sword, watersword);
+                            Connector.SendMessage("Locked Sword Removed.");
+                        });
+                        return;
+                    }
+
+                case "thundersword":
+                    {
+                        byte thundersword = 04;
+                        var j = RepeatAction(request, TimeSpan.FromSeconds(15),
+                            () => Connector.Read8(ADDR_Equip_Sword, out thundersword) && (thundersword >= 05),
+                            () => Connector.SendMessage($"{request.DisplayViewer} equipped Thunder Sword."), TimeSpan.FromSeconds(1),
+                            () => Connector.IsNonZero8(ADDR_Equip_Sword), TimeSpan.FromSeconds(1),
+                            () => Connector.Write8(ADDR_Equip_Sword, 0x04), TimeSpan.FromSeconds(1), true, "thundersword");
+                        j.WhenCompleted.Then(t =>
+                        {
+                            Connector.Write8(ADDR_Equip_Sword, thundersword);
+                            Connector.SendMessage("Thunder Sword removed.");
+                        });
+                        return;
+                    }
+
+                case "crystalissword":
+                    { // Note it only stabs for now.  Need to review if I can autofill projectile to match Dyna Fight.
+
+                        byte cysword = 05;
+                        var k = RepeatAction(request, TimeSpan.FromSeconds(15),
+                            () => Connector.Read8(ADDR_Equip_Sword, out cysword) && (cysword <= 5),
+                            () => Connector.SendMessage($"{request.DisplayViewer} equipped Crystalis Sword."), TimeSpan.FromSeconds(1),
+                            () => Connector.IsNonZero8(ADDR_Equip_Sword), TimeSpan.FromSeconds(1),
+                            () => Connector.Write8(ADDR_Equip_Sword, 0x05), TimeSpan.FromSeconds(1), true, "cysword");
+                        k.WhenCompleted.Then(t =>
+                        {
+                            Connector.Write8(ADDR_Equip_Sword, 0x00);
+                            Connector.SendMessage("Crystalis Removed. Reequip Sword");
+                        });
+                        return;
+                    }
+
+                case "removewindsword":
+                    {
+                        StartTimed(request,
+                          () => Connector.Read8(ADDR_SwordSlot1, out byte b) && (b == 0x00),
+                          () =>
+                          {
+                              bool result = Connector.Write8(ADDR_SwordSlot1, 0xFF);
+                              if (result) { Connector.SendMessage($"{request.DisplayViewer} stole your Sword of Wind."); }
+                              return result;
+                          },
+                          TimeSpan.FromSeconds(30));
+                        return;
+                    }
+
+                case "removefiresword":
+                    {
+                        StartTimed(request,
+                          () => Connector.Read8(ADDR_SwordSlot2, out byte b) && (b == 0x01),
+                          () =>
+                          {
+                              bool result = Connector.Write8(ADDR_SwordSlot2, 0xFF);
+                              if (result) { Connector.SendMessage($"{request.DisplayViewer} stole your Sword of Fire."); }
+                              return result;
+                          },
+                          TimeSpan.FromSeconds(30));
+                        return;
+                    }
+
+                case "removewatersword":
+                    {
+                        StartTimed(request,
+                          () => Connector.Read8(ADDR_SwordSlot3, out byte b) && (b == 0x02),
+                          () =>
+                          {
+                              bool result = Connector.Write8(ADDR_SwordSlot3, 0xFF);
+                              if (result) { Connector.SendMessage($"{request.DisplayViewer} stole your Sword of Water."); }
+                              return result;
+                          },
+                          TimeSpan.FromSeconds(30));
+                        return;
+                    }
+
+                case "removethundersword":
+                    {
+                        StartTimed(request,
+                          () => Connector.Read8(ADDR_SwordSlot4, out byte b) && (b == 0x03),
+                          () =>
+                          {
+                              bool result = Connector.Write8(ADDR_SwordSlot4, 0xFF);
+                              if (result) { Connector.SendMessage($"{request.DisplayViewer} stole your Sword of Thunder."); }
+                              return result;
+                          },
+                          TimeSpan.FromSeconds(30));
+                        return;
+                    }
+
+                //case "heal boss":
+                //    {
+                //        StartTimed(request,
+                //          () => Connector.Read8(ADDR_SwordSlot4, out byte b) && (b == 0x03),
+                //          () =>
+                //          {
+                //              bool result = Connector.Write8(ADDR_SwordSlot4, 0xFF);
+                //              if (result) { Connector.SendMessage($"{request.DisplayViewer} stole your Sword of Thunder."); }
+                //              return result;
+                //          },
+                //          TimeSpan.FromSeconds(30));
+                //        return;
+                //    }
+
+                    //case "levelup":
+
+                    //    {
+                    //        sbyte level;
+                    //        StartTimed(request,
+                    //      () => Connector.Read8(ADDR_SCALING, out byte level) && (level >= 0x00),
+                    //      () =>
+                    //      {
+                    //          bool result = Connector.Write8(ADDR_SCALING, Math.Min(level + sbyte (1)));
+                    //          if (result) { Connector.SendMessage($"{request.DisplayViewer} increased scaling."); }
+                    //          return result;
+                    //      },
+                    //      TimeSpan.FromSeconds(30));
+                    //        return;
+                    //    }
+
+
+                    //case "scaleup":
+                    //    {
+                    //        byte scale;
+                    //            StartTimed(request,
+                    //          () => Connector.Read8(ADDR_SCALING, out byte scale) && (scale >= 0x00),
+                    //          () =>
+                    //          {
+                    //              bool result = Connector.Write8(ADDR_SCALING, Math.Abs(scale + 1));
+                    //              if (result) { Connector.SendMessage($"{request.DisplayViewer} increased scaling."); }
+                    //              return result;
+                    //          },
+                    //          TimeSpan.FromSeconds(30));
+                    //        return;
+                    //    }
+
+                    //{
+                    //    //Requires UI refresh at start and end
+
+                    //    byte scale = 01;
+                    //    var w = RepeatAction(request, TimeSpan.FromSeconds(30),
+                    //        () => Connector.Read8(ADDR_HP, out origHP) && (origHP > 1),
+                    //        () => Connector.SendMessage($"{request.DisplayViewer} sent One Hit KO Mode."), TimeSpan.FromSeconds(1),
+                    //        () => Connector.IsNonZero8(ADDR_HP), TimeSpan.FromSeconds(1),
+                    //        () => Connector.Write8(ADDR_HP, 0x02), TimeSpan.FromSeconds(1), true, "health");
+                    //    w.WhenCompleted.Then(t =>
+                    //    {
+                    //        Connector.Write8(ADDR_HP, origHP);
+                    //        Connector.SendMessage("One Hit KO Removed.");
+                    //    });
+                    //    return;
+                    //}
+
+
+                    //case "freeshops":
+                    //    {
+                    //        byte freeshop = 0;
+                    //        var shop = RepeatAction(request, TimeSpan.FromSeconds(15),
+                    //            () => Connector.Read8(ADDR_SHOP_CURRENT_PRICE, out freeshop) && (freeshop >= 0),
+                    //            () => Connector.SendMessage($"{request.DisplayViewer} stole Thunder Sword."), TimeSpan.FromSeconds(1),
+                    //            () => Connector.IsNonZero8(ADDR_SHOP_CURRENT_PRICE), TimeSpan.FromSeconds(1),
+                    //            () => Connector.Write8(ADDR_SHOP_CURRENT_PRICE, 0x00), TimeSpan.FromSeconds(30), true, "orangesword");
+                    //        shop.WhenCompleted.Then(t =>
+                    //        {
+                    //            Connector.Write8(ADDR_SHOP_CURRENT_PRICE, 0x00);
+                    //            Connector.SendMessage("Thunder Sword restored.");
+                    //        });
+                    //        return;
+                    //    }
+
+                    //                    case "moneyup":
+                    //                    
+                    //                       if (!byte.TryParse(codeParams[0], out byte quantity)) 
+                    //                    {
+                    //                        Respond(request, EffectStatus.FailTemporary, "Quantity parameter missing.");
+                    //                        return;
+                    //                    }
+                    //                    
+                    //                   TryEffect(request,
+                    //                        () => Connector.rangeadd16(ADDR_Money, quantity, 0, 256, false),
+                    //                        () => true,
+                    //                        () => Connector.Sendmessage($"{request.displayviewer} gave you money {quantity} money."),
+                    //                        () => TimeSpan.FromSeconds(math.min((tcap *= 2), 40)));
+                    //                        return;
+                    //
+                    //                    case "spawn":
+                    //                    TryEffect(request, SpawnEnemy() => true);
+                    //                    return;
+            }
+        }
+        
+        //private volatile bool _forceActive = false;
+
+        protected override bool StopEffect(EffectRequest request)
+        {
+            bool result = true;
+            var effect = request.FinalCode.Split('_');
+            switch (effect[0])
+            {
+                case "lvl1shot":
+                    {
+                        result = Connector.Unfreeze(ADDR_Warrior);
+                        return result;
+                    }
+
+                case "lvl2shot":
+                    {
+                        result = Connector.Unfreeze(ADDR_Warrior);
+                        return result;
+                    }
+
+                case "trishot":
+                    {
+                        result = Connector.Unfreeze(ADDR_Warrior);
+                        return result;
+                    }
+
+                case "heavy":
+                    {
+                        Connector.Write8(ADDR_Speed, 0x06);
+                        Connector.SendMessage($"{request.DisplayViewer}'s restored your speed.");
+                        return result;
+                    }
+
+                case "timedparalysis":
+                    {
+                        Connector.Write8(ADDR_Condition, 0x00);
+                        Connector.SendMessage($"{request.DisplayViewer}'s removed your paralysis.");
+                        return result;
+                    }
+
+                case "timedpoison":
+                    {
+                    Connector.Write8(ADDR_Condition, 0x00);
+                    Connector.SendMessage($"{request.DisplayViewer}'s removed your poison.");
+                    return result;
+                }
+
+                case "timedslime":
+                    {
+                    Connector.Write8(ADDR_Condition, 0x00);
+                    Connector.SendMessage($"{request.DisplayViewer}'s removed your slime.");
+                    return result;
+                }
+
+                case "removewindsword":
+                    {
+                        Connector.Write8(ADDR_SwordSlot1, 0x00);
+                        Connector.SendMessage($"{request.DisplayViewer}'s gave back your Sword of Wind.");
+                        return result;
+                    }
+
+                case "removefiresword":
+                    {
+                        Connector.Write8(ADDR_SwordSlot2, 0x01);
+                        Connector.SendMessage($"{request.DisplayViewer}'s gave back your Sword of Fire.");
+                        return result;
+                    }
+
+                case "removewatersword":
+                    {
+                        Connector.Write8(ADDR_SwordSlot3, 0x02);
+                        Connector.SendMessage($"{request.DisplayViewer}'s gave back your Sword of Water.");
+                        return result;
+                    }
+
+                case "removethundersword":
+                    {
+                        Connector.Write8(ADDR_SwordSlot4, 0x03);
+                        Connector.SendMessage($"{request.DisplayViewer}'s gave back your Sword of Thunder.");
+                        return result;
+                    }
+                case "scale":
+                    {
+                        Connector.Write8(ADDR_SCALING, 0x03);
+                        Connector.SendMessage($"{request.DisplayViewer}'s restored your scaling.");
+                        return result;
+                    }
+
+                
+            }
+            return result;
+        }
+
+        public override bool StopAllEffects()
+        {
+            return false;
+        }
+    }
+}
+
+
+
+
