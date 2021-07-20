@@ -595,7 +595,7 @@ namespace CrowdControl.Games.Packs
                         return;
                     }
 
-                //case "wild":  ASM Fix?
+                //case "wild":    ASM Fix?                    
                 //    {
                 //        TryEffect(request,
                 //            () => Connector.Freeze8(ADDR_Controller, 0xC0),
@@ -628,7 +628,7 @@ namespace CrowdControl.Games.Packs
                         return;
                     }
 
-                //case "flight":  Need a Freeze Function or will be jumping.  Repeat fuction for MP restore.
+                //case "flight":  Need a Freeze Function JUMP and MP.
                     {
                     //        RepeatAction(request, TimeSpan.FromSeconds(15),
                     //        () => Connector.IsZero8(ADDR_Jump),
@@ -3705,7 +3705,7 @@ namespace CrowdControl.Games.Packs
                         return;
                     }
 
-                //case "moneyup":     Note look into two byte system.
+                //case "moneyup":     Note look into the two byte system and create.
                 //    {
                 //        if (TryAlterMoney(request, 50))
                 //        {
