@@ -666,8 +666,8 @@ namespace CrowdControl.Games.Packs
                         () => true, /*Action*/
                         TimeSpan.FromSeconds(0.5),
                         true);
-                        a.WhenStarted.Then(t => Connector.SendMessage($"{request.DisplayViewer} deployed an Mosaic Effect."));
-                        a.WhenCompleted.Then(t => Connector.SendMessage($"{request.DisplayViewer}'s Mosaic Effect has dispered."));
+                        a.WhenStarted.Then(t => Connector.SendMessage($"{request.DisplayViewer} deployed Warrior Ring Effect."));
+                        a.WhenCompleted.Then(t => Connector.SendMessage($"{request.DisplayViewer}'s Warrior Ring Effect has dispered."));
                         return;
                     }
 
@@ -683,8 +683,8 @@ namespace CrowdControl.Games.Packs
                         () => true, /*Action*/
                         TimeSpan.FromSeconds(0.5),
                         true);
-                        a.WhenStarted.Then(t => Connector.SendMessage($"{request.DisplayViewer} deployed an Mosaic Effect."));
-                        a.WhenCompleted.Then(t => Connector.SendMessage($"{request.DisplayViewer}'s Mosaic Effect has dispered."));
+                        a.WhenStarted.Then(t => Connector.SendMessage($"{request.DisplayViewer} deployed an Beast Mode Effect."));
+                        a.WhenCompleted.Then(t => Connector.SendMessage($"{request.DisplayViewer}'s Beast Mode Effect has dispered."));
                         return;
                     }                                    
 
@@ -700,8 +700,8 @@ namespace CrowdControl.Games.Packs
                         () => true, /*Action*/
                         TimeSpan.FromSeconds(0.5),
                         true);
-                        a.WhenStarted.Then(t => Connector.SendMessage($"{request.DisplayViewer} deployed an Mosaic Effect."));
-                        a.WhenCompleted.Then(t => Connector.SendMessage($"{request.DisplayViewer}'s Mosaic Effect has dispered."));
+                        a.WhenStarted.Then(t => Connector.SendMessage($"{request.DisplayViewer} deployed an TriShot Effect."));
+                        a.WhenCompleted.Then(t => Connector.SendMessage($"{request.DisplayViewer}'s TriShot Effect has dispered."));
                         return;
                     }
 
