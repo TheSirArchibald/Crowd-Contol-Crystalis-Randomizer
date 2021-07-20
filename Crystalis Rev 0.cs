@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
@@ -39,6 +39,7 @@ namespace CrowdControl.Games.Packs
         //private const ushort ADDR_PosYl = 0x00CF;
         private const ushort ADDR_PosY = 0x00EF;
         private const ushort ADDR_Controller = 0x0048;
+        private const ushort ADDR_CURRENT_AREA = 0x006C;
 
         //Sprites
         private const ushort ADDR_SPRITE_RAM = 0x0200;
@@ -59,7 +60,7 @@ namespace CrowdControl.Games.Packs
         private const ushort ADDR_MPF = 0x0708;
         private const ushort ADDR_HEALTH_MAX = 0x0040;
         private const ushort ADDR_SHOP_CURRENT_PRICE = 0x6474;
-        private const ushort ADDR_SCALING = 0x648F;
+        private const ushort ADDR_SCALING = 0x64A2;
         private const ushort ADDR_LEVEL = 0x0421;
 
         // Powerup
@@ -111,6 +112,8 @@ namespace CrowdControl.Games.Packs
         private const ushort ADDR_Equip_Sword = 0x0711;
 
         //Boss
+        private const ushort ADDR_BOSS_HEALTH1 = 0x03CD;
+        private const ushort ADDR_BOSS_HEALTH2 = 0x03CE;
         private const ushort ADDR_Kelby = 0x0;
         private const ushort ADDR_Sabera = 0x0;
         private const ushort ADDR_Mado = 0x0;
@@ -134,6 +137,23 @@ namespace CrowdControl.Games.Packs
         };
 
         [Flags]
+        private enum BossLocation : byte
+        {
+            Vamp1 = 0x0A,
+            Bug = 0x1A,
+            Kelby = 0x28,
+            Vamp2 = 0x6C,
+            Sabera = 0x6E,
+            Mado = 0xF2,
+            Kelby2 = 0xA9,
+            Sabera2 = 0xAC,
+            Mado2 = 0xB9,
+            Karmine = 0xB6,
+            Draygon = 0x9F,
+            Draygon2 = 0xA6,
+            Dyna = 0x5F            
+        }
+      
         private enum BossDefeated : byte
         {
             Kelby = 0x01,
@@ -146,100 +166,183 @@ namespace CrowdControl.Games.Packs
             Draygon = 0x80,
             All = 0xFF
         }
-        
+
         //    private bool SpawnEnemy() =>
-//                            Connector.Read8(ADDR_PosX, out ushort xPos) &&
-//                            Connector.Read8(ADDR_PosY, out ushort yPos) &&
-//                            SpawnSprite(SpriteName.FlyingDevil, (ushort)(xPos + 24u), yPos) ! = 0xFF;
-//                        
-//    private bool SpawnSprite (byte slot, SpriteName name, ushort xPos, ushort yPos)
-//                        {
-//                            bool result = Connector.Write8(ADDR_SPRITE_POS_X_LOW_BASE + slot, unchecked((byte)xPos));
-//                            result = result && Connector.Write8(ADDR_SPRITE_POS_X_HIGH_BASE + slot, unchecked((byte)(xpos >> 8)));
-//                            result = result && Connector.Write8(ADDR_SPRITE_POS_Y_LOW_BASE + slot, unchecked((byte)ypos));
-//                            result = result && Connector.Write8(ADDR_SPRITE_POS_Y_HIGH_BASE + slot, unchecked((byte)(ypos >> 8)));
-//                            result = result && Connector.Write8(ADDR_SPRITE_TYPE_BASE + slot, (byte)name);
-//                            result = result && Connector.Write8(ADDR_SPRITE_STATUS_BASE +slot, (byte)SpriteStatus.Spawning);
-//                            
-//                            return result;
-//                        }
-//                        
-//    private byte SpawnSprite(SpriteName name, ushort xPos, ushort ypos)
-//                       {
-//                            if (Connector.Isequal8(ADDR_SPRITE_STATUS_BASE + i, (byte)SpriteStatus.Empty)
-//                                && SpawnSprite (i, name, xPos, yPos))
-//                               {
-//                                    return i;
-//                                }
-//                            return 0xff;
-//                       }
-//        
-//   private enum SpriteName : byte
-//                        {
-//                        //Flying
-//                       BlueBat	= 0x1B327
-//                        RedFlyingBug	= 0x1B387,
-//                        GreenFlyingBug	= 0x1B3CD,            
-//                        FlyingHead	= 0x1B57B,
-//                        Red_PurpleBirds	= 0x1B592,
-//                        Moth	= 0x1B6C4,
-//                        BomberBird	= 0x1B72D,
-//                        FlyingDevil	= 0x1B7EF,
-//                        
-//                        //Walking
-//                        Mummy	= 0x1B94E,
-//                        Warlock	= 0x1B967,
-//                        DraygoniaArcher	= 0x1B714,
-//                        Green_PurpleFlailGuy	= 0x1B75B,
-//                        Burt	= 0x1B7A5,
-//                        Ninja	= 0x1B7D6,
-//                        Mimic	= 0x1B5E7,
-//                        Shadowmonster	= 0x1B6A7,
-//                        BlackKnight	= 0x1B8F0,
-//                        
-//                        //Bosses
-//                        Vampire	= 0x1B356,
-//                        BigBug	= 0x1B3FC,
-//                        Kelbesque	= 0x1B4EC,
-//                        Sabera	= 0x1B6DB,
-//                        Mado	= 0x1B7BD,               
-//                        KelbesqueTwo = 0x1B806,
-//                        SaberaTwo	= 0x1B84E,
-//                        MadoTwo	= 0x1B8BF,
-//                       Karmine = 0x1B920,
-//                        Draygon	= 0x1B980,
-//                        Dyna	= 0x1BA54,
-//                        
-//                        //Robots
-//                        GreenRobots =	0x1B9F4,
-//                        WhiteRobots	= 0x1BA0D,
-//                        Helicopter =	0x1BA3D,
-//                        }                          
-                      
-     //private byte CheckForSprite(SpriteType type)
-     //                   return result;
-            
-        private bool TryAlterHealth([NotNull] EffectRequest request, sbyte amount)
-    {
-            if (!Connector.Read8(ADDR_HEALTH_MAX, out byte health))
+        //                            Connector.Read8(ADDR_PosX, out ushort xPos) &&
+        //                            Connector.Read8(ADDR_PosY, out ushort yPos) &&
+        //                            SpawnSprite(SpriteName.FlyingDevil, (ushort)(xPos + 24u), yPos) ! = 0xFF;
+        //                        
+        //    private bool SpawnSprite (byte slot, SpriteName name, ushort xPos, ushort yPos)
+        //                        {
+        //                            bool result = Connector.Write8(ADDR_SPRITE_POS_X_LOW_BASE + slot, unchecked((byte)xPos));
+        //                            result = result && Connector.Write8(ADDR_SPRITE_POS_X_HIGH_BASE + slot, unchecked((byte)(xpos >> 8)));
+        //                            result = result && Connector.Write8(ADDR_SPRITE_POS_Y_LOW_BASE + slot, unchecked((byte)ypos));
+        //                            result = result && Connector.Write8(ADDR_SPRITE_POS_Y_HIGH_BASE + slot, unchecked((byte)(ypos >> 8)));
+        //                            result = result && Connector.Write8(ADDR_SPRITE_TYPE_BASE + slot, (byte)name);
+        //                            result = result && Connector.Write8(ADDR_SPRITE_STATUS_BASE +slot, (byte)SpriteStatus.Spawning);
+        //                            
+        //                            return result;
+        //                        }
+        //                        
+        //    private byte SpawnSprite(SpriteName name, ushort xPos, ushort ypos)
+        //                       {
+        //                            if (Connector.Isequal8(ADDR_SPRITE_STATUS_BASE + i, (byte)SpriteStatus.Empty)
+        //                                && SpawnSprite (i, name, xPos, yPos))
+        //                               {
+        //                                    return i;
+        //                                }
+        //                            return 0xff;
+        //                       }
+        //        
+        //   private enum SpriteName : byte
+        //                        {
+        //                        //Flying
+        //                       BlueBat	= 0x1B327
+        //                        RedFlyingBug	= 0x1B387,
+        //                        GreenFlyingBug	= 0x1B3CD,            
+        //                        FlyingHead	= 0x1B57B,
+        //                        Red_PurpleBirds	= 0x1B592,
+        //                        Moth	= 0x1B6C4,
+        //                        BomberBird	= 0x1B72D,
+        //                        FlyingDevil	= 0x1B7EF,
+        //                        
+        //                        //Walking
+        //                        Mummy	= 0x1B94E,
+        //                        Warlock	= 0x1B967,
+        //                        DraygoniaArcher	= 0x1B714,
+        //                        Green_PurpleFlailGuy	= 0x1B75B,
+        //                        Burt	= 0x1B7A5,
+        //                        Ninja	= 0x1B7D6,
+        //                        Mimic	= 0x1B5E7,
+        //                        Shadowmonster	= 0x1B6A7,
+        //                        BlackKnight	= 0x1B8F0,
+        //                        
+        //                        //Bosses
+        //                        Vampire	= 0x1B356,
+        //                        BigBug	= 0x1B3FC,
+        //                        Kelbesque	= 0x1B4EC,
+        //                        Sabera	= 0x1B6DB,
+        //                        Mado	= 0x1B7BD,               
+        //                        KelbesqueTwo = 0x1B806,
+        //                        SaberaTwo	= 0x1B84E,
+        //                        MadoTwo	= 0x1B8BF,
+        //                       Karmine = 0x1B920,
+        //                        Draygon	= 0x1B980,
+        //                        Dyna	= 0x1BA54,
+        //                        
+        //                        //Robots
+        //                        GreenRobots =	0x1B9F4,
+        //                        WhiteRobots	= 0x1BA0D,
+        //                        Helicopter =	0x1BA3D,
+        //                        }                          
+
+        //private byte CheckForSprite(SpriteType type)
+        //                   return result;
+
+        
+        private bool TryAlterScale([NotNull] EffectRequest request, sbyte scale)
+        {
+            if (!Connector.Read8(ADDR_SCALING, out byte cscale))
             {
                 DelayEffect(request);
                 return false;
             }
 
-            if ((health + amount) < 0x18)
+            if (cscale <= 0x01)
+            {
+                Respond(request, EffectStatus.FailPermanent, "Scaling already at minumum.");
+                return false;
+            }            
+            if ((cscale + scale) == 0x2F)
+            {
+                Respond(request, EffectStatus.FailPermanent, "Scaling already at maximum.");
+                return false;
+            }
+
+            if (Connector.Write8(ADDR_SCALING, (byte)(cscale + scale)))
+            {
+                Respond(request, EffectStatus.Success);
+                return true;
+            }
+
+            DelayEffect(request);
+            return false;
+        }
+        
+        private bool TryAlterLevel([NotNull] EffectRequest request, sbyte level)
+        {
+            if (!Connector.Read8(ADDR_LEVEL, out byte clevel))
+            {
+                DelayEffect(request);
+                return false;
+            }
+
+            if ((clevel + level) == 0x00)
+            {
+                Respond(request, EffectStatus.FailPermanent, "Level already at minumum.");
+                return false;
+            }
+            
+            if ((clevel + level) == 0x11)
+            {
+                Respond(request, EffectStatus.FailPermanent, "Level already at maximum.");
+                return false;
+            }
+
+            if (Connector.Write8(ADDR_LEVEL, (byte)(clevel + level)))
+            {
+                Respond(request, EffectStatus.Success);
+                return true;
+            }
+
+            DelayEffect(request);
+            return false;
+        }
+
+        private bool TryBossLocation([NotNull] EffectRequest request, byte boss)
+        {
+            if (!Connector.Read8(ADDR_CURRENT_AREA, out byte bosslocation))
+            {
+                DelayEffect(request);
+                return false;
+            }
+            if (bosslocation == boss)
+            {
+                
+                return true;
+            }
+            
+            if (bosslocation != boss)
+            {
+                Respond(request, EffectStatus.FailTemporary, "Wrong location.");
+                return false;
+            }           
+
+            DelayEffect(request);
+            return false;
+        }
+
+        private bool TryAlterBossHealth([NotNull] EffectRequest request, sbyte amount)
+    {
+            if (!Connector.Read8(ADDR_BOSS_HEALTH1, out byte bosshealth))
+            {
+                DelayEffect(request);
+                return false;
+            }
+
+            if ((bosshealth + amount) < 0x01)
             {
                 Respond(request, EffectStatus.FailTemporary, "Health already at minimum.");
                 return false;
             }
 
-            if ((health + amount) > 0xA0)
+            if ((bosshealth + amount) > 0xFF)
             {
-                Respond(request, EffectStatus.FailTemporary, "Health already at minimum.");
+                Respond(request, EffectStatus.FailTemporary, "Health already at maximum.");
                 return false;
             }
 
-            if (Connector.Write8(ADDR_HEALTH_MAX, (byte)(health + amount)))
+            if (Connector.Write8(ADDR_BOSS_HEALTH1, (byte)(bosshealth + amount)))
             {
                 Respond(request, EffectStatus.Success);
                 return true;
@@ -249,7 +352,38 @@ namespace CrowdControl.Games.Packs
             return false;
     }
 
+        private bool TryAlterBossHealthSabera([NotNull] EffectRequest request, sbyte amount)
+        {
+            if (!Connector.Read8(ADDR_BOSS_HEALTH2, out byte bosshealth2))
+            {
+                DelayEffect(request);
+                return false;
+            }
+
+            if ((bosshealth2 + amount) < 0x01)
+            {
+                Respond(request, EffectStatus.FailTemporary, "Health already at minimum.");
+                return false;
+            }
+
+            if ((bosshealth2 + amount) > 0xFF)
+            {
+                Respond(request, EffectStatus.FailTemporary, "Health already at maximum.");
+                return false;
+            }
+
+            if (Connector.Write8(ADDR_BOSS_HEALTH2, (byte)(bosshealth2 + amount)))
+            {
+                Respond(request, EffectStatus.Success);
+                return true;
+            }
+
+            DelayEffect(request);
+            return false;
+        }
+
         public override List<Effect> Effects
+
         {
             get
             {
@@ -257,12 +391,28 @@ namespace CrowdControl.Games.Packs
                 {
                  
                     // General
-                    new Effect("Free Shopping", "freeshops"),
-                    new Effect("Scaling Increase", "scaleup"),
-                    new Effect("Scaling Decrease", "scaledown"),
-                    new Effect("Level Increase", "levelup"),
-                    new Effect("Level Decrease", "leveldown"),
-                    //new Effect("Heal Boss", "healboss"),  Note need to learn how Sabera/Dyna work as they are the weird ones right now.
+                    new Effect("General", "general", ItemKind.Folder),
+                    new Effect("Free Shopping", "freeshops", "general"),
+                    new Effect("Scaling Increase", "scaleup", "general"),
+                    new Effect("Scaling Decrease", "scaledown", "general"),
+                    new Effect("Level Increase", "levelup", "general"),
+                    new Effect("Level Decrease", "leveldown", "general"),
+                    
+                    //Heal Boss
+                    new Effect("Heal Boss (20 Health)", "healboss", ItemKind.Folder),
+                    new Effect("Vampire", "healvamp1", "healboss"),
+                    new Effect("Big Bug", "healbug", "healboss"),
+                    new Effect("Kelbesque", "healkelby", "healboss"),
+                    new Effect("Vampire2", "healvamp2", "healboss"),
+                    new Effect("Sabera", "healsabera", "healboss"),
+                    new Effect("Mado", "healmado", "healboss"),
+                    new Effect("Kelbesque2", "healkelby2", "healboss"),
+                    new Effect("Sabera2", "healsabera2", "healboss"),
+                    new Effect("Mado2", "healmado2", "healboss"),
+                    new Effect("Karmine", "healkarmine", "healboss"),
+                    new Effect("Draygon", "healdraygon", "healboss"),
+                    new Effect("Draygon2", "healdraygon2", "healboss"),
+                    new Effect("Dyna", "healdyna", "healboss"),
 
                     // Projectile Effects
                     new Effect("Projectile Effects", "projectile", ItemKind.Folder),
@@ -272,11 +422,15 @@ namespace CrowdControl.Games.Packs
 
                     //Combat Effects
                     new Effect("Timed Combat Effects", "combat", ItemKind.Folder),
-                    new Effect("Equip Wind Sword", "windsword", "combat"),
-                    new Effect("Equip Fire Sword", "firesword", "combat"),
-                    new Effect("Equip Water Sword", "watersword", "combat"),
-                    new Effect("Equip Thunder Sword", "thundersword", "combat"),
-                    new Effect("Equip Crystalis Sword", "crystalissword", "combat"),
+                    new Effect("Equip Wind Sword (Timed)", "windsword", "combat"),
+                    new Effect("Equip Fire Sword (Timed)", "firesword", "combat"),
+                    new Effect("Equip Water Sword (Timed)", "watersword", "combat"),
+                    new Effect("Equip Thunder Sword (Timed)", "thundersword", "combat"),
+                    new Effect("Equip Crystalis Sword (Timed)", "crystalissword", "combat"),
+                    new Effect("Steal Wind Sword (Timed)", "removewindsword", "takepower"),
+                    new Effect("Steal Fire Sword (Timed)", "removefiresword", "takepower"),
+                    new Effect("Steal Water Sword (Timed)", "removewatersword", "takepower"),
+                    new Effect("Steal Thunder Sword (Timed)", "removethundersword", "takepower"),
                     
                     // Movement Effects
                     new Effect("Movement Effects", "moveeffect", ItemKind.Folder),
@@ -296,7 +450,7 @@ namespace CrowdControl.Games.Packs
                     new Effect("Timed Slime", "timedslime", "changecondition"),
 
                     // Power Down/Upgrade
-                    new Effect("Give Power","givepower", ItemKind.Folder),
+                    new Effect("Power Upgrade","givepower", ItemKind.Folder),
                     new Effect("Give Ball of Wind", "bowind", "givepower"),
                     new Effect("Give Ball of Fire", "bofire", "givepower"),
                     new Effect("Give Ball of Water", "bowater", "givepower"),
@@ -306,11 +460,7 @@ namespace CrowdControl.Games.Packs
                     new Effect("Give Bracelet of Water", "brwater",  "givepower"),
                     new Effect("Give Bracelet of Thunder", "brthunder",  "givepower"),
 
-                    new Effect("Take Power","takepower", ItemKind.Folder),
-                    new Effect("Steal Wind Sword", "removewindsword", "takepower"),
-                    new Effect("Steal Fire Sword", "removefiresword", "takepower"),
-                    new Effect("Steal Water Sword", "removewatersword", "takepower"),
-                    new Effect("Steal Thunder Sword", "removethundersword", "takepower"),
+                    new Effect("Power Downgrade","takepower", ItemKind.Folder),                    
                     new Effect("Steal Ball of Wind", "stealbowind", "takepower"),
                     new Effect("Steal Ball of Fire", "stealbofire",  "takepower"),
                     new Effect("Steal Ball of Water", "stealbowater", "takepower"),
@@ -329,11 +479,10 @@ namespace CrowdControl.Games.Packs
                     //new Effect("Magic -", "magicdown", new[] {"quantity256"}),
                     
                     // Direct Effect
-                    new Effect("Direct Effect", "directeffect", ItemKind.Folder),
-                    //new Effect("Heal Player", "sendherb", "directeffect"),        Note: Need to Identify how to force controller inputs.
-                    //new Effect("Hurt Player", "damage", "directeffect"),          Note: Need to Identify how to force controller inputs.
-                    //new Effect("Cure Player", "recover", "directeffect"),         Note: Need to Identify how to force controller inputs.
-                    //new Effect("Aliments Removed", "cure", "directeffect"),       Note: Need to Identify how to force controller inputs.
+                    //new Effect("Direct Effect", "directeffect", ItemKind.Folder),
+                    //new Effect("Heal Player", "sendherb", "directeffect"),        Note: Need to build out new help functions.
+                    //new Effect("Hurt Player", "damage", "directeffect"),          Note: Need to build out new help functions.
+                    //new Effect("Cure Player", "recover", "directeffect"),         Note: Need to build out new help functions.
                     //new Effect("Wild Warp", "wild", "directeffect"),              /*Note: Need to find workaround as input of 0xD0 into controller doesn't work*/
                     
                     //Armor and Shields
@@ -356,6 +505,7 @@ namespace CrowdControl.Games.Packs
                     //new Effect("Use Flight", "flight", "spells"),
                     
                     //Consumables
+                    
                     new Effect("Give Consumable","giveconsumable", ItemKind.Folder),                    
                     new Effect("Give Medical Herb", "giveherb","giveconsumable"),
                     new Effect("Give Antidote", "giveanti","giveconsumable"),
@@ -1750,8 +1900,9 @@ namespace CrowdControl.Games.Packs
                     }
 
                 case "stealherb":
-                    var herb = 0x1D;
                     {
+                        var herb = 0x1D;
+                    
                         if (!Connector.Read8(ADDR_ConsumeSlot1, out byte con1))
                         {
                             DelayEffect(request);
@@ -1907,8 +2058,9 @@ namespace CrowdControl.Games.Packs
                     }
 
                 case "stealanti":
-                    var anti = 0x1E;
                     {
+                        var anti = 0x1E;
+                    
                         if (!Connector.Read8(ADDR_ConsumeSlot1, out byte con1))
                         {
                             DelayEffect(request);
@@ -3278,108 +3430,301 @@ namespace CrowdControl.Games.Packs
                         return;
                     }
 
-                //case "heal boss":
+                case "healvamp1":
+                    {
+                    byte Vamp1 = 0x0A;                    
+                        
+                        if (TryBossLocation(request, Vamp1))
+                        {
+                            {
+                                if (TryAlterBossHealth(request, 20))
+                                {
+                                    Connector.SendMessage($"{request.DisplayViewer} sent Vamp1 Health.");
+                                }
+                                return;
+                            }
+                        }
+                        return;
+                    }
+
+                case "healbug":                    
+                    {
+                        byte Bug = 0x1A;                      
+
+                        if (TryBossLocation(request, Bug))
+                        {
+                            {
+                                if (TryAlterBossHealth(request, 20))
+                                {
+                                    Connector.SendMessage($"{request.DisplayViewer} sent Bug Health.");
+                                }
+                                return;
+                            }
+                        }
+                        return;
+                    }
+
+                case "healkelby":
+                    {
+                        byte Kelby = 0x28;
+
+                        if (TryBossLocation(request, Kelby))
+                        {
+                            {
+                                if (TryAlterBossHealth(request, 20))
+                                {
+                                    Connector.SendMessage($"{request.DisplayViewer} sent Kelby Health.");
+                                }
+                                return;
+                            }
+                        }
+                        return;
+                    }
+
+                case "healvamp2":
+                    {                        
+                        byte Vamp2 = 0x6C;
+
+                        if (TryBossLocation(request, Vamp2))
+                        {
+                            {
+                                if (TryAlterBossHealth(request, 20))
+                                {
+                                    Connector.SendMessage($"{request.DisplayViewer} sent Vamp2 Health.");
+                                }
+                                return;
+                            }
+                        }
+                        return;
+                    }
+                
+                case "healsabera":
+                    {
+                        byte Sabera = 0x6E;
+
+                        if (TryBossLocation(request, Sabera))
+                        {
+                            {
+                                if (TryAlterBossHealthSabera(request, 20))
+                                {
+                                    Connector.SendMessage($"{request.DisplayViewer} sent Sabera Health.");
+                                }
+                                return;
+                            }
+                        }
+                        return;
+                    }
+
+                case "healmado":
+                    {
+                        byte Mado = 0xF2;
+
+                        if (TryBossLocation(request, Mado))
+                        {
+                            {
+                                if (TryAlterBossHealth(request, 20))
+                                {
+                                    Connector.SendMessage($"{request.DisplayViewer} sent Mado Health.");
+                                }
+                                return;
+                            }
+                        }
+                        return;
+                    }
+
+                case "healkelby2":
+                    {
+                        byte Kelby2 = 0xA9;
+
+                        if (TryBossLocation(request, Kelby2))
+                        {
+                            {
+                                if (TryAlterBossHealth(request, 20))
+                                {
+                                    Connector.SendMessage($"{request.DisplayViewer} sent Kelby2 Health.");
+                                }
+                                return;
+                            }
+                        }
+                        return;
+                    }
+
+                case "healsabera2":
+                    {
+                        byte Sabera2 = 0xAC;
+
+                        if (TryBossLocation(request, Sabera2))
+                        {
+                            {
+                                if (TryAlterBossHealth(request, 20))
+                                {
+                                    Connector.SendMessage($"{request.DisplayViewer} sent Sabera2 Health.");
+                                }
+                                return;
+                            }
+                        }
+                        return;
+                    }
+
+                case "healmado2":
+                    {
+                        byte Mado2 = 0xB9;
+
+                        if (TryBossLocation(request, Mado2))
+                        {
+                            {
+                                if (TryAlterBossHealth(request, 20))
+                                {
+                                    Connector.SendMessage($"{request.DisplayViewer} sent Mado2 Health.");
+                                }
+                                return;
+                            }
+                        }
+                        return;
+                    }
+
+                case "healkarmine":
+                    {
+                        byte Karmine = 0xB6;
+
+                        if (TryBossLocation(request, Karmine))
+                        {
+                            {
+                                if (TryAlterBossHealth(request, 20))
+                                {
+                                    Connector.SendMessage($"{request.DisplayViewer} sent Karmine Health.");
+                                }
+                                return;
+                            }
+                        }
+                        return;
+                    }
+
+                case "healdraygon":
+                    {
+                        byte Draygon = 0x9F;
+
+                        if (TryBossLocation(request, Draygon))
+                        {
+                            {
+                                if (TryAlterBossHealth(request, 20))
+                                {
+                                    Connector.SendMessage($"{request.DisplayViewer} sent Draygon Health.");
+                                }
+                                return;
+                            }
+                        }
+                        return;
+                    }
+
+                case "healdraygon2":
+                    {
+                        byte Draygon2 = 0xA6;
+                        byte Dyna = 0x5F;
+
+                        if (TryBossLocation(request, Draygon2))
+                        {
+                            {
+                                if (TryAlterBossHealth(request, 20))
+                                {
+                                    Connector.SendMessage($"{request.DisplayViewer} sent Draygon2 Health.");
+                                }
+                                return;
+                            }
+                        }
+                        return;
+                    }
+
+                case "healdyna":
+                    {
+                        byte Dyna = 0x5F;
+
+                        if (TryBossLocation(request, Dyna))
+                        {
+                            {
+                                if (TryAlterBossHealth(request, 20))
+                                {
+                                    Connector.SendMessage($"{request.DisplayViewer} sent Dyna Health.");
+                                }
+                                return;
+                            }
+                        }
+                        return;
+                    }
+
+                case "levelup":                   
+                    {
+                    if (TryAlterLevel(request, 1))
+                        {
+                            Connector.SendMessage($"{request.DisplayViewer} sent a level.");
+                        }
+                    return;
+                }
+
+                case "leveldown":
+                    {
+                        if (TryAlterLevel(request, -1))
+                        {
+                            Connector.SendMessage($"{request.DisplayViewer} removed a level.");
+                        }
+                        return;
+                    }
+
+                case "scaleup":
+                    {
+                        if (TryAlterScale(request, 1))
+                        {
+                            Connector.SendMessage($"{request.DisplayViewer} sent a scale.");
+                        }
+                        return;
+                    }
+
+                case "scaledown":
+                    {
+                        if (TryAlterScale(request, -1))
+                        {
+                            Connector.SendMessage($"{request.DisplayViewer} removed a scale.");
+                        }
+                        return;
+                    }
+
+                case "freeshops":
+                    {
+                        var shop = RepeatAction(request,
+                        TimeSpan.FromSeconds(45),
+                        () => Connector.IsNonZero8(ADDR_SHOP_CURRENT_PRICE), /*Effect Start Condition*/
+                        () => Connector.Freeze8(ADDR_SHOP_CURRENT_PRICE, 0x00), /*Start Action*/
+                        TimeSpan.FromSeconds(1), /*Retry Timer*/
+                        () => Connector.IsZero8(ADDR_SHOP_CURRENT_PRICE), /*Refresh Condtion*/
+                        TimeSpan.FromMilliseconds(500), /*Refresh Retry Timer*/
+                        () => true, /*Action*/
+                        TimeSpan.FromSeconds(0.5),
+                        true);
+                        shop.WhenStarted.Then(t => Connector.SendMessage($"{request.DisplayViewer} made everything in town FREE!!!"));
+                        shop.WhenCompleted.Then(t => Connector.SendMessage($"{request.DisplayViewer}'s restored back to normal prices."));
+                        return;
+                    }
+
+                //case "moneyup":     Note look into two byte system.
                 //    {
-                //        StartTimed(request,
-                //          () => Connector.Read8(ADDR_SwordSlot4, out byte b) && (b == 0x03),
-                //          () =>
-                //          {
-                //              bool result = Connector.Write8(ADDR_SwordSlot4, 0xFF);
-                //              if (result) { Connector.SendMessage($"{request.DisplayViewer} stole your Sword of Thunder."); }
-                //              return result;
-                //          },
-                //          TimeSpan.FromSeconds(30));
+                //        if (TryAlterMoney(request, 50))
+                //        {
+                //            Connector.SendMessage($"{request.DisplayViewer} sent a money.");
+                //        }
                 //        return;
                 //    }
 
-                    //case "levelup":
-
-                    //    {
-                    //        sbyte level;
-                    //        StartTimed(request,
-                    //      () => Connector.Read8(ADDR_SCALING, out byte level) && (level >= 0x00),
-                    //      () =>
-                    //      {
-                    //          bool result = Connector.Write8(ADDR_SCALING, Math.Min(level + sbyte (1)));
-                    //          if (result) { Connector.SendMessage($"{request.DisplayViewer} increased scaling."); }
-                    //          return result;
-                    //      },
-                    //      TimeSpan.FromSeconds(30));
-                    //        return;
-                    //    }
-
-
-                    //case "scaleup":
-                    //    {
-                    //        byte scale;
-                    //            StartTimed(request,
-                    //          () => Connector.Read8(ADDR_SCALING, out byte scale) && (scale >= 0x00),
-                    //          () =>
-                    //          {
-                    //              bool result = Connector.Write8(ADDR_SCALING, Math.Abs(scale + 1));
-                    //              if (result) { Connector.SendMessage($"{request.DisplayViewer} increased scaling."); }
-                    //              return result;
-                    //          },
-                    //          TimeSpan.FromSeconds(30));
-                    //        return;
-                    //    }
-
-                    //{
-                    //    //Requires UI refresh at start and end
-
-                    //    byte scale = 01;
-                    //    var w = RepeatAction(request, TimeSpan.FromSeconds(30),
-                    //        () => Connector.Read8(ADDR_HP, out origHP) && (origHP > 1),
-                    //        () => Connector.SendMessage($"{request.DisplayViewer} sent One Hit KO Mode."), TimeSpan.FromSeconds(1),
-                    //        () => Connector.IsNonZero8(ADDR_HP), TimeSpan.FromSeconds(1),
-                    //        () => Connector.Write8(ADDR_HP, 0x02), TimeSpan.FromSeconds(1), true, "health");
-                    //    w.WhenCompleted.Then(t =>
-                    //    {
-                    //        Connector.Write8(ADDR_HP, origHP);
-                    //        Connector.SendMessage("One Hit KO Removed.");
-                    //    });
-                    //    return;
-                    //}
-
-
-                    //case "freeshops":
-                    //    {
-                    //        byte freeshop = 0;
-                    //        var shop = RepeatAction(request, TimeSpan.FromSeconds(15),
-                    //            () => Connector.Read8(ADDR_SHOP_CURRENT_PRICE, out freeshop) && (freeshop >= 0),
-                    //            () => Connector.SendMessage($"{request.DisplayViewer} stole Thunder Sword."), TimeSpan.FromSeconds(1),
-                    //            () => Connector.IsNonZero8(ADDR_SHOP_CURRENT_PRICE), TimeSpan.FromSeconds(1),
-                    //            () => Connector.Write8(ADDR_SHOP_CURRENT_PRICE, 0x00), TimeSpan.FromSeconds(30), true, "orangesword");
-                    //        shop.WhenCompleted.Then(t =>
-                    //        {
-                    //            Connector.Write8(ADDR_SHOP_CURRENT_PRICE, 0x00);
-                    //            Connector.SendMessage("Thunder Sword restored.");
-                    //        });
-                    //        return;
-                    //    }
-
-                    //                    case "moneyup":
-                    //                    
-                    //                       if (!byte.TryParse(codeParams[0], out byte quantity)) 
-                    //                    {
-                    //                        Respond(request, EffectStatus.FailTemporary, "Quantity parameter missing.");
-                    //                        return;
-                    //                    }
-                    //                    
-                    //                   TryEffect(request,
-                    //                        () => Connector.rangeadd16(ADDR_Money, quantity, 0, 256, false),
-                    //                        () => true,
-                    //                        () => Connector.Sendmessage($"{request.displayviewer} gave you money {quantity} money."),
-                    //                        () => TimeSpan.FromSeconds(math.min((tcap *= 2), 40)));
-                    //                        return;
-                    //
-                    //                    case "spawn":
-                    //                    TryEffect(request, SpawnEnemy() => true);
-                    //                    return;
+                //case "moneydown":
+                //    {
+                //        if (TryAlterMoney(request, -50))
+                //        {
+                //            Connector.SendMessage($"{request.DisplayViewer} took a money.");
+                //        }
+                //        return;
+                //    }
             }
         }
         
-        //private volatile bool _forceActive = false;
 
         protected override bool StopEffect(EffectRequest request)
         {
@@ -3402,6 +3747,12 @@ namespace CrowdControl.Games.Packs
                 case "trishot":
                     {
                         result = Connector.Unfreeze(ADDR_Warrior);
+                        return result;
+                    }
+
+                case "freeshops":
+                    {
+                        result = Connector.Unfreeze(ADDR_SHOP_CURRENT_PRICE);
                         return result;
                     }
 
@@ -3478,7 +3829,3 @@ namespace CrowdControl.Games.Packs
         }
     }
 }
-
-
-
-
