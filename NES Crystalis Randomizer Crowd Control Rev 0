@@ -3810,13 +3810,6 @@ namespace CrowdControl.Games.Packs
                         Connector.SendMessage($"{request.DisplayViewer}'s gave back your Sword of Thunder.");
                         return result;
                     }
-                case "scale":
-                    {
-                        Connector.Write8(ADDR_SCALING, 0x03);
-                        Connector.SendMessage($"{request.DisplayViewer}'s restored your scaling.");
-                        return result;
-                    }
-
                 
             }
             return result;
