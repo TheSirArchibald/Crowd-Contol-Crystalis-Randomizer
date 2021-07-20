@@ -114,58 +114,58 @@ namespace CrowdControl.Games.Packs
         //Boss
         private const ushort ADDR_BOSS_HEALTH1 = 0x03CD;
         private const ushort ADDR_BOSS_HEALTH2 = 0x03CE;
-        private const ushort ADDR_Kelby = 0x0;
-        private const ushort ADDR_Sabera = 0x0;
-        private const ushort ADDR_Mado = 0x0;
-        private const ushort ADDR_Kelby2 = 0x0;
-        private const ushort ADDR_Sabera2 = 0x0;
-        private const ushort ADDR_Mado2 = 0x0;
-        private const ushort ADDR_Karmine = 0x0;
-        private const ushort ADDR_Draygon = 0x0;
+        //private const ushort ADDR_Kelby = 0x0;
+        //private const ushort ADDR_Sabera = 0x0;
+        //private const ushort ADDR_Mado = 0x0;
+        //private const ushort ADDR_Kelby2 = 0x0;
+        //private const ushort ADDR_Sabera2 = 0x0;
+        //private const ushort ADDR_Mado2 = 0x0;
+        //private const ushort ADDR_Karmine = 0x0;
+        //private const ushort ADDR_Draygon = 0x0;
 
         //Need to fix Bosses later just a placeholder for now
-        private Dictionary<string, (string bossName, byte value, BossDefeated bossFlag, ushort address, byte limit)> _wType = new Dictionary<string, (string, byte, BossDefeated, ushort, byte)>(StringComparer.InvariantCultureIgnoreCase)
-        {
-            {"Kelby", ("Kelby", 0, BossDefeated.Kelby, ADDR_Kelby, 0)},
-            {"Sabera", ("Sabera", 1, BossDefeated.Sabera, ADDR_Sabera, 14)},
-            {"Mado", ("Mado", 2, BossDefeated.Mado, ADDR_Mado, 14)},
-            {"Kelby2", ("Kelby2,", 3, BossDefeated.Kelby2, ADDR_Kelby2, 14)},
-            {"Sabera2", ( "Sabera2", 4, BossDefeated.Sabera2, ADDR_Sabera2, 14)},
-            {"Mado2", ("Mado2", 5, BossDefeated.Mado2, ADDR_Mado2, 14)},
-            {"Karmine", ("Karmine", 6, BossDefeated.Karmine, ADDR_Karmine, 14)},
-            {"Draygon", ("Draygon", 7, BossDefeated.Draygon, ADDR_Draygon, 14)},
-        };
+        //private Dictionary<string, (string bossName, byte value, BossDefeated bossFlag, ushort address, byte limit)> _wType = new Dictionary<string, (string, byte, BossDefeated, ushort, byte)>(StringComparer.InvariantCultureIgnoreCase)
+        //{
+        //    {"Kelby", ("Kelby", 0, BossDefeated.Kelby, ADDR_Kelby, 0)},
+        //    {"Sabera", ("Sabera", 1, BossDefeated.Sabera, ADDR_Sabera, 14)},
+        //    {"Mado", ("Mado", 2, BossDefeated.Mado, ADDR_Mado, 14)},
+        //    {"Kelby2", ("Kelby2,", 3, BossDefeated.Kelby2, ADDR_Kelby2, 14)},
+        //    {"Sabera2", ( "Sabera2", 4, BossDefeated.Sabera2, ADDR_Sabera2, 14)},
+        //    {"Mado2", ("Mado2", 5, BossDefeated.Mado2, ADDR_Mado2, 14)},
+        //    {"Karmine", ("Karmine", 6, BossDefeated.Karmine, ADDR_Karmine, 14)},
+        //    {"Draygon", ("Draygon", 7, BossDefeated.Draygon, ADDR_Draygon, 14)},
+        //};
 
-        [Flags]
-        private enum BossLocation : byte
-        {
-            Vamp1 = 0x0A,
-            Bug = 0x1A,
-            Kelby = 0x28,
-            Vamp2 = 0x6C,
-            Sabera = 0x6E,
-            Mado = 0xF2,
-            Kelby2 = 0xA9,
-            Sabera2 = 0xAC,
-            Mado2 = 0xB9,
-            Karmine = 0xB6,
-            Draygon = 0x9F,
-            Draygon2 = 0xA6,
-            Dyna = 0x5F            
-        }
+        //[Flags]
+        //private enum BossLocation : byte
+        //{
+        //    Vamp1 = 0x0A,
+        //    Bug = 0x1A,
+        //    Kelby = 0x28,
+        //    Vamp2 = 0x6C,
+        //    Sabera = 0x6E,
+        //    Mado = 0xF2,
+        //    Kelby2 = 0xA9,
+        //    Sabera2 = 0xAC,
+        //    Mado2 = 0xB9,
+        //    Karmine = 0xB6,
+        //    Draygon = 0x9F,
+        //    Draygon2 = 0xA6,
+        //    Dyna = 0x5F            
+        //}
       
-        private enum BossDefeated : byte
-        {
-            Kelby = 0x01,
-            Sabera = 0x02,
-            Mado = 0x04,
-            Kelby2 = 0x08,
-            Sabera2 = 0x10,
-            Mado2 = 0x20,
-            Karmine = 0x40,
-            Draygon = 0x80,
-            All = 0xFF
-        }
+        //private enum BossDefeated : byte
+        //{
+        //    Kelby = 0x01,
+        //    Sabera = 0x02,
+        //    Mado = 0x04,
+        //    Kelby2 = 0x08,
+        //    Sabera2 = 0x10,
+        //    Mado2 = 0x20,
+        //    Karmine = 0x40,
+        //    Draygon = 0x80,
+        //    All = 0xFF
+        //}
 
         //    private bool SpawnEnemy() =>
         //                            Connector.Read8(ADDR_PosX, out ushort xPos) &&
@@ -3723,8 +3723,7 @@ namespace CrowdControl.Games.Packs
                 //        return;
                 //    }
             }
-        }
-        
+        }        
 
         protected override bool StopEffect(EffectRequest request)
         {
