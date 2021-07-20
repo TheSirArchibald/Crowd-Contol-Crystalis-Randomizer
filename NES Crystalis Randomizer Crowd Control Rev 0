@@ -58,7 +58,7 @@ namespace CrowdControl.Games.Packs
         private const ushort ADDR_HP = 0x03C1;
         private const ushort ADDR_MPC = 0x0708;
         private const ushort ADDR_MPF = 0x0708;
-        private const ushort ADDR_HEALTH_MAX = 0x0040;
+        private const ushort ADDR_HEALTH_MAX = 0x03C0;
         private const ushort ADDR_SHOP_CURRENT_PRICE = 0x6474;
         private const ushort ADDR_SCALING = 0x648F;
         private const ushort ADDR_LEVEL = 0x0421;
@@ -299,6 +299,148 @@ namespace CrowdControl.Games.Packs
             return false;
         }
 
+        private bool TryGiveMP([NotNull] EffectRequest request)
+        {
+
+            if (!Connector.Read8(ADDR_MPF, out byte MPFULL))
+
+            {
+                DelayEffect(request);
+                return false;
+            }
+
+            if (!Connector.Read8(ADDR_MPC, out byte MPCURRENT))
+
+            {
+                DelayEffect(request);
+                return false;
+            }
+
+            if (MPFULL == MPCURRENT)
+            {
+                Respond(request, EffectStatus.FailPermanent, "Magic already at maximum.");
+                return false;
+            }
+
+            if (MPFULL >= MPCURRENT)
+            {
+                Connector.Write8(ADDR_MPC, (byte)(MPFULL));
+                {
+                    Respond(request, EffectStatus.Success);
+                    return true;
+                }
+            }
+            DelayEffect(request);
+            return false;
+        }
+
+        private bool TryTakeMP([NotNull] EffectRequest request, sbyte mpfactor)
+        {
+
+            if (!Connector.Read8(ADDR_LEVEL, out byte playerlvl))
+
+            {
+                DelayEffect(request);
+                return false;
+            }
+
+            if (!Connector.Read8(ADDR_MPC, out byte cmp))
+
+            {
+                DelayEffect(request);
+                return false;
+            }
+
+            if ((cmp - (playerlvl * mpfactor) < 0))
+            {
+                if (Connector.Write8(ADDR_MPC, (byte)(0)))
+                {
+                    Respond(request, EffectStatus.Success);
+                    return true;
+                }
+            }
+
+            if (Connector.Write8(ADDR_MPC, (byte)(cmp - (playerlvl * mpfactor))))
+            {
+                Respond(request, EffectStatus.Success);
+                return true;
+            }
+
+            DelayEffect(request);
+            return false;
+        }
+
+        private bool TryHealPlayerHealth([NotNull] EffectRequest request)
+        {
+
+            if (!Connector.Read8(ADDR_HEALTH_MAX, out byte maxhealth))
+
+            {
+                DelayEffect(request);
+                return false;
+            }
+
+            if (!Connector.Read8(ADDR_HP, out byte chealth))
+
+            {
+                DelayEffect(request);
+                return false;
+            }
+                     
+            if (maxhealth == chealth)
+            {
+                Respond(request, EffectStatus.FailPermanent, "Health already at maximum.");
+                return false;
+            }
+
+            if (maxhealth >= chealth)
+            {
+                Connector.Write8(ADDR_HP, (byte)(maxhealth));
+                {
+                    Respond(request, EffectStatus.Success);
+                    return true;
+                }
+            }
+            DelayEffect(request);
+            return false;
+        }
+
+        private bool TryHurtPlayerHealth([NotNull] EffectRequest request, sbyte factor)
+        {
+
+            if (!Connector.Read8(ADDR_LEVEL, out byte playerlvl))
+
+            {
+                DelayEffect(request);
+                return false;
+            }
+
+            if (!Connector.Read8(ADDR_HP, out byte mhealth))
+
+            {
+                DelayEffect(request);
+                return false;
+            }            
+
+            if ((mhealth - (playerlvl * factor) < 0))
+            {
+                if (Connector.Write8(ADDR_HP, (byte)(0)))
+                {
+                    Respond(request, EffectStatus.Success);
+                    return true;
+                }
+            }
+
+            if (Connector.Write8(ADDR_HP, (byte) (mhealth - (playerlvl * factor))))
+            {
+                Respond(request, EffectStatus.Success);
+                return true;
+            }
+
+            DelayEffect(request);
+            return false;
+        }
+
         private bool TryBossLocation([NotNull] EffectRequest request, byte boss)
         {
             if (!Connector.Read8(ADDR_CURRENT_AREA, out byte bosslocation))
@@ -321,7 +463,6 @@ namespace CrowdControl.Games.Packs
             DelayEffect(request);
             return false;
         }
-
     
         private bool TryAlterBossHealth([NotNull] EffectRequest request, sbyte slope)
     {
@@ -407,9 +548,17 @@ namespace CrowdControl.Games.Packs
                     new Effect("Scaling Decrease", "scaledown", "general"),
                     new Effect("Level Increase", "levelup", "general"),
                     new Effect("Level Decrease", "leveldown", "general"),
+                    new Effect("Heal Player to Full", "healplayer", "general"),
+                    new Effect("Hurt Player X%", "hurtplayer", "general"),
+                    new Effect("Cure Player", "recover", "general"),
+                    new Effect("Magic +", "magicup", "general"),
+                    new Effect("Magic -", "magicdown", "general"),
+                    //new Effect("Wild Warp", "wild", "general"),              Note: Need to find workaround as input of 0xD0 into controller doesn't work*/
+                    
                     
                     //Heal Boss
-                    new Effect("Heal Boss (X% Scaled)", "healboss", ItemKind.Folder),
+                    //Note all boss fights check for boss area map to see if Effect can trigger but you can despawn the effect.  Will need to add screen fight transmition animation RAM action for better trigger.
+                    new Effect("Heal Boss (X% Scaled)", "healboss", ItemKind.Folder),  
                     new Effect("Vampire", "healvamp1", "healboss"),
                     new Effect("Big Bug", "healbug", "healboss"),
                     new Effect("Kelbesque", "healkelby", "healboss"),
@@ -423,6 +572,18 @@ namespace CrowdControl.Games.Packs
                     new Effect("Draygon", "healdraygon", "healboss"),
                     new Effect("Draygon2", "healdraygon2", "healboss"),
                     new Effect("Dyna", "healdyna", "healboss"),
+
+                    //Respawn Boss
+                    //Note boss fights are linked to chest drop. Will need to update ASM to ensure Boss Chests are non key items in Crowd Control Flag Setup.
+                    //new Effect("Respawn Story Mode Boss", "respawnboss", ItemKind.Folder).   
+                    //new Effect("Kelbesque", "respawnkelby", "respawnboss"),
+                    //new Effect("Sabera", "respawnsabera", "respawnboss"),
+                    //new Effect("Mado", "respawnmado", "respawnboss"),
+                    //new Effect("Kelbesque2", "respawnkelby2", "respawnboss"),
+                    //new Effect("Sabera2", "respawnsabera2", "respawnboss"),
+                    //new Effect("Mado2", "respawnmado2", "respawnboss"),
+                    //new Effect("Karmine", "respawnkarmine", "respawnboss"),
+                    //new Effect("Draygon", "respawndraygon", "respawnboss"),
 
                     // Projectile Effects
                     new Effect("Projectile Effects", "projectile", ItemKind.Folder),
@@ -460,6 +621,7 @@ namespace CrowdControl.Games.Packs
                     new Effect("Timed Slime", "timedslime", "changecondition"),
 
                     // Power Down/Upgrade
+                    // Note: Ro flag is required for Crowd Control Flags.
                     new Effect("Power Upgrade","givepower", ItemKind.Folder),
                     new Effect("Give Ball of Wind", "bowind", "givepower"),
                     new Effect("Give Ball of Fire", "bofire", "givepower"),
@@ -481,19 +643,11 @@ namespace CrowdControl.Games.Packs
                     new Effect("Steal Bracelet of Thunder", "stealbrthunder", "takepower"),
                     
                     // Slider Effects
-                    // Note: Need to workout max magic at X lvl.
-                    // Note: Need to workout two bytes for money system.
+                    // Note: Need to workout max magic at X lvl. 255 Max MP
+                    // Note: Need to workout two bytes for money system. 65,280 Max Gold
                     //new Effect("Money +", "moneyup", new[] {"quantity256"}),
                     //new Effect("Money -", "moneydown", new[] {"quantity256"}),
-                    //new Effect("Magic +", "magicup", new[] {"quantity256"}),
-                    //new Effect("Magic -", "magicdown", new[] {"quantity256"}),
-                    
-                    // Direct Effect
-                    //new Effect("Direct Effect", "directeffect", ItemKind.Folder),
-                    //new Effect("Heal Player", "sendherb", "directeffect"),        Note: Need to build out new help functions.
-                    //new Effect("Hurt Player", "damage", "directeffect"),          Note: Need to build out new help functions.
-                    //new Effect("Cure Player", "recover", "directeffect"),         Note: Need to build out new help functions.
-                    //new Effect("Wild Warp", "wild", "directeffect"),              /*Note: Need to find workaround as input of 0xD0 into controller doesn't work*/
+                                                                        
                     
                     //Armor and Shields
                     new Effect("Give Defense Item","givedef", ItemKind.Folder),
@@ -547,10 +701,7 @@ namespace CrowdControl.Games.Packs
                     
                     // Blackout Mode (need to talk with Steve)
                     //new Effect("Blackout", "blackout"),
-
-                    // Respawn Boss (Hard to code but possible I think)
-                    //new Effect("Spawn Boss", "spawnboss"),
-
+                                        
                     // Modify Triggers
                     //new Effect("Deactivate Dolphin", "dolphin"),
 
@@ -638,19 +789,19 @@ namespace CrowdControl.Games.Packs
                         return;
                     }
 
-                //case "flight":  Need a Freeze Function JUMP and MP.
+                    //case "flight":  Need a Freeze Function JUMP and MP.
                     {
-                    //        RepeatAction(request, TimeSpan.FromSeconds(15),
-                    //        () => Connector.IsZero8(ADDR_Jump),
-                    //        () => Connector.Write8(ADDR_Jump, 13) && Connector.SendMessage($"{request.DisplayViewer} has granted you flight mode."), TimeSpan.FromSeconds(0.5),
-                    //        () => true, TimeSpan.FromSeconds(5),
-                    //        () => Connector.Write8(ADDR_Jump, 13), TimeSpan.FromSeconds(0.5), true)
-                    //        .WhenCompleted.ContinueWith(t => Connector.SendMessage($"{request.DisplayViewer} has removed your flight mode."));
-                    //        return;
-                    //  "Needs to freeze ADDR_Jump but unknown right now
+                        //        RepeatAction(request, TimeSpan.FromSeconds(15),
+                        //        () => Connector.IsZero8(ADDR_Jump),
+                        //        () => Connector.Write8(ADDR_Jump, 13) && Connector.SendMessage($"{request.DisplayViewer} has granted you flight mode."), TimeSpan.FromSeconds(0.5),
+                        //        () => true, TimeSpan.FromSeconds(5),
+                        //        () => Connector.Write8(ADDR_Jump, 13), TimeSpan.FromSeconds(0.5), true)
+                        //        .WhenCompleted.ContinueWith(t => Connector.SendMessage($"{request.DisplayViewer} has removed your flight mode."));
+                        //        return;
+                        //  "Needs to freeze ADDR_Jump but unknown right now
                     }
 
-                case "heavy":                   
+                case "heavy":
                     {
                         StartTimed(request,
                           () => Connector.Read8(ADDR_Speed, out byte b) && (b == 0x06),
@@ -696,9 +847,9 @@ namespace CrowdControl.Games.Packs
                         a.WhenStarted.Then(t => Connector.SendMessage($"{request.DisplayViewer} deployed an Beast Mode Effect."));
                         a.WhenCompleted.Then(t => Connector.SendMessage($"{request.DisplayViewer}'s Beast Mode Effect has dispered."));
                         return;
-                    }                                    
+                    }
 
-                case "trishot":                
+                case "trishot":
                     {
                         var a = RepeatAction(request,
                         TimeSpan.FromSeconds(15),
@@ -715,6 +866,28 @@ namespace CrowdControl.Games.Packs
                         return;
                     }
 
+                case "recover":
+                    {
+                        if (!Connector.Read8(ADDR_Condition, out byte con))
+                        {
+                            DelayEffect(request);
+                        }
+                        else if ((con) == 0x00)
+                        {
+                            Respond(request, EffectStatus.FailPermanent, "Normal Condition Already");
+                        }
+                        else if (!Connector.SetBits(ADDR_Condition, 00, out _))
+                        {
+                            DelayEffect(request);
+                        }
+                        else
+                        {
+                            Connector.Write8(ADDR_Condition, 0);
+                            Connector.SendMessage($"{request.DisplayViewer} cured you");
+                        }
+                        return;
+                    }
+                
                 case "paralysis":
                     {
                         if (!Connector.Read8(ADDR_Condition, out byte con))
@@ -750,7 +923,7 @@ namespace CrowdControl.Games.Packs
                           TimeSpan.FromSeconds(15));
                         return;
                     }
-                               
+
                 case "poison":
                     {
                         if (!Connector.Read8(ADDR_Condition, out byte con))
@@ -775,17 +948,17 @@ namespace CrowdControl.Games.Packs
 
                 case "timedpoison":
                     {
-                    StartTimed(request,
-                      () => Connector.Read8(ADDR_Condition, out byte b) && (b == 0x00),
-                      () =>
-                      {
-                          bool result = Connector.Write8(ADDR_Condition, 0x03);
-                          if (result) { Connector.SendMessage($"{request.DisplayViewer} poisoned you (15s)."); }
-                          return result;
-                      },
-                      TimeSpan.FromSeconds(15));
-                    return;
-                }
+                        StartTimed(request,
+                          () => Connector.Read8(ADDR_Condition, out byte b) && (b == 0x00),
+                          () =>
+                          {
+                              bool result = Connector.Write8(ADDR_Condition, 0x03);
+                              if (result) { Connector.SendMessage($"{request.DisplayViewer} poisoned you (15s)."); }
+                              return result;
+                          },
+                          TimeSpan.FromSeconds(15));
+                        return;
+                    }
 
                 case "slime":  //Consider redoing this one to be repeat to ensure screen transition doesn't work.
                     {
@@ -811,17 +984,17 @@ namespace CrowdControl.Games.Packs
 
                 case "timedslime": //Consider redoing this one to be repeat to ensure screen transition doesn't work.
                     {
-                    StartTimed(request,
-                      () => Connector.Read8(ADDR_Condition, out byte b) && (b == 0x00),
-                      () =>
-                      {
-                          bool result = Connector.Write8(ADDR_Condition, 0x04);
-                          if (result) { Connector.SendMessage($"{request.DisplayViewer} slimed you (15s)."); }
-                          return result;
-                      },
-                      TimeSpan.FromSeconds(45));
-                    return;
-                }
+                        StartTimed(request,
+                          () => Connector.Read8(ADDR_Condition, out byte b) && (b == 0x00),
+                          () =>
+                          {
+                              bool result = Connector.Write8(ADDR_Condition, 0x04);
+                              if (result) { Connector.SendMessage($"{request.DisplayViewer} slimed you (15s)."); }
+                              return result;
+                          },
+                          TimeSpan.FromSeconds(45));
+                        return;
+                    }
 
                 case "bowind":
                     {
@@ -1758,7 +1931,7 @@ namespace CrowdControl.Games.Packs
                     }
 
                 case "allfol":
-                    {                        
+                    {
                         if (!Connector.Read8(ADDR_ConsumeSlot1, out byte con1))
                         {
                             DelayEffect(request);
@@ -1912,19 +2085,19 @@ namespace CrowdControl.Games.Packs
                 case "stealherb":
                     {
                         var herb = 0x1D;
-                    
+
                         if (!Connector.Read8(ADDR_ConsumeSlot1, out byte con1))
                         {
                             DelayEffect(request);
                         }
                         else if ((con1) != herb)
-                        {                            
+                        {
                             if (!Connector.Read8(ADDR_ConsumeSlot2, out byte con2))
                             {
                                 DelayEffect(request);
                             }
                             else if ((con2) != herb)
-                            {                                
+                            {
                                 if (!Connector.Read8(ADDR_ConsumeSlot3, out byte con3))
                                 {
                                     DelayEffect(request);
@@ -2070,7 +2243,7 @@ namespace CrowdControl.Games.Packs
                 case "stealanti":
                     {
                         var anti = 0x1E;
-                    
+
                         if (!Connector.Read8(ADDR_ConsumeSlot1, out byte con1))
                         {
                             DelayEffect(request);
@@ -2227,7 +2400,7 @@ namespace CrowdControl.Games.Packs
 
                 case "steallysis":
                     { var lp = 0x1F;
-                    
+
                         if (!Connector.Read8(ADDR_ConsumeSlot1, out byte con1))
                         {
                             DelayEffect(request);
@@ -2384,7 +2557,7 @@ namespace CrowdControl.Games.Packs
 
                 case "stealfol":
                     { var fol = 0x20;
-                    
+
                         if (!Connector.Read8(ADDR_ConsumeSlot1, out byte con1))
                         {
                             DelayEffect(request);
@@ -2541,7 +2714,7 @@ namespace CrowdControl.Games.Packs
 
                 case "stealfop":
                     {
-                       var fop = 0x21;                    
+                        var fop = 0x21;
                         if (!Connector.Read8(ADDR_ConsumeSlot1, out byte con1))
                         {
                             DelayEffect(request);
@@ -2698,7 +2871,7 @@ namespace CrowdControl.Games.Packs
 
                 case "stealmr":
                     {
-                        var mr = 0x22;                    
+                        var mr = 0x22;
                         if (!Connector.Read8(ADDR_ConsumeSlot1, out byte con1))
                         {
                             DelayEffect(request);
@@ -2855,7 +3028,7 @@ namespace CrowdControl.Games.Packs
 
                 case "stealfor":
                     {
-                        var fruitr = 0x23;                    
+                        var fruitr = 0x23;
                         if (!Connector.Read8(ADDR_ConsumeSlot1, out byte con1))
                         {
                             DelayEffect(request);
@@ -3011,9 +3184,9 @@ namespace CrowdControl.Games.Packs
                     }
 
                 case "stealwp":
-                    { 
-                    var wp = 0x24;
-                    
+                    {
+                        var wp = 0x24;
+
                         if (!Connector.Read8(ADDR_ConsumeSlot1, out byte con1))
                         {
                             DelayEffect(request);
@@ -3170,7 +3343,7 @@ namespace CrowdControl.Games.Packs
 
                 case "stealopel":
                     {
-                        var opel = 0x26;                    
+                        var opel = 0x26;
                         if (!Connector.Read8(ADDR_ConsumeSlot1, out byte con1))
                         {
                             DelayEffect(request);
@@ -3304,19 +3477,19 @@ namespace CrowdControl.Games.Packs
                     }
 
                 case "windsword":
-                    { 
-                    byte windsword = 01;
-                    var f = RepeatAction(request, TimeSpan.FromSeconds(15),
-                        () => Connector.Read8(ADDR_Equip_Sword, out windsword) && (windsword <= 05),
-                        () => Connector.SendMessage($"{request.DisplayViewer} equipped Wind Sword."), TimeSpan.FromSeconds(1),
-                        () => Connector.IsNonZero8(ADDR_Equip_Sword), TimeSpan.FromSeconds(1),
-                        () => Connector.Write8(ADDR_Equip_Sword, 0x01), TimeSpan.FromSeconds(1), true, "windsword");
-                    f.WhenCompleted.Then(t =>
                     {
-                        Connector.Write8(ADDR_Equip_Sword, 0x01);
-                        Connector.SendMessage("Locked Sword Removed.");
-                    });
-                    return;
+                        byte windsword = 01;
+                        var f = RepeatAction(request, TimeSpan.FromSeconds(15),
+                            () => Connector.Read8(ADDR_Equip_Sword, out windsword) && (windsword <= 05),
+                            () => Connector.SendMessage($"{request.DisplayViewer} equipped Wind Sword."), TimeSpan.FromSeconds(1),
+                            () => Connector.IsNonZero8(ADDR_Equip_Sword), TimeSpan.FromSeconds(1),
+                            () => Connector.Write8(ADDR_Equip_Sword, 0x01), TimeSpan.FromSeconds(1), true, "windsword");
+                        f.WhenCompleted.Then(t =>
+                        {
+                            Connector.Write8(ADDR_Equip_Sword, 0x01);
+                            Connector.SendMessage("Locked Sword Removed.");
+                        });
+                        return;
                     }
 
                 case "firesword":
@@ -3440,7 +3613,7 @@ namespace CrowdControl.Games.Packs
                         return;
                     }
 
-                case "healvamp1":  
+                case "healvamp1":
                     {
                         byte Vamp1 = 0x0A;
 
@@ -3457,7 +3630,7 @@ namespace CrowdControl.Games.Packs
                         return;
                     }
 
-                case "healbug":        
+                case "healbug":
                     {
                         byte Bug = 0x1A;
 
@@ -3474,7 +3647,7 @@ namespace CrowdControl.Games.Packs
                         return;
                     }
 
-                case "healkelby":   
+                case "healkelby":
                     {
                         byte Kelby = 0x28;
 
@@ -3491,7 +3664,7 @@ namespace CrowdControl.Games.Packs
                         return;
                     }
 
-                case "healvamp2":   
+                case "healvamp2":
                     {
                         byte Vamp2 = 0x6C;
 
@@ -3508,7 +3681,7 @@ namespace CrowdControl.Games.Packs
                         return;
                     }
 
-                case "healsabera":  
+                case "healsabera":
                     {
                         byte Sabera = 0x6E;
 
@@ -3525,7 +3698,7 @@ namespace CrowdControl.Games.Packs
                         return;
                     }
 
-                case "healmado":    
+                case "healmado":
                     {
                         byte Mado = 0xF2;
 
@@ -3542,7 +3715,7 @@ namespace CrowdControl.Games.Packs
                         return;
                     }
 
-                case "healkelby2":  
+                case "healkelby2":
                     {
                         byte Kelby2 = 0xA9;
 
@@ -3559,7 +3732,7 @@ namespace CrowdControl.Games.Packs
                         return;
                     }
 
-                case "healsabera2": 
+                case "healsabera2":
                     {
                         byte Sabera2 = 0xAC;
 
@@ -3576,7 +3749,7 @@ namespace CrowdControl.Games.Packs
                         return;
                     }
 
-                case "healmado2":   
+                case "healmado2":
                     {
                         byte Mado2 = 0xB9;
 
@@ -3593,7 +3766,7 @@ namespace CrowdControl.Games.Packs
                         return;
                     }
 
-                case "healkarmine": 
+                case "healkarmine":
                     {
                         byte Karmine = 0xB6;
 
@@ -3610,7 +3783,7 @@ namespace CrowdControl.Games.Packs
                         return;
                     }
 
-                case "healdraygon": 
+                case "healdraygon":
                     {
                         byte Draygon = 0x9F;
 
@@ -3627,7 +3800,7 @@ namespace CrowdControl.Games.Packs
                         return;
                     }
 
-                case "healdraygon2":    
+                case "healdraygon2":
                     {
                         byte Draygon2 = 0xA6;
 
@@ -3644,7 +3817,7 @@ namespace CrowdControl.Games.Packs
                         return;
                     }
 
-                case "healdyna":    
+                case "healdyna":
                     {
                         byte Dyna = 0x5F;
 
@@ -3660,7 +3833,43 @@ namespace CrowdControl.Games.Packs
                         }
                         return;
                     }
-                                    
+
+                case "magicup":
+                    {
+                        if (TryGiveMP(request))
+                        {
+                            Connector.SendMessage($"{request.DisplayViewer} restored your magic to full.");
+                        }
+                        return;
+                    }
+
+                case "magicdown":
+                    {
+                        if (TryTakeMP(request, 6))
+                        {
+                            Connector.SendMessage($"{request.DisplayViewer} took some magic.");
+                        }
+                        return;
+                    }
+                
+                case "healplayer":
+                    { 
+                    if (TryHealPlayerHealth(request))
+                    {
+                        Connector.SendMessage($"{request.DisplayViewer} heal you to full.");
+                    }
+                    return;
+                    }
+
+                case "hurtplayer":
+                    {
+                        if (TryHurtPlayerHealth(request, 4))
+                        {
+                            Connector.SendMessage($"{request.DisplayViewer} hurt you.");
+                        }
+                        return;
+                    }
+
                 case "levelup":     //Note EXP and Health need to change with this.  Need UI update too                  
                     {
                     if (TryAlterLevel(request, 1))
