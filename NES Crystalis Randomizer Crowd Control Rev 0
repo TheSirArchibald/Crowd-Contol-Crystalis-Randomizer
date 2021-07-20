@@ -60,7 +60,7 @@ namespace CrowdControl.Games.Packs
         private const ushort ADDR_MPF = 0x0708;
         private const ushort ADDR_HEALTH_MAX = 0x0040;
         private const ushort ADDR_SHOP_CURRENT_PRICE = 0x6474;
-        private const ushort ADDR_SCALING = 0x64A2;
+        private const ushort ADDR_SCALING = 0x648F;
         private const ushort ADDR_LEVEL = 0x0421;
 
         // Powerup
@@ -322,27 +322,37 @@ namespace CrowdControl.Games.Packs
             return false;
         }
 
-        private bool TryAlterBossHealth([NotNull] EffectRequest request, sbyte amount)
+    
+        private bool TryAlterBossHealth([NotNull] EffectRequest request, sbyte slope)
     {
-            if (!Connector.Read8(ADDR_BOSS_HEALTH1, out byte bosshealth))
+           
+            if (!Connector.Read8(ADDR_SCALING, out byte bossscale))
+
             {
                 DelayEffect(request);
                 return false;
             }
 
-            if ((bosshealth + amount) < 0x01)
+            if (!Connector.Read8(ADDR_BOSS_HEALTH1, out byte bosschealth))
+
             {
-                Respond(request, EffectStatus.FailTemporary, "Health already at minimum.");
+                DelayEffect(request);
                 return false;
             }
 
-            if ((bosshealth + amount) > 0xFF)
+            if ((bossscale) <= 0x01)
             {
-                Respond(request, EffectStatus.FailTemporary, "Health already at maximum.");
+                Respond(request, EffectStatus.FailPermanent, "Scaling not high enough.");
+                return false;
+            }          
+
+            if ((bosschealth + ((bossscale * slope) / 2)) > 255)
+            {
+                Respond(request, EffectStatus.FailPermanent, "Health already at maximum.");
                 return false;
             }
 
-            if (Connector.Write8(ADDR_BOSS_HEALTH1, (byte)(bosshealth + amount)))
+            if (Connector.Write8(ADDR_BOSS_HEALTH1, (byte)((bosschealth + (bossscale * slope)/2))))
             {
                 Respond(request, EffectStatus.Success);
                 return true;
@@ -399,7 +409,7 @@ namespace CrowdControl.Games.Packs
                     new Effect("Level Decrease", "leveldown", "general"),
                     
                     //Heal Boss
-                    new Effect("Heal Boss (20 Health)", "healboss", ItemKind.Folder),
+                    new Effect("Heal Boss (X% Scaled)", "healboss", ItemKind.Folder),
                     new Effect("Vampire", "healvamp1", "healboss"),
                     new Effect("Big Bug", "healbug", "healboss"),
                     new Effect("Kelbesque", "healkelby", "healboss"),
@@ -3430,14 +3440,14 @@ namespace CrowdControl.Games.Packs
                         return;
                     }
 
-                case "healvamp1":  //Note X health isn't best case for now but trying to get a better formula.
+                case "healvamp1":  
                     {
-                    byte Vamp1 = 0x0A;                    
-                        
+                        byte Vamp1 = 0x0A;
+
                         if (TryBossLocation(request, Vamp1))
                         {
                             {
-                                if (TryAlterBossHealth(request, 20))
+                                if (TryAlterBossHealth(request, 0x04))
                                 {
                                     Connector.SendMessage($"{request.DisplayViewer} sent Vamp1 Health.");
                                 }
@@ -3447,14 +3457,14 @@ namespace CrowdControl.Games.Packs
                         return;
                     }
 
-                case "healbug":         //Note X health isn't best case for now but trying to get a better formula.           
+                case "healbug":        
                     {
-                        byte Bug = 0x1A;                      
+                        byte Bug = 0x1A;
 
                         if (TryBossLocation(request, Bug))
                         {
                             {
-                                if (TryAlterBossHealth(request, 20))
+                                if (TryAlterBossHealth(request, 0x04))
                                 {
                                     Connector.SendMessage($"{request.DisplayViewer} sent Bug Health.");
                                 }
@@ -3464,14 +3474,14 @@ namespace CrowdControl.Games.Packs
                         return;
                     }
 
-                case "healkelby":   //Note X health isn't best case for now but trying to get a better formula.
+                case "healkelby":   
                     {
                         byte Kelby = 0x28;
 
                         if (TryBossLocation(request, Kelby))
                         {
                             {
-                                if (TryAlterBossHealth(request, 20))
+                                if (TryAlterBossHealth(request, 0x06))
                                 {
                                     Connector.SendMessage($"{request.DisplayViewer} sent Kelby Health.");
                                 }
@@ -3481,14 +3491,14 @@ namespace CrowdControl.Games.Packs
                         return;
                     }
 
-                case "healvamp2":   //Note X health isn't best case for now but trying to get a better formula.
-                    {                        
+                case "healvamp2":   
+                    {
                         byte Vamp2 = 0x6C;
 
                         if (TryBossLocation(request, Vamp2))
                         {
                             {
-                                if (TryAlterBossHealth(request, 20))
+                                if (TryAlterBossHealth(request, 0x04))
                                 {
                                     Connector.SendMessage($"{request.DisplayViewer} sent Vamp2 Health.");
                                 }
@@ -3497,15 +3507,15 @@ namespace CrowdControl.Games.Packs
                         }
                         return;
                     }
-                
-                case "healsabera":  //Note X health isn't best case for now but trying to get a better formula.
+
+                case "healsabera":  
                     {
                         byte Sabera = 0x6E;
 
                         if (TryBossLocation(request, Sabera))
                         {
                             {
-                                if (TryAlterBossHealthSabera(request, 20))
+                                if (TryAlterBossHealthSabera(request, 0x06))
                                 {
                                     Connector.SendMessage($"{request.DisplayViewer} sent Sabera Health.");
                                 }
@@ -3515,14 +3525,14 @@ namespace CrowdControl.Games.Packs
                         return;
                     }
 
-                case "healmado":    //Note X health isn't best case for now but trying to get a better formula.
+                case "healmado":    
                     {
                         byte Mado = 0xF2;
 
                         if (TryBossLocation(request, Mado))
                         {
                             {
-                                if (TryAlterBossHealth(request, 20))
+                                if (TryAlterBossHealth(request, 0x04))
                                 {
                                     Connector.SendMessage($"{request.DisplayViewer} sent Mado Health.");
                                 }
@@ -3532,14 +3542,14 @@ namespace CrowdControl.Games.Packs
                         return;
                     }
 
-                case "healkelby2":  //Note X health isn't best case for now but trying to get a better formula.
+                case "healkelby2":  
                     {
                         byte Kelby2 = 0xA9;
 
                         if (TryBossLocation(request, Kelby2))
                         {
                             {
-                                if (TryAlterBossHealth(request, 20))
+                                if (TryAlterBossHealth(request, 0x06))
                                 {
                                     Connector.SendMessage($"{request.DisplayViewer} sent Kelby2 Health.");
                                 }
@@ -3549,14 +3559,14 @@ namespace CrowdControl.Games.Packs
                         return;
                     }
 
-                case "healsabera2": //Note X health isn't best case for now but trying to get a better formula.
+                case "healsabera2": 
                     {
                         byte Sabera2 = 0xAC;
 
                         if (TryBossLocation(request, Sabera2))
                         {
                             {
-                                if (TryAlterBossHealth(request, 20))
+                                if (TryAlterBossHealth(request, 10))
                                 {
                                     Connector.SendMessage($"{request.DisplayViewer} sent Sabera2 Health.");
                                 }
@@ -3566,14 +3576,14 @@ namespace CrowdControl.Games.Packs
                         return;
                     }
 
-                case "healmado2":   //Note X health isn't best case for now but trying to get a better formula.
+                case "healmado2":   
                     {
                         byte Mado2 = 0xB9;
 
                         if (TryBossLocation(request, Mado2))
                         {
                             {
-                                if (TryAlterBossHealth(request, 20))
+                                if (TryAlterBossHealth(request, 0x06))
                                 {
                                     Connector.SendMessage($"{request.DisplayViewer} sent Mado2 Health.");
                                 }
@@ -3583,14 +3593,14 @@ namespace CrowdControl.Games.Packs
                         return;
                     }
 
-                case "healkarmine": //Note X health isn't best case for now but trying to get a better formula.
+                case "healkarmine": 
                     {
                         byte Karmine = 0xB6;
 
                         if (TryBossLocation(request, Karmine))
                         {
                             {
-                                if (TryAlterBossHealth(request, 20))
+                                if (TryAlterBossHealth(request, 0x04))
                                 {
                                     Connector.SendMessage($"{request.DisplayViewer} sent Karmine Health.");
                                 }
@@ -3600,14 +3610,14 @@ namespace CrowdControl.Games.Packs
                         return;
                     }
 
-                case "healdraygon": //Note X health isn't best case for now but trying to get a better formula.
+                case "healdraygon": 
                     {
                         byte Draygon = 0x9F;
 
                         if (TryBossLocation(request, Draygon))
                         {
                             {
-                                if (TryAlterBossHealth(request, 20))
+                                if (TryAlterBossHealth(request, 0x08))
                                 {
                                     Connector.SendMessage($"{request.DisplayViewer} sent Draygon Health.");
                                 }
@@ -3617,15 +3627,14 @@ namespace CrowdControl.Games.Packs
                         return;
                     }
 
-                case "healdraygon2":    //Note X health isn't best case for now but trying to get a better formula.
+                case "healdraygon2":    
                     {
                         byte Draygon2 = 0xA6;
-                        byte Dyna = 0x5F;
 
                         if (TryBossLocation(request, Draygon2))
                         {
                             {
-                                if (TryAlterBossHealth(request, 20))
+                                if (TryAlterBossHealth(request, 0x08))
                                 {
                                     Connector.SendMessage($"{request.DisplayViewer} sent Draygon2 Health.");
                                 }
@@ -3635,14 +3644,14 @@ namespace CrowdControl.Games.Packs
                         return;
                     }
 
-                case "healdyna":    //Note X health isn't best case for now but trying to get a better formula.
+                case "healdyna":    
                     {
                         byte Dyna = 0x5F;
 
                         if (TryBossLocation(request, Dyna))
                         {
                             {
-                                if (TryAlterBossHealth(request, 20))
+                                if (TryAlterBossHealth(request, 16))
                                 {
                                     Connector.SendMessage($"{request.DisplayViewer} sent Dyna Health.");
                                 }
@@ -3651,17 +3660,17 @@ namespace CrowdControl.Games.Packs
                         }
                         return;
                     }
-
-                case "levelup": //Note EXP and Health need to change with this                  
+                                    
+                case "levelup":     //Note EXP and Health need to change with this.  Need UI update too                  
                     {
                     if (TryAlterLevel(request, 1))
                         {
                             Connector.SendMessage($"{request.DisplayViewer} sent a level.");
                         }
                     return;
-                }
+                    }
 
-                case "leveldown"://Note EXP and Health need to change with this   
+                case "leveldown":   //Note EXP and Health need to change with this. Need UI update too   
                     {
                         if (TryAlterLevel(request, -1))
                         {
@@ -3774,14 +3783,14 @@ namespace CrowdControl.Games.Packs
                     Connector.Write8(ADDR_Condition, 0x00);
                     Connector.SendMessage($"{request.DisplayViewer}'s removed your poison.");
                     return result;
-                }
+                    }
 
                 case "timedslime":
                     {
                     Connector.Write8(ADDR_Condition, 0x00);
                     Connector.SendMessage($"{request.DisplayViewer}'s removed your slime.");
                     return result;
-                }
+                    }
 
                 case "removewindsword":
                     {
