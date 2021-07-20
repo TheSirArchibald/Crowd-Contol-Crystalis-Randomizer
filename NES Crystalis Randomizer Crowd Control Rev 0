@@ -3430,7 +3430,7 @@ namespace CrowdControl.Games.Packs
                         return;
                     }
 
-                case "healvamp1":
+                case "healvamp1":  //Note X health isn't best case for now but trying to get a better formula.
                     {
                     byte Vamp1 = 0x0A;                    
                         
@@ -3447,7 +3447,7 @@ namespace CrowdControl.Games.Packs
                         return;
                     }
 
-                case "healbug":                    
+                case "healbug":         //Note X health isn't best case for now but trying to get a better formula.           
                     {
                         byte Bug = 0x1A;                      
 
@@ -3464,7 +3464,7 @@ namespace CrowdControl.Games.Packs
                         return;
                     }
 
-                case "healkelby":
+                case "healkelby":   //Note X health isn't best case for now but trying to get a better formula.
                     {
                         byte Kelby = 0x28;
 
@@ -3481,7 +3481,7 @@ namespace CrowdControl.Games.Packs
                         return;
                     }
 
-                case "healvamp2":
+                case "healvamp2":   //Note X health isn't best case for now but trying to get a better formula.
                     {                        
                         byte Vamp2 = 0x6C;
 
@@ -3498,7 +3498,7 @@ namespace CrowdControl.Games.Packs
                         return;
                     }
                 
-                case "healsabera":
+                case "healsabera":  //Note X health isn't best case for now but trying to get a better formula.
                     {
                         byte Sabera = 0x6E;
 
@@ -3515,7 +3515,7 @@ namespace CrowdControl.Games.Packs
                         return;
                     }
 
-                case "healmado":
+                case "healmado":    //Note X health isn't best case for now but trying to get a better formula.
                     {
                         byte Mado = 0xF2;
 
@@ -3532,7 +3532,7 @@ namespace CrowdControl.Games.Packs
                         return;
                     }
 
-                case "healkelby2":
+                case "healkelby2":  //Note X health isn't best case for now but trying to get a better formula.
                     {
                         byte Kelby2 = 0xA9;
 
@@ -3549,7 +3549,7 @@ namespace CrowdControl.Games.Packs
                         return;
                     }
 
-                case "healsabera2":
+                case "healsabera2": //Note X health isn't best case for now but trying to get a better formula.
                     {
                         byte Sabera2 = 0xAC;
 
@@ -3566,7 +3566,7 @@ namespace CrowdControl.Games.Packs
                         return;
                     }
 
-                case "healmado2":
+                case "healmado2":   //Note X health isn't best case for now but trying to get a better formula.
                     {
                         byte Mado2 = 0xB9;
 
@@ -3583,7 +3583,7 @@ namespace CrowdControl.Games.Packs
                         return;
                     }
 
-                case "healkarmine":
+                case "healkarmine": //Note X health isn't best case for now but trying to get a better formula.
                     {
                         byte Karmine = 0xB6;
 
@@ -3600,7 +3600,7 @@ namespace CrowdControl.Games.Packs
                         return;
                     }
 
-                case "healdraygon":
+                case "healdraygon": //Note X health isn't best case for now but trying to get a better formula.
                     {
                         byte Draygon = 0x9F;
 
@@ -3617,7 +3617,7 @@ namespace CrowdControl.Games.Packs
                         return;
                     }
 
-                case "healdraygon2":
+                case "healdraygon2":    //Note X health isn't best case for now but trying to get a better formula.
                     {
                         byte Draygon2 = 0xA6;
                         byte Dyna = 0x5F;
@@ -3635,7 +3635,7 @@ namespace CrowdControl.Games.Packs
                         return;
                     }
 
-                case "healdyna":
+                case "healdyna":    //Note X health isn't best case for now but trying to get a better formula.
                     {
                         byte Dyna = 0x5F;
 
@@ -3652,7 +3652,7 @@ namespace CrowdControl.Games.Packs
                         return;
                     }
 
-                case "levelup":                   
+                case "levelup": //Note EXP and Health need to change with this                  
                     {
                     if (TryAlterLevel(request, 1))
                         {
@@ -3661,7 +3661,7 @@ namespace CrowdControl.Games.Packs
                     return;
                 }
 
-                case "leveldown":
+                case "leveldown"://Note EXP and Health need to change with this   
                     {
                         if (TryAlterLevel(request, -1))
                         {
