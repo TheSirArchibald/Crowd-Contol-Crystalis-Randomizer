@@ -53,7 +53,8 @@ namespace CrowdControl.Games.Packs
         private const ushort ADDR_SPRITE_POS_Y_HIGH_BASE = 0x000;
 
         //UI
-        private const ushort ADDR_Money = 0x0702;
+        private const ushort ADDR_Money1 = 0x0702;
+        private const ushort ADDR_Money2 = 0x0703;
         private const ushort ADDR_EXP = 0x0704;
         private const ushort ADDR_HP = 0x03C1;
         private const ushort ADDR_MPC = 0x0708;
@@ -295,6 +296,119 @@ namespace CrowdControl.Games.Packs
                 return true;
             }
 
+            DelayEffect(request);
+            return false;
+        }
+
+        private bool TryGiveMoney([NotNull] EffectRequest request, sbyte sentmoney)
+        {
+
+            if (!Connector.Read8(ADDR_Money1, out byte money1))
+            {
+                DelayEffect(request);
+                return false;
+            }
+
+            if (!Connector.Read8(ADDR_Money2, out byte money2))
+
+            {
+                DelayEffect(request);
+                return false;
+            }            
+
+            if (money2 >= 0xFF)
+            {
+                Respond(request, EffectStatus.FailPermanent, "Max Money already aquired.");
+                return false;
+            }
+
+            if (money1 + sentmoney < 0xFF)
+            {
+                Connector.Write8(ADDR_Money1, (byte)(money1 + sentmoney));
+                {
+                    Respond(request, EffectStatus.Success);
+                    return true;
+                }
+            }
+            if (money1 + sentmoney >= 0xFF)
+                {
+                    if (money2 == 0x00)
+                    {
+                        Connector.Write8(ADDR_Money1, (byte)(money1 + sentmoney - 256));
+                        Connector.Write8(ADDR_Money2, (byte)(money2 + 1));
+                        {
+                        Respond(request, EffectStatus.Success);
+                        return true;
+                        }
+                    }
+                    if (money2 >= 0x01)
+                    {
+                        Connector.Write8(ADDR_Money1, (byte)(money1 + sentmoney - 256));
+                        Connector.Write8(ADDR_Money2, (byte)(money2 + 1));
+                        {
+                        Respond(request, EffectStatus.Success);
+                        return true;
+                        }
+                    }
+                }       
+            DelayEffect(request);
+            return false;
+        }
+
+        private bool TryStealMoney([NotNull] EffectRequest request, sbyte stealmoney)
+        {
+
+            if (!Connector.Read8(ADDR_Money1, out byte money1))
+            {
+                DelayEffect(request);
+                return false;
+            }
+
+            if (!Connector.Read8(ADDR_Money2, out byte money2))
+
+            {
+                DelayEffect(request);
+                return false;
+            }
+
+            if ((money1 - stealmoney) + (money2 * 256)  <= 0x00)
+            {                
+                    Respond(request, EffectStatus.FailPermanent, "Money at min.");
+                    return false;                
+            }
+
+            if (money1 - stealmoney < 0xFF)
+            {
+                if (money2 == 0x00)
+                {
+                    Connector.Write8(ADDR_Money1, (byte)(money1 - stealmoney));
+                    {
+                        Respond(request, EffectStatus.Success);
+                        return true;
+                    }
+                }
+                if (money2 >= 0x01)
+                {
+                    if (money1 - stealmoney >= 0x00)
+                    {
+                        Connector.Write8(ADDR_Money1, (byte)(money1 - stealmoney));
+                        {
+                            Respond(request, EffectStatus.Success);
+                            return true;
+                        }
+                    }
+
+                    if (money1 - stealmoney < 0x00)
+                    {
+                        Connector.Write8(ADDR_Money1, (byte)(money1 - stealmoney + 256));
+                        Connector.Write8(ADDR_Money2, (byte)(money2 - 1));
+                        {
+                            Respond(request, EffectStatus.Success);
+                            return true;
+                        }
+                    }
+                }
+            }
             DelayEffect(request);
             return false;
         }
@@ -549,10 +663,14 @@ namespace CrowdControl.Games.Packs
                     new Effect("Level Increase", "levelup", "general"),
                     new Effect("Level Decrease", "leveldown", "general"),
                     new Effect("Heal Player to Full", "healplayer", "general"),
-                    new Effect("Hurt Player X%", "hurtplayer", "general"),
+                    new Effect("Hurt Player (Scaled %)", "hurtplayer", "general"),
                     new Effect("Cure Player", "recover", "general"),
-                    new Effect("Magic +", "magicup", "general"),
-                    new Effect("Magic -", "magicdown", "general"),
+                    new Effect("Refill Magic to Full", "magicup", "general"),
+                    new Effect("Take Magic (Scaled %)", "magicdown", "general"),
+                    new Effect("Give Money (50 Gold)", "givemoney50", "general"),
+                    new Effect("Give Money (100 Gold)", "givemoney100", "general"),
+                    new Effect("Steal Money (50 Gold)", "takemoney50", "general"),
+                    new Effect("Steal Money (100 Gold)", "takemoney100", "general"),                    
                     //new Effect("Wild Warp", "wild", "general"),              Note: Need to find workaround as input of 0xD0 into controller doesn't work*/
                     
                     
@@ -641,14 +759,7 @@ namespace CrowdControl.Games.Packs
                     new Effect("Steal Bracelet of Fire", "stealbrfire", "takepower"),
                     new Effect("Steal Bracelet of Water", "stealbrwater", "takepower"),
                     new Effect("Steal Bracelet of Thunder", "stealbrthunder", "takepower"),
-                    
-                    // Slider Effects
-                    // Note: Need to workout max magic at X lvl. 255 Max MP
-                    // Note: Need to workout two bytes for money system. 65,280 Max Gold
-                    //new Effect("Money +", "moneyup", new[] {"quantity256"}),
-                    //new Effect("Money -", "moneydown", new[] {"quantity256"}),
-                                                                        
-                    
+                                        
                     //Armor and Shields
                     new Effect("Give Defense Item","givedef", ItemKind.Folder),
                     new Effect("Send Sacred Shield", "sshield","givedef"),
@@ -714,12 +825,7 @@ namespace CrowdControl.Games.Packs
                 return effects;
             }
         }
-
-        public override List<Common.ItemType> ItemTypes => new List<Common.ItemType>(new[]
-        {
-            new Common.ItemType("Quantity", "quantity256", Common.ItemType.Subtype.Slider, "{\"min\":1,\"max\":256}")
-        });
-
+        
         public override List<(string, Action)> MenuActions => new List<(string, Action)>();
 
         public override Game Game { get; } = new Game(100, "Crystalis", "Crystalis", "NES", ConnectorType.NESConnector);
@@ -887,7 +993,7 @@ namespace CrowdControl.Games.Packs
                         }
                         return;
                     }
-                
+
                 case "paralysis":
                     {
                         if (!Connector.Read8(ADDR_Condition, out byte con))
@@ -2399,7 +2505,8 @@ namespace CrowdControl.Games.Packs
                     }
 
                 case "steallysis":
-                    { var lp = 0x1F;
+                    {
+                        var lp = 0x1F;
 
                         if (!Connector.Read8(ADDR_ConsumeSlot1, out byte con1))
                         {
@@ -2556,7 +2663,8 @@ namespace CrowdControl.Games.Packs
                     }
 
                 case "stealfol":
-                    { var fol = 0x20;
+                    {
+                        var fol = 0x20;
 
                         if (!Connector.Read8(ADDR_ConsumeSlot1, out byte con1))
                         {
@@ -3851,14 +3959,14 @@ namespace CrowdControl.Games.Packs
                         }
                         return;
                     }
-                
+
                 case "healplayer":
-                    { 
-                    if (TryHealPlayerHealth(request))
                     {
-                        Connector.SendMessage($"{request.DisplayViewer} heal you to full.");
-                    }
-                    return;
+                        if (TryHealPlayerHealth(request))
+                        {
+                            Connector.SendMessage($"{request.DisplayViewer} heal you to full.");
+                        }
+                        return;
                     }
 
                 case "hurtplayer":
@@ -3872,11 +3980,47 @@ namespace CrowdControl.Games.Packs
 
                 case "levelup":     //Note EXP and Health need to change with this.  Need UI update too                  
                     {
-                    if (TryAlterLevel(request, 1))
+                        if (TryAlterLevel(request, 1))
                         {
                             Connector.SendMessage($"{request.DisplayViewer} sent a level.");
                         }
-                    return;
+                        return;
+                    }
+
+                case "givemoney50":     //Need UI update too                  
+                    {
+                        if (TryGiveMoney(request, 50))
+                        {
+                            Connector.SendMessage($"{request.DisplayViewer} sent 50 dollars.");
+                        }
+                        return;
+                    }
+
+                case "givemoney100":     //Need UI update too                  
+                    {
+                        if (TryGiveMoney(request, 100))
+                        {
+                            Connector.SendMessage($"{request.DisplayViewer} sent 100 dollars.");
+                        }
+                        return;
+                    }
+
+                case "takemoney50":     //Need UI update too                  
+                    {
+                        if (TryStealMoney(request, 50))
+                        {
+                            Connector.SendMessage($"{request.DisplayViewer} stole 50 dollars.");
+                        }
+                        return;
+                    }
+
+                case "takemoney100":     //Need UI update too                  
+                    {
+                        if (TryStealMoney(request, 100))
+                        {
+                            Connector.SendMessage($"{request.DisplayViewer} stole 100 dollars.");
+                        }
+                        return;
                     }
 
                 case "leveldown":   //Note EXP and Health need to change with this. Need UI update too   
@@ -3888,11 +4032,11 @@ namespace CrowdControl.Games.Packs
                         return;
                     }
 
-                case "scaleup":
+                case "scaleup":     //Note I need to find a way to read what the "actual scaling" is at X time because it can go over max right now if you find a key item at max scale 47.
                     {
                         if (TryAlterScale(request, 1))
                         {
-                            Connector.SendMessage($"{request.DisplayViewer} sent a scale.");
+                            Connector.SendMessage($"{request.DisplayViewer} increased the difficulty.");
                         }
                         return;
                     }
@@ -3901,7 +4045,7 @@ namespace CrowdControl.Games.Packs
                     {
                         if (TryAlterScale(request, -1))
                         {
-                            Connector.SendMessage($"{request.DisplayViewer} removed a scale.");
+                            Connector.SendMessage($"{request.DisplayViewer} decreased the difficulty.");
                         }
                         return;
                     }
@@ -3923,25 +4067,8 @@ namespace CrowdControl.Games.Packs
                         return;
                     }
 
-                //case "moneyup":     Note look into the two byte system and create.
-                //    {
-                //        if (TryAlterMoney(request, 50))
-                //        {
-                //            Connector.SendMessage($"{request.DisplayViewer} sent a money.");
-                //        }
-                //        return;
-                //    }
-
-                //case "moneydown":
-                //    {
-                //        if (TryAlterMoney(request, -50))
-                //        {
-                //            Connector.SendMessage($"{request.DisplayViewer} took a money.");
-                //        }
-                //        return;
-                //    }
             }
-        }        
+        }
 
         protected override bool StopEffect(EffectRequest request)
         {
