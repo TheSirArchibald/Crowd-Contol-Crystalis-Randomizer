@@ -58,7 +58,7 @@ namespace CrowdControl.Games.Packs
         private const ushort ADDR_EXP = 0x0704;
         private const ushort ADDR_HP = 0x03C1;
         private const ushort ADDR_MPC = 0x0708;
-        private const ushort ADDR_MPF = 0x0708;
+        private const ushort ADDR_MPF = 0x0709;
         private const ushort ADDR_HEALTH_MAX = 0x03C0;
         private const ushort ADDR_SHOP_CURRENT_PRICE = 0x6474;
         private const ushort ADDR_SCALING = 0x648F;
@@ -436,7 +436,7 @@ namespace CrowdControl.Games.Packs
                 return false;
             }
 
-            if (MPFULL >= MPCURRENT)
+            if (MPCURRENT < MPFULL)
             {
                 Connector.Write8(ADDR_MPC, (byte)(MPFULL));
                 {
@@ -707,7 +707,9 @@ namespace CrowdControl.Games.Packs
                     new Effect("Projectile Effects", "projectile", ItemKind.Folder),
                     new Effect("Warrior Mode", "lvl1shot", "projectile"),
                     new Effect("Beast Mode", "lvl2shot", "projectile"),
-                    new Effect("Thunder Mode", "trishot", "projectile"),  
+                    new Effect("TriShot Mode", "trishot", "projectile"),
+                    new Effect("Thunder Mode", "thundershot", "projectile"),
+                    new Effect("Lag Storm Mode", "lagshot", "projectile"),
 
                     //Combat Effects
                     new Effect("Timed Combat Effects", "combat", ItemKind.Folder),
@@ -972,6 +974,40 @@ namespace CrowdControl.Games.Packs
                         return;
                     }
 
+                case "thundershot"://Note Bug Projectile.  These effects can change if other is activated.
+                    {
+                        var a = RepeatAction(request,
+                        TimeSpan.FromSeconds(30),
+                        () => Connector.IsNonZero8(ADDR_LEVEL), /*Effect Start Condition*/
+                        () => Connector.Freeze8(ADDR_Warrior, 0x70), /*Start Action*/
+                        TimeSpan.FromSeconds(1), /*Retry Timer*/
+                        () => Connector.Write8(ADDR_Warrior, 0x70) && Connector.Freeze8(ADDR_Warrior, 0x70) && Connector.IsNonZero8(ADDR_Warrior), /*Refresh Condtion*/
+                        TimeSpan.FromMilliseconds(500), /*Refresh Retry Timer*/
+                        () => true, /*Action*/
+                        TimeSpan.FromSeconds(0.5),
+                        true);
+                        a.WhenStarted.Then(t => Connector.SendMessage($"{request.DisplayViewer} deployed an Thunder Shot Effect."));
+                        a.WhenCompleted.Then(t => Connector.SendMessage($"{request.DisplayViewer}'s Thunder Shot Effect has dispered."));
+                        return;
+                    }
+                
+                case "lagshot"://Note Bug Projectile.  These effects can change if other is activated.
+                    {
+                        var a = RepeatAction(request,
+                        TimeSpan.FromSeconds(30),
+                        () => Connector.IsNonZero8(ADDR_LEVEL), /*Effect Start Condition*/
+                        () => Connector.Freeze8(ADDR_Warrior, 0x78), /*Start Action*/
+                        TimeSpan.FromSeconds(1), /*Retry Timer*/
+                        () => Connector.Write8(ADDR_Warrior, 0x78) && Connector.Freeze8(ADDR_Warrior, 0x78) && Connector.IsNonZero8(ADDR_Warrior), /*Refresh Condtion*/
+                        TimeSpan.FromMilliseconds(500), /*Refresh Retry Timer*/
+                        () => true, /*Action*/
+                        TimeSpan.FromSeconds(0.5),
+                        true);
+                        a.WhenStarted.Then(t => Connector.SendMessage($"{request.DisplayViewer} deployed an Lag Storm Effect."));
+                        a.WhenCompleted.Then(t => Connector.SendMessage($"{request.DisplayViewer}'s Lag Storm Effect has dispered."));
+                        return;
+                    }
+               
                 case "recover":
                     {
                         if (!Connector.Read8(ADDR_Condition, out byte con))
@@ -4089,6 +4125,18 @@ namespace CrowdControl.Games.Packs
                     }
 
                 case "trishot":
+                    {
+                        result = Connector.Unfreeze(ADDR_Warrior);
+                        return result;
+                    }
+
+                case "thundershot":
+                    {
+                        result = Connector.Unfreeze(ADDR_Warrior);
+                        return result;
+                    }
+
+                case "lagshot":
                     {
                         result = Connector.Unfreeze(ADDR_Warrior);
                         return result;
