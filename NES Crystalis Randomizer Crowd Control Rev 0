@@ -31,7 +31,7 @@ namespace CrowdControl.Games.Packs
     {
         public Crystalis([NotNull] IPlayer player, [NotNull] Func<CrowdControlBlock, bool> responseHandler, [NotNull] Action<object> statusUpdateHandler) : base(player, responseHandler, statusUpdateHandler) { }
 
-       
+
 
         //Position
         //private const ushort ADDR_PosXl = 0x0070;
@@ -63,6 +63,9 @@ namespace CrowdControl.Games.Packs
         private const ushort ADDR_SHOP_CURRENT_PRICE = 0x6474;
         private const ushort ADDR_SCALING = 0x648F;
         private const ushort ADDR_LEVEL = 0x0421;
+        private const ushort ADDR_U1HOOK = 0x6220;
+        private const ushort ADDR_U2HOOK = 0x6221;
+        private const ushort ADDR_U3HOOK = 0x6222;
 
         // Powerup
         private const ushort ADDR_SwordSlot1 = 0x6430;
@@ -115,6 +118,10 @@ namespace CrowdControl.Games.Packs
         //Boss
         private const ushort ADDR_BOSS_HEALTH1 = 0x03CD;
         private const ushort ADDR_BOSS_HEALTH2 = 0x03CE;
+
+        //{
+        //Need to fix Bosses for respawn later just a placeholder for now
+        
         //private const ushort ADDR_Kelby = 0x0;
         //private const ushort ADDR_Sabera = 0x0;
         //private const ushort ADDR_Mado = 0x0;
@@ -123,8 +130,8 @@ namespace CrowdControl.Games.Packs
         //private const ushort ADDR_Mado2 = 0x0;
         //private const ushort ADDR_Karmine = 0x0;
         //private const ushort ADDR_Draygon = 0x0;
-
-        //Need to fix Bosses later just a placeholder for now
+        
+        
         //private Dictionary<string, (string bossName, byte value, BossDefeated bossFlag, ushort address, byte limit)> _wType = new Dictionary<string, (string, byte, BossDefeated, ushort, byte)>(StringComparer.InvariantCultureIgnoreCase)
         //{
         //    {"Kelby", ("Kelby", 0, BossDefeated.Kelby, ADDR_Kelby, 0)},
@@ -239,7 +246,7 @@ namespace CrowdControl.Games.Packs
 
         //private byte CheckForSprite(SpriteType type)
         //                   return result;
-
+        //}
         
         private bool TryAlterScale([NotNull] EffectRequest request, sbyte scale)
         {
@@ -295,6 +302,7 @@ namespace CrowdControl.Games.Packs
                 Respond(request, EffectStatus.Success);
                 return true;
             }
+            
 
             DelayEffect(request);
             return false;
@@ -425,10 +433,7 @@ namespace CrowdControl.Games.Packs
 
             if (!Connector.Read8(ADDR_MPC, out byte MPCURRENT))
 
-            {
-                DelayEffect(request);
-                return false;
-            }
+            
 
             if (MPFULL == MPCURRENT)
             {
@@ -453,15 +458,13 @@ namespace CrowdControl.Games.Packs
 
             if (!Connector.Read8(ADDR_LEVEL, out byte playerlvl))
 
-            {
-                DelayEffect(request);
+            {                
                 return false;
             }
 
             if (!Connector.Read8(ADDR_MPC, out byte cmp))
 
-            {
-                DelayEffect(request);
+            {                
                 return false;
             }
 
@@ -558,10 +561,7 @@ namespace CrowdControl.Games.Packs
         private bool TryBossLocation([NotNull] EffectRequest request, byte boss)
         {
             if (!Connector.Read8(ADDR_CURRENT_AREA, out byte bosslocation))
-            {
-                DelayEffect(request);
-                return false;
-            }
+           
             if (bosslocation == boss)
             {
                 
@@ -570,12 +570,12 @@ namespace CrowdControl.Games.Packs
             
             if (bosslocation != boss)
             {
-                Respond(request, EffectStatus.FailTemporary, "Wrong location.");
+                Respond(request, EffectStatus.FailPermanent, "Wrong location.");
                 return false;
             }           
 
-            DelayEffect(request);
-            return false;
+            
+            return true;
         }
     
         private bool TryAlterBossHealth([NotNull] EffectRequest request, sbyte slope)
@@ -595,9 +595,18 @@ namespace CrowdControl.Games.Packs
                 return false;
             }
 
-            if ((bossscale) <= 0x01)
+            if (((bosschealth + ((bossscale * slope) / 2))) < 255)
             {
-                Respond(request, EffectStatus.FailPermanent, "Scaling not high enough.");
+                if (Connector.Write8(ADDR_BOSS_HEALTH1, (byte)((bosschealth + (bossscale * slope) / 2))))
+                {
+                    Respond(request, EffectStatus.Success);
+                    return true;
+                }
+            }
+            
+            if ((bosschealth) <= 0x20)
+            {
+                Respond(request, EffectStatus.FailPermanent, "Near Death Fail.");
                 return false;
             }          
 
@@ -607,37 +616,40 @@ namespace CrowdControl.Games.Packs
                 return false;
             }
 
-            if (Connector.Write8(ADDR_BOSS_HEALTH1, (byte)((bosschealth + (bossscale * slope)/2))))
-            {
-                Respond(request, EffectStatus.Success);
-                return true;
-            }
 
             DelayEffect(request);
             return false;
     }
 
-        private bool TryAlterBossHealthSabera([NotNull] EffectRequest request, sbyte amount)
+        private bool TryAlterBossHealthSabera([NotNull] EffectRequest request, sbyte slope2)
         {
-            if (!Connector.Read8(ADDR_BOSS_HEALTH2, out byte bosshealth2))
+            if (!Connector.Read8(ADDR_SCALING, out byte bossscale2))
+
             {
                 DelayEffect(request);
                 return false;
             }
 
-            if ((bosshealth2 + amount) < 0x01)
+            if (!Connector.Read8(ADDR_BOSS_HEALTH1, out byte bosschealth2))
+
             {
-                Respond(request, EffectStatus.FailTemporary, "Health already at minimum.");
+                DelayEffect(request);
                 return false;
             }
 
-            if ((bosshealth2 + amount) > 0xFF)
+            if ((bossscale2) <= 0x01)
             {
-                Respond(request, EffectStatus.FailTemporary, "Health already at maximum.");
+                Respond(request, EffectStatus.FailPermanent, "Scaling not high enough.");
                 return false;
             }
 
-            if (Connector.Write8(ADDR_BOSS_HEALTH2, (byte)(bosshealth2 + amount)))
+            if ((bosschealth2 + ((bossscale2 * slope2) / 2)) > 255)
+            {
+                Respond(request, EffectStatus.FailPermanent, "Health already at maximum.");
+                return false;
+            }
+        
+            if (Connector.Write8(ADDR_BOSS_HEALTH1, (byte)((bosschealth2 + (bossscale2 * slope2) / 2))))
             {
                 Respond(request, EffectStatus.Success);
                 return true;
@@ -671,7 +683,7 @@ namespace CrowdControl.Games.Packs
                     new Effect("Give Money (100 Gold)", "givemoney100", "general"),
                     new Effect("Steal Money (50 Gold)", "takemoney50", "general"),
                     new Effect("Steal Money (100 Gold)", "takemoney100", "general"),                    
-                    //new Effect("Wild Warp", "wild", "general"),              Note: Need to find workaround as input of 0xD0 into controller doesn't work*/
+                    new Effect("Wild Warp", "wild", "general"),
                     
                     
                     //Heal Boss
@@ -705,8 +717,8 @@ namespace CrowdControl.Games.Packs
 
                     // Projectile Effects
                     new Effect("Projectile Effects", "projectile", ItemKind.Folder),
-                    new Effect("Warrior Mode", "lvl1shot", "projectile"),
-                    new Effect("Beast Mode", "lvl2shot", "projectile"),
+                    new Effect("Warrior Ring Mode", "lvl1shot", "projectile"),
+                    new Effect("LVL 2 Warrior Ring Mode", "lvl2shot", "projectile"),
                     new Effect("TriShot Mode", "trishot", "projectile"),
                     new Effect("Thunder Mode", "thundershot", "projectile"),
                     new Effect("Lag Storm Mode", "lagshot", "projectile"),
@@ -832,15 +844,15 @@ namespace CrowdControl.Games.Packs
 
         public override Game Game { get; } = new Game(100, "Crystalis", "Crystalis", "NES", ConnectorType.NESConnector);
 
-        protected override bool IsReady(EffectRequest request) => Connector.Read8(0x00b1, out byte b) && (b < 0x80);
+        protected override bool IsReady(EffectRequest request) => Connector.Read8(0x006C, out byte b) && (b < 0xFF);  //Start/Menu = FF
 
         protected override void RequestData(DataRequest request) => Respond(request, request.Key, null, false, $"Variable name \"{request.Key}\" not known");
 
         protected override void StartEffect(EffectRequest request)
-        {
+        {                        
             if (!IsReady(request))
             {
-                DelayEffect(request);
+                DelayEffect(request);  //Note add current location = FF to fail for restart screen
                 return;
             }
             string[] effectT = request.FinalCode.Split('_');
@@ -864,18 +876,18 @@ namespace CrowdControl.Games.Packs
                         return;
                     }
 
-                //case "wild":    ASM Fix?                    
-                //    {
-                //        TryEffect(request,
-                //            () => Connector.Freeze8(ADDR_Controller, 0xC0),
-                //            () => Connector.Write8(ADDR_Controller, 0xD0),
-                //            () =>
-                //            {
-                //                Connector.SendMessage($"{request.DisplayViewer} wild warped you.");
-                //            }
-                //                    );
-                //        return;
-                //    }
+                case "wild":                  
+                    {
+                        TryEffect(request,
+                            () => Connector.Write8(ADDR_U2HOOK, 0x02),
+                            () => Connector.Write8(ADDR_U1HOOK, 0x01),
+                            () =>
+                            {
+                                Connector.SendMessage($"{request.DisplayViewer} wild warped you.");
+                            }
+                                    );
+                        return;
+                    }
 
                 case "kill":
                     {
@@ -924,7 +936,7 @@ namespace CrowdControl.Games.Packs
                     }
 
                 case "lvl1shot":  //Note Bug Projectile is same address.  These effects can change if other is activated.
-                    {   
+                    {                                              
                         var a = RepeatAction(request,
                         TimeSpan.FromSeconds(15),
                         () => Connector.IsNonZero8(ADDR_LEVEL), /*Effect Start Condition*/
@@ -937,7 +949,7 @@ namespace CrowdControl.Games.Packs
                         true);
                         a.WhenStarted.Then(t => Connector.SendMessage($"{request.DisplayViewer} deployed Warrior Ring Effect."));
                         a.WhenCompleted.Then(t => Connector.SendMessage($"{request.DisplayViewer}'s Warrior Ring Effect has dispered."));
-                        return;                        
+                        return;                                                                                
                     }
 
                 case "lvl2shot"://Note Bug Projectile.  These effects can change if other is activated.
@@ -952,12 +964,12 @@ namespace CrowdControl.Games.Packs
                         () => true, /*Action*/
                         TimeSpan.FromSeconds(0.5),
                         true);
-                        a.WhenStarted.Then(t => Connector.SendMessage($"{request.DisplayViewer} deployed an Beast Mode Effect."));
-                        a.WhenCompleted.Then(t => Connector.SendMessage($"{request.DisplayViewer}'s Beast Mode Effect has dispered."));
+                        a.WhenStarted.Then(t => Connector.SendMessage($"{request.DisplayViewer} deployed an LVL2 Warrior Ring  Effect."));
+                        a.WhenCompleted.Then(t => Connector.SendMessage($"{request.DisplayViewer}'s LVL2 Warrior Ring Effect has dispered."));
                         return;
                     }
 
-                case "trishot"://Note Bug Projectile.  These effects can change if other is activated.
+                case "trishot"://Note Bug Projectile.  These effects can change if other is activated. Doesn't work on non thunder bosses.
                     {
                         var a = RepeatAction(request,
                         TimeSpan.FromSeconds(30),
@@ -974,7 +986,7 @@ namespace CrowdControl.Games.Packs
                         return;
                     }
 
-                case "thundershot"://Note Bug Projectile.  These effects can change if other is activated.
+                case "thundershot"://Note Bug Projectile.  These effects can change if other is activated.Doesn't work on non thunder bosses.
                     {
                         var a = RepeatAction(request,
                         TimeSpan.FromSeconds(30),
@@ -991,7 +1003,7 @@ namespace CrowdControl.Games.Packs
                         return;
                     }
                 
-                case "lagshot"://Note Bug Projectile.  These effects can change if other is activated.
+                case "lagshot"://Note Bug Projectile.  These effects can change if other is activated.Doesn't work on non thunder bosses.
                     {
                         var a = RepeatAction(request,
                         TimeSpan.FromSeconds(30),
@@ -1125,18 +1137,24 @@ namespace CrowdControl.Games.Packs
                     }
 
                 case "timedslime": //Consider redoing this one to be repeat to ensure screen transition doesn't work.
+
+
                     {
-                        StartTimed(request,
-                          () => Connector.Read8(ADDR_Condition, out byte b) && (b == 0x00),
-                          () =>
-                          {
-                              bool result = Connector.Write8(ADDR_Condition, 0x04);
-                              if (result) { Connector.SendMessage($"{request.DisplayViewer} slimed you (15s)."); }
-                              return result;
-                          },
-                          TimeSpan.FromSeconds(45));
+                        var slime = RepeatAction(request,
+                        TimeSpan.FromSeconds(15),
+                        () => Connector.IsZero8(ADDR_Condition), /*Effect Start Condition*/
+                        () => Connector.Freeze8(ADDR_Condition, 0x04), /*Start Action*/
+                        TimeSpan.FromSeconds(1), /*Retry Timer*/
+                        () => Connector.Write8(ADDR_Condition, 0x04) && Connector.Freeze8(ADDR_Condition, 0x04) && Connector.IsNonZero8(ADDR_Condition), /*Refresh Condtion*/
+                        TimeSpan.FromMilliseconds(500), /*Refresh Retry Timer*/
+                        () => true, /*Action*/
+                        TimeSpan.FromSeconds(0.5),
+                        true);
+                        slime.WhenStarted.Then(t => Connector.SendMessage($"{request.DisplayViewer} deployed slimed Effect."));
+                        slime.WhenCompleted.Then(t => Connector.SendMessage($"{request.DisplayViewer}'s slimed Effect has dispered."));
                         return;
                     }
+                    
 
                 case "bowind":
                     {
@@ -2130,7 +2148,7 @@ namespace CrowdControl.Games.Packs
                                                         else
                                                         {
                                                             Connector.Write8(ADDR_ConsumeSlot8, 0x20);
-                                                            Connector.SendMessage($"{request.DisplayViewer} Stomp");
+                                                            Connector.SendMessage($"{request.DisplayViewer} made you Stomp");
                                                         }
 
                         if (!Connector.SetBits(ADDR_ConsumeSlot7, 0x20, out _))
@@ -2139,7 +2157,7 @@ namespace CrowdControl.Games.Packs
                         else
                         {
                             Connector.Write8(ADDR_ConsumeSlot7, 0x20);
-                            Connector.SendMessage($"{request.DisplayViewer} Stomp");
+                            Connector.SendMessage($"{request.DisplayViewer} made you Stomp");
                         }
 
 
@@ -2149,7 +2167,7 @@ namespace CrowdControl.Games.Packs
                         else
                         {
                             Connector.Write8(ADDR_ConsumeSlot6, 0x20);
-                            Connector.SendMessage($"{request.DisplayViewer} Stomp");
+                            Connector.SendMessage($"{request.DisplayViewer} made you Stomp");
                         }
 
                         if (!Connector.SetBits(ADDR_ConsumeSlot5, 0x20, out _))
@@ -2158,7 +2176,7 @@ namespace CrowdControl.Games.Packs
                         else
                         {
                             Connector.Write8(ADDR_ConsumeSlot5, 0x20);
-                            Connector.SendMessage($"{request.DisplayViewer} Stomp");
+                            Connector.SendMessage($"{request.DisplayViewer} made you Stomp");
                         }
 
                         if (!Connector.SetBits(ADDR_ConsumeSlot4, 0x20, out _))
@@ -2167,7 +2185,7 @@ namespace CrowdControl.Games.Packs
                         else
                         {
                             Connector.Write8(ADDR_ConsumeSlot4, 0x20);
-                            Connector.SendMessage($"{request.DisplayViewer} Stomp");
+                            Connector.SendMessage($"{request.DisplayViewer} made you Stomp");
                         }
 
 
@@ -2177,7 +2195,7 @@ namespace CrowdControl.Games.Packs
                         else
                         {
                             Connector.Write8(ADDR_ConsumeSlot3, 0x20);
-                            Connector.SendMessage($"{request.DisplayViewer} Stomp");
+                            Connector.SendMessage($"{request.DisplayViewer} made you Stomp");
                         }
 
 
@@ -2188,7 +2206,7 @@ namespace CrowdControl.Games.Packs
                         else
                         {
                             Connector.Write8(ADDR_ConsumeSlot2, 0x20);
-                            Connector.SendMessage($"{request.DisplayViewer} Stomp");
+                            Connector.SendMessage($"{request.DisplayViewer} made you Stomp");
                         }
                         if (!Connector.SetBits(ADDR_ConsumeSlot1, 0x20, out _))
                             DelayEffect(request);
@@ -2196,7 +2214,7 @@ namespace CrowdControl.Games.Packs
                         else
                         {
                             Connector.Write8(ADDR_ConsumeSlot1, 0x20);
-                            Connector.SendMessage($"{request.DisplayViewer} Stomp");
+                            Connector.SendMessage($"{request.DisplayViewer} made you Stomp");
                         }
                         return;
 
@@ -4013,21 +4031,15 @@ namespace CrowdControl.Games.Packs
                         }
                         return;
                     }
-
-                case "levelup":     //Note EXP and Health need to change with this.  Need UI update too                  
-                    {
-                        if (TryAlterLevel(request, 1))
-                        {
-                            Connector.SendMessage($"{request.DisplayViewer} sent a level.");
-                        }
-                        return;
-                    }
-
+                                    
                 case "givemoney50":     //Need UI update too                  
                     {
                         if (TryGiveMoney(request, 50))
                         {
+                            //Connector.Write8(ADDR_U3HOOK, 0x02);
+                            //Connector.Write8(ADDR_U2HOOK, 1); 
                             Connector.SendMessage($"{request.DisplayViewer} sent 50 dollars.");
+                            //Connector.Write8(ADDR_U1HOOK, 1);
                         }
                         return;
                     }
@@ -4036,7 +4048,10 @@ namespace CrowdControl.Games.Packs
                     {
                         if (TryGiveMoney(request, 100))
                         {
+                            //Connector.Write8(ADDR_U3HOOK, 0x02);
+                            //Connector.Write8(ADDR_U2HOOK, 1); 
                             Connector.SendMessage($"{request.DisplayViewer} sent 100 dollars.");
+                            //Connector.Write8(ADDR_U1HOOK, 1);
                         }
                         return;
                     }
@@ -4045,7 +4060,10 @@ namespace CrowdControl.Games.Packs
                     {
                         if (TryStealMoney(request, 50))
                         {
+                            //Connector.Write8(ADDR_U3HOOK, 0x02);
+                            //Connector.Write8(ADDR_U2HOOK, 1); 
                             Connector.SendMessage($"{request.DisplayViewer} stole 50 dollars.");
+                            //Connector.Write8(ADDR_U1HOOK, 1);
                         }
                         return;
                     }
@@ -4054,16 +4072,34 @@ namespace CrowdControl.Games.Packs
                     {
                         if (TryStealMoney(request, 100))
                         {
+                            //Connector.Write8(ADDR_U3HOOK, 0x02);
+                            //Connector.Write8(ADDR_U2HOOK, 1); 
                             Connector.SendMessage($"{request.DisplayViewer} stole 100 dollars.");
+                            //Connector.Write8(ADDR_U1HOOK, 1);
                         }
                         return;
                     }
 
+                case "levelup":     //Note EXP and Health need to change with this.  Need UI update too                  
+                    {
+                        if (TryAlterLevel(request, 1))
+                        {
+                            Connector.Write8(ADDR_U3HOOK, 0x9D);
+                            Connector.Write8(ADDR_U2HOOK, 1);
+                            Connector.SendMessage($"{request.DisplayViewer} sent a level.");
+                            Connector.Write8(ADDR_U1HOOK, 1);
+                        }
+                        return;
+                    }
+                
                 case "leveldown":   //Note EXP and Health need to change with this. Need UI update too   
                     {
                         if (TryAlterLevel(request, -1))
                         {
+                            Connector.Write8(ADDR_U3HOOK, 0x9D);
+                            Connector.Write8(ADDR_U2HOOK, 1);
                             Connector.SendMessage($"{request.DisplayViewer} removed a level.");
+                            Connector.Write8(ADDR_U1HOOK, 1);
                         }
                         return;
                     }
@@ -4072,7 +4108,9 @@ namespace CrowdControl.Games.Packs
                     {
                         if (TryAlterScale(request, 1))
                         {
+                            
                             Connector.SendMessage($"{request.DisplayViewer} increased the difficulty.");
+                            Connector.Write8(ADDR_U1HOOK, 1);
                         }
                         return;
                     }
@@ -4081,7 +4119,9 @@ namespace CrowdControl.Games.Packs
                     {
                         if (TryAlterScale(request, -1))
                         {
+                            
                             Connector.SendMessage($"{request.DisplayViewer} decreased the difficulty.");
+                            
                         }
                         return;
                     }
@@ -4091,14 +4131,14 @@ namespace CrowdControl.Games.Packs
                         var shop = RepeatAction(request,
                         TimeSpan.FromSeconds(45),
                         () => Connector.IsNonZero8(ADDR_SHOP_CURRENT_PRICE), /*Effect Start Condition*/
-                        () => Connector.Freeze8(ADDR_SHOP_CURRENT_PRICE, 0x00), /*Start Action*/
+                        () => Connector.Freeze8(ADDR_SHOP_CURRENT_PRICE, 0x01), /*Start Action*/
                         TimeSpan.FromSeconds(1), /*Retry Timer*/
-                        () => Connector.IsZero8(ADDR_SHOP_CURRENT_PRICE), /*Refresh Condtion*/
+                        () => Connector.Freeze8(ADDR_SHOP_CURRENT_PRICE, 0x01) && Connector.IsNonZero8(ADDR_SHOP_CURRENT_PRICE), /*Refresh Condtion*/
                         TimeSpan.FromMilliseconds(500), /*Refresh Retry Timer*/
                         () => true, /*Action*/
                         TimeSpan.FromSeconds(0.5),
                         true);
-                        shop.WhenStarted.Then(t => Connector.SendMessage($"{request.DisplayViewer} made everything in town FREE!!!"));
+                        shop.WhenStarted.Then(t => Connector.SendMessage($"{request.DisplayViewer} made everything a Penny!!!"));
                         shop.WhenCompleted.Then(t => Connector.SendMessage($"{request.DisplayViewer}'s restored back to normal prices."));
                         return;
                     }
@@ -4171,8 +4211,8 @@ namespace CrowdControl.Games.Packs
 
                 case "timedslime":
                     {
-                    Connector.Write8(ADDR_Condition, 0x00);
-                    Connector.SendMessage($"{request.DisplayViewer}'s removed your slime.");
+                        Connector.Unfreeze(ADDR_Condition); 
+                        Connector.Write8(ADDR_Condition, 0x00);
                     return result;
                     }
 
@@ -4203,7 +4243,9 @@ namespace CrowdControl.Games.Packs
                         Connector.SendMessage($"{request.DisplayViewer}'s gave back your Sword of Thunder.");
                         return result;
                     }
+
                 
+
             }
             return result;
         }
