@@ -60,7 +60,8 @@ namespace CrowdControl.Games.Packs
         private const ushort ADDR_MPC = 0x0708;
         private const ushort ADDR_MPF = 0x0709;
         private const ushort ADDR_HEALTH_MAX = 0x03C0;
-        private const ushort ADDR_SHOP_CURRENT_PRICE = 0x6474;
+        private const ushort ADDR_SHOP_CURRENT_PRICE1 = 0x6474;
+        private const ushort ADDR_SHOP_CURRENT_PRICE2 = 0x6475;
         private const ushort ADDR_SCALING = 0x648F;
         private const ushort ADDR_LEVEL = 0x0421;
         private const ushort ADDR_U1HOOK = 0x6220;
@@ -1380,7 +1381,7 @@ namespace CrowdControl.Games.Packs
                         {
                             DelayEffect(request);
                         }
-                        else if ((bfire) == 0x07)
+                        else if ((bfire) == 0x08)
                         {
                             Respond(request, EffectStatus.FailPermanent, "Steal Flame Bracelet First");
                         }
@@ -1432,7 +1433,7 @@ namespace CrowdControl.Games.Packs
                         {
                             DelayEffect(request);
                         }
-                        else if ((bthunder) == 0x0B)
+                        else if ((bthunder) == 0x0C)
                         {
                             Respond(request, EffectStatus.FailPermanent, "Steal Storm Bracelet First");
                         }
@@ -4128,18 +4129,32 @@ namespace CrowdControl.Games.Packs
 
                 case "freeshops":
                     {
-                        var shop = RepeatAction(request,
+                        var shop1 = RepeatAction(request,
                         TimeSpan.FromSeconds(45),
-                        () => Connector.IsNonZero8(ADDR_SHOP_CURRENT_PRICE), /*Effect Start Condition*/
-                        () => Connector.Freeze8(ADDR_SHOP_CURRENT_PRICE, 0x01), /*Start Action*/
+                        () => Connector.IsNonZero8(ADDR_SHOP_CURRENT_PRICE1), /*Effect Start Condition*/
+                        () => Connector.Freeze8(ADDR_SHOP_CURRENT_PRICE1, 0x01), /*Start Action*/
                         TimeSpan.FromSeconds(1), /*Retry Timer*/
-                        () => Connector.Freeze8(ADDR_SHOP_CURRENT_PRICE, 0x01) && Connector.IsNonZero8(ADDR_SHOP_CURRENT_PRICE), /*Refresh Condtion*/
+                        () => Connector.Freeze8(ADDR_SHOP_CURRENT_PRICE1, 0x01) && Connector.IsNonZero8(ADDR_SHOP_CURRENT_PRICE1), /*Refresh Condtion*/
                         TimeSpan.FromMilliseconds(500), /*Refresh Retry Timer*/
                         () => true, /*Action*/
                         TimeSpan.FromSeconds(0.5),
                         true);
-                        shop.WhenStarted.Then(t => Connector.SendMessage($"{request.DisplayViewer} made everything a Penny!!!"));
-                        shop.WhenCompleted.Then(t => Connector.SendMessage($"{request.DisplayViewer}'s restored back to normal prices."));
+                        shop1.WhenStarted.Then(t => Connector.SendMessage($"{request.DisplayViewer} made everything a Penny!!!"));
+                        shop1.WhenCompleted.Then(t => Connector.SendMessage($"{request.DisplayViewer}'s restored back to normal prices."));
+                       
+
+                        var shop2 = RepeatAction(request,
+                        TimeSpan.FromSeconds(45),
+                        () => Connector.IsNonZero8(ADDR_SHOP_CURRENT_PRICE2), /*Effect Start Condition*/
+                        () => Connector.Freeze8(ADDR_SHOP_CURRENT_PRICE2, 0x00), /*Start Action*/
+                        TimeSpan.FromSeconds(1), /*Retry Timer*/
+                        () => Connector.Freeze8(ADDR_SHOP_CURRENT_PRICE2, 0x00) && Connector.IsZero8(ADDR_SHOP_CURRENT_PRICE2), /*Refresh Condtion*/
+                        TimeSpan.FromMilliseconds(500), /*Refresh Retry Timer*/
+                        () => true, /*Action*/
+                        TimeSpan.FromSeconds(0.5),
+                        true);
+                        shop2.WhenStarted.Then(t => Connector.SendMessage($"{request.DisplayViewer} made everything a Penny!!!"));
+                        shop2.WhenCompleted.Then(t => Connector.SendMessage($"{request.DisplayViewer}'s restored back to normal prices."));
                         return;
                     }
 
@@ -4184,7 +4199,7 @@ namespace CrowdControl.Games.Packs
 
                 case "freeshops":
                     {
-                        result = Connector.Unfreeze(ADDR_SHOP_CURRENT_PRICE);
+                        result = Connector.Unfreeze(ADDR_SHOP_CURRENT_PRICE1) && Connector.Unfreeze(ADDR_SHOP_CURRENT_PRICE2);
                         return result;
                     }
 
