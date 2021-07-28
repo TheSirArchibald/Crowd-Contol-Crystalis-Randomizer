@@ -31,7 +31,7 @@ namespace CrowdControl.Games.Packs
     {
         public Crystalis([NotNull] IPlayer player, [NotNull] Func<CrowdControlBlock, bool> responseHandler, [NotNull] Action<object> statusUpdateHandler) : base(player, responseHandler, statusUpdateHandler) { }
 
-        //Testing GIT PUSH
+
 
         //Position
         //private const ushort ADDR_PosXl = 0x0070;
@@ -596,15 +596,6 @@ namespace CrowdControl.Games.Packs
                 return false;
             }
 
-            if (((bosschealth + ((bossscale * slope) / 2))) < 255)
-            {
-                if (Connector.Write8(ADDR_BOSS_HEALTH1, (byte)((bosschealth + (bossscale * slope) / 2))))
-                {
-                    Respond(request, EffectStatus.Success);
-                    return true;
-                }
-            }
-            
             if ((bosschealth) <= 0x20)
             {
                 Respond(request, EffectStatus.FailPermanent, "Near Death Fail.");
@@ -616,7 +607,15 @@ namespace CrowdControl.Games.Packs
                 Respond(request, EffectStatus.FailPermanent, "Health already at maximum.");
                 return false;
             }
-
+            
+            if (((bosschealth + ((bossscale * slope) / 2))) < 255)
+            {
+                if (Connector.Write8(ADDR_BOSS_HEALTH1, (byte)((bosschealth + (bossscale * slope) / 2))))
+                {
+                    Respond(request, EffectStatus.Success);
+                    return true;
+                }
+            }                       
 
             DelayEffect(request);
             return false;
@@ -631,16 +630,16 @@ namespace CrowdControl.Games.Packs
                 return false;
             }
 
-            if (!Connector.Read8(ADDR_BOSS_HEALTH1, out byte bosschealth2))
+            if (!Connector.Read8(ADDR_BOSS_HEALTH2, out byte bosschealth2))
 
             {
                 DelayEffect(request);
                 return false;
             }
 
-            if ((bossscale2) <= 0x01)
+            if ((bosschealth2) <= 0x20)
             {
-                Respond(request, EffectStatus.FailPermanent, "Scaling not high enough.");
+                Respond(request, EffectStatus.FailPermanent, "Near Death Fail.");
                 return false;
             }
 
