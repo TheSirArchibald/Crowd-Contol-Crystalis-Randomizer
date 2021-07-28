@@ -114,7 +114,10 @@ namespace CrowdControl.Games.Packs
         private const ushort ADDR_ChargeLvl = 0x0719;
         private const ushort ADDR_Speed = 0x0341;
         private const ushort ADDR_Jump = 0x0620;
+        private const ushort ADDR_ScreenHit1 = 0x07D6;
+        private const ushort ADDR_ScreenHit2 = 0x07D7;
         private const ushort ADDR_Equip_Sword = 0x0711;
+        private const ushort ADDR_Stone = 0x05A0;
 
         //Boss
         private const ushort ADDR_BOSS_HEALTH1 = 0x03CD;
@@ -249,7 +252,7 @@ namespace CrowdControl.Games.Packs
         //                   return result;
         //}
         
-        private bool TryAlterScale([NotNull] EffectRequest request, sbyte scale)
+        private bool TryAlterScale([NotNull] EffectRequest request, sbyte scale)  //Note Scaling max requested on ROM side
         {
             if (!Connector.Read8(ADDR_SCALING, out byte cscale))
             {
@@ -684,6 +687,7 @@ namespace CrowdControl.Games.Packs
                     new Effect("Steal Money (50 Gold)", "takemoney50", "general"),
                     new Effect("Steal Money (100 Gold)", "takemoney100", "general"),                    
                     new Effect("Wild Warp", "wild", "general"),
+                    new Effect("Mado Shake Mode", "screenshakemode", "general"),
                     
                     
                     //Heal Boss
@@ -738,7 +742,7 @@ namespace CrowdControl.Games.Packs
                     // Movement Effects
                     new Effect("Movement Effects", "moveeffect", ItemKind.Folder),
                     new Effect("Jump Mode", "jump", "moveeffect"),
-                    //new Effect("Flight Mode", "flight", "moveeffect"),  Note: Need to write a freeze and restore MP function"
+                    new Effect("Flight Mode", "flightmode", "moveeffect"),
                     new Effect("Heavy Mode", "heavy", "moveeffect"),
                     
                     // Status Conditions
@@ -747,9 +751,9 @@ namespace CrowdControl.Games.Packs
                     new Effect("UnTimed Posion", "poison", "changecondition"),
                     new Effect("UnTimed Paralysis", "paralysis", "changecondition"),
                     new Effect("UnTimed Slime", "slime", "changecondition"),
+                    new Effect("UnTimed Stone", "stone", "changecondition"),  
                     new Effect("Timed Posion", "timedpoison", "changecondition"),
-                    new Effect("Timed Paralysis", "timedparalysis", "changecondition"),
-                    //new Effect("Timed Stone", "timestoning", "changecondition"),          Note: Effect doesn't trigger maybe another RAM location?
+                    new Effect("Timed Paralysis", "timedparalysis", "changecondition"),                       
                     new Effect("Timed Slime", "timedslime", "changecondition"),
 
                     // Power Down/Upgrade
@@ -909,16 +913,38 @@ namespace CrowdControl.Games.Packs
                         return;
                     }
 
-                    //case "flight":  Need a Freeze Function JUMP and MP.
+                case "flightmode":  //Note Screen scroll weird in x only direction but up and down and diagronally work great.
                     {
-                        //        RepeatAction(request, TimeSpan.FromSeconds(15),
-                        //        () => Connector.IsZero8(ADDR_Jump),
-                        //        () => Connector.Write8(ADDR_Jump, 13) && Connector.SendMessage($"{request.DisplayViewer} has granted you flight mode."), TimeSpan.FromSeconds(0.5),
-                        //        () => true, TimeSpan.FromSeconds(5),
-                        //        () => Connector.Write8(ADDR_Jump, 13), TimeSpan.FromSeconds(0.5), true)
-                        //        .WhenCompleted.ContinueWith(t => Connector.SendMessage($"{request.DisplayViewer} has removed your flight mode."));
-                        //        return;
-                        //  "Needs to freeze ADDR_Jump but unknown right now
+                        var flight = RepeatAction(request,
+                        TimeSpan.FromSeconds(45),
+                        () => Connector.IsZero8(ADDR_Jump), /*Effect Start Condition*/
+                        () => Connector.Freeze8(ADDR_Jump, 0x20), /*Start Action*/
+                        TimeSpan.FromSeconds(1), /*Retry Timer*/
+                        () => Connector.Freeze8(ADDR_Jump, 0x20) && Connector.IsNonZero8(ADDR_Jump), /*Refresh Condtion*/
+                        TimeSpan.FromMilliseconds(500), /*Refresh Retry Timer*/
+                        () => true, /*Action*/
+                        TimeSpan.FromSeconds(0.5),
+                        true);
+                        flight.WhenStarted.Then(t => Connector.SendMessage($"{request.DisplayViewer} started flight mode."));
+                        flight.WhenCompleted.Then(t => Connector.SendMessage($"{request.DisplayViewer}'s removed flight mode."));
+                        return;
+                    }
+
+                case "screenshakemode":  //Note Screen scroll weird in x only direction but up and down and diagronally work great.
+                    {
+                        var shake = RepeatAction(request,
+                        TimeSpan.FromSeconds(15),
+                        () => Connector.IsZero8(ADDR_ScreenHit1), /*Effect Start Condition*/
+                        () => Connector.Freeze8(ADDR_ScreenHit1, 0x02), /*Start Action*/
+                        TimeSpan.FromSeconds(1), /*Retry Timer*/
+                        () => Connector.Write8(ADDR_ScreenHit2, 0x02), /*Refresh Condtion*/
+                        TimeSpan.FromMilliseconds(50), /*Refresh Retry Timer*/
+                        () => true, /*Action*/
+                        TimeSpan.FromSeconds(0.1),
+                        true);
+                        shake.WhenStarted.Then(t => Connector.SendMessage($"{request.DisplayViewer} started shaking mode."));
+                        shake.WhenCompleted.Then(t => Connector.SendMessage($"{request.DisplayViewer}'s removed shaking mode."));
+                        return;
                     }
 
                 case "heavy":
@@ -1078,6 +1104,28 @@ namespace CrowdControl.Games.Packs
                         return;
                     }
 
+                case "stone":
+                    {
+                        if (!Connector.Read8(ADDR_Condition, out byte con))
+                        {
+                            DelayEffect(request);
+                        }
+                        else if ((con) >= 0x01)
+                        {
+                            Respond(request, EffectStatus.FailPermanent, "Condition affected already");
+                        }
+                        else if (!Connector.SetBits(ADDR_Stone, 255, out _))
+                        {
+                            DelayEffect(request);
+                        }
+                        else
+                        {
+                            Connector.Write8(ADDR_Stone, 255);
+                            Connector.SendMessage($"{request.DisplayViewer} stoned you for 4 seconds");
+                        }
+                        return;
+                    }
+                
                 case "poison":
                     {
                         if (!Connector.Read8(ADDR_Condition, out byte con))
@@ -3996,7 +4044,7 @@ namespace CrowdControl.Games.Packs
                         return;
                     }
 
-                case "magicup":
+                case "magicup":     //UI update pending  
                     {
                         if (TryGiveMP(request))
                         {
@@ -4005,7 +4053,7 @@ namespace CrowdControl.Games.Packs
                         return;
                     }
 
-                case "magicdown":
+                case "magicdown":     //UI update pending  
                     {
                         if (TryTakeMP(request, 6))
                         {
@@ -4014,7 +4062,7 @@ namespace CrowdControl.Games.Packs
                         return;
                     }
 
-                case "healplayer":
+                case "healplayer":     //UI update pending  
                     {
                         if (TryHealPlayerHealth(request))
                         {
@@ -4023,7 +4071,7 @@ namespace CrowdControl.Games.Packs
                         return;
                     }
 
-                case "hurtplayer":
+                case "hurtplayer":      //UI update pending  
                     {
                         if (TryHurtPlayerHealth(request, 4))
                         {
@@ -4032,7 +4080,7 @@ namespace CrowdControl.Games.Packs
                         return;
                     }
                                     
-                case "givemoney50":     //Need UI update too                  
+                case "givemoney50":     //UI update pending                   
                     {
                         if (TryGiveMoney(request, 50))
                         {
@@ -4044,7 +4092,7 @@ namespace CrowdControl.Games.Packs
                         return;
                     }
 
-                case "givemoney100":     //Need UI update too                  
+                case "givemoney100":     //UI update pending              
                     {
                         if (TryGiveMoney(request, 100))
                         {
@@ -4056,7 +4104,7 @@ namespace CrowdControl.Games.Packs
                         return;
                     }
 
-                case "takemoney50":     //Need UI update too                  
+                case "takemoney50":     //UI update pending                   
                     {
                         if (TryStealMoney(request, 50))
                         {
@@ -4068,7 +4116,7 @@ namespace CrowdControl.Games.Packs
                         return;
                     }
 
-                case "takemoney100":     //Need UI update too                  
+                case "takemoney100":     //UI update pending but currently only work in the up direction                  
                     {
                         if (TryStealMoney(request, 100))
                         {
@@ -4080,7 +4128,7 @@ namespace CrowdControl.Games.Packs
                         return;
                     }
 
-                case "levelup":     //Note EXP and Health need to change with this.  Need UI update too                  
+                case "levelup":     //UI update pending but currently only work in the up direction             
                     {
                         if (TryAlterLevel(request, 1))
                         {
@@ -4092,7 +4140,7 @@ namespace CrowdControl.Games.Packs
                         return;
                     }
                 
-                case "leveldown":   //Note EXP and Health need to change with this. Need UI update too   
+                case "leveldown":   //UI update pending but currently only work in the up direction   
                     {
                         if (TryAlterLevel(request, -1))
                         {
@@ -4126,7 +4174,7 @@ namespace CrowdControl.Games.Packs
                         return;
                     }
 
-                case "freeshops":
+                case "freeshops":   //Note need to fix the inns as they are currently zero outing money but everything else works.
                     {
                         var shop1 = RepeatAction(request,
                         TimeSpan.FromSeconds(45),
@@ -4199,6 +4247,18 @@ namespace CrowdControl.Games.Packs
                 case "freeshops":
                     {
                         result = Connector.Unfreeze(ADDR_SHOP_CURRENT_PRICE1) && Connector.Unfreeze(ADDR_SHOP_CURRENT_PRICE2);
+                        return result;
+                    }
+
+                case "flightmode":
+                    {
+                        result = Connector.Unfreeze(ADDR_Jump);
+                        return result;
+                    }
+
+                case "screenshakemode":
+                    {
+                        result = Connector.Unfreeze(ADDR_ScreenHit1);
                         return result;
                     }
 
