@@ -62,6 +62,14 @@ namespace CrowdControl.Games.Packs
         private const ushort ADDR_HEALTH_MAX = 0x03C0;
         private const ushort ADDR_SHOP_CURRENT_PRICE1 = 0x6474;
         private const ushort ADDR_SHOP_CURRENT_PRICE2 = 0x6475;
+        private const ushort ADDR_SHOP_ITEM1_PRICE1 = 0x6478;
+        private const ushort ADDR_SHOP_ITEM1_PRICE2 = 0x6479;
+        private const ushort ADDR_SHOP_ITEM2_PRICE1 = 0x647A;
+        private const ushort ADDR_SHOP_ITEM2_PRICE2 = 0x647B;
+        private const ushort ADDR_SHOP_ITEM3_PRICE1 = 0x647C;
+        private const ushort ADDR_SHOP_ITEM3_PRICE2 = 0x647D;
+        private const ushort ADDR_SHOP_ITEM4_PRICE1 = 0x647E;
+        private const ushort ADDR_SHOP_ITEM4_PRICE2 = 0x647F;
         private const ushort ADDR_SCALING = 0x648F;
         private const ushort ADDR_LEVEL = 0x0421;
         private const ushort ADDR_U1HOOK = 0x6220;
@@ -125,7 +133,7 @@ namespace CrowdControl.Games.Packs
 
         //{
         //Need to fix Bosses for respawn later just a placeholder for now
-        
+
         //private const ushort ADDR_Kelby = 0x0;
         //private const ushort ADDR_Sabera = 0x0;
         //private const ushort ADDR_Mado = 0x0;
@@ -134,8 +142,8 @@ namespace CrowdControl.Games.Packs
         //private const ushort ADDR_Mado2 = 0x0;
         //private const ushort ADDR_Karmine = 0x0;
         //private const ushort ADDR_Draygon = 0x0;
-        
-        
+
+
         //private Dictionary<string, (string bossName, byte value, BossDefeated bossFlag, ushort address, byte limit)> _wType = new Dictionary<string, (string, byte, BossDefeated, ushort, byte)>(StringComparer.InvariantCultureIgnoreCase)
         //{
         //    {"Kelby", ("Kelby", 0, BossDefeated.Kelby, ADDR_Kelby, 0)},
@@ -165,7 +173,7 @@ namespace CrowdControl.Games.Packs
         //    Draygon2 = 0xA6,
         //    Dyna = 0x5F            
         //}
-      
+
         //private enum BossDefeated : byte
         //{
         //    Kelby = 0x01,
@@ -251,7 +259,7 @@ namespace CrowdControl.Games.Packs
         //private byte CheckForSprite(SpriteType type)
         //                   return result;
         //}
-        
+
         private bool TryAlterScale([NotNull] EffectRequest request, sbyte scale)  //Note Scaling max requested on ROM side
         {
             if (!Connector.Read8(ADDR_SCALING, out byte cscale))
@@ -264,7 +272,7 @@ namespace CrowdControl.Games.Packs
             {
                 Respond(request, EffectStatus.FailPermanent, "Scaling already at minumum.");
                 return false;
-            }            
+            }
             if ((cscale + scale) == 0x2F)
             {
                 Respond(request, EffectStatus.FailPermanent, "Scaling already at maximum.");
@@ -280,7 +288,7 @@ namespace CrowdControl.Games.Packs
             DelayEffect(request);
             return false;
         }
-        
+
         private bool TryAlterLevel([NotNull] EffectRequest request, sbyte level)
         {
             if (!Connector.Read8(ADDR_LEVEL, out byte clevel))
@@ -294,7 +302,7 @@ namespace CrowdControl.Games.Packs
                 Respond(request, EffectStatus.FailPermanent, "Level already at minumum.");
                 return false;
             }
-            
+
             if ((clevel + level) == 0x11)
             {
                 Respond(request, EffectStatus.FailPermanent, "Level already at maximum.");
@@ -306,7 +314,7 @@ namespace CrowdControl.Games.Packs
                 Respond(request, EffectStatus.Success);
                 return true;
             }
-            
+
 
             DelayEffect(request);
             return false;
@@ -326,7 +334,7 @@ namespace CrowdControl.Games.Packs
             {
                 DelayEffect(request);
                 return false;
-            }            
+            }
 
             if (money2 >= 0xFF)
             {
@@ -343,26 +351,26 @@ namespace CrowdControl.Games.Packs
                 }
             }
             if (money1 + sentmoney >= 0xFF)
+            {
+                if (money2 == 0x00)
                 {
-                    if (money2 == 0x00)
+                    Connector.Write8(ADDR_Money1, (byte)(money1 + sentmoney - 256));
+                    Connector.Write8(ADDR_Money2, (byte)(money2 + 1));
                     {
-                        Connector.Write8(ADDR_Money1, (byte)(money1 + sentmoney - 256));
-                        Connector.Write8(ADDR_Money2, (byte)(money2 + 1));
-                        {
                         Respond(request, EffectStatus.Success);
                         return true;
-                        }
                     }
-                    if (money2 >= 0x01)
+                }
+                if (money2 >= 0x01)
+                {
+                    Connector.Write8(ADDR_Money1, (byte)(money1 + sentmoney - 256));
+                    Connector.Write8(ADDR_Money2, (byte)(money2 + 1));
                     {
-                        Connector.Write8(ADDR_Money1, (byte)(money1 + sentmoney - 256));
-                        Connector.Write8(ADDR_Money2, (byte)(money2 + 1));
-                        {
                         Respond(request, EffectStatus.Success);
                         return true;
-                        }
                     }
-                }       
+                }
+            }
             DelayEffect(request);
             return false;
         }
@@ -383,10 +391,10 @@ namespace CrowdControl.Games.Packs
                 return false;
             }
 
-            if ((money1 - stealmoney) + (money2 * 256)  <= 0x00)
-            {                
-                    Respond(request, EffectStatus.FailPermanent, "Money at min.");
-                    return false;                
+            if ((money1 - stealmoney) + (money2 * 256) <= 0x00)
+            {
+                Respond(request, EffectStatus.FailPermanent, "Money at min.");
+                return false;
             }
 
             if (money1 - stealmoney < 0xFF)
@@ -437,13 +445,13 @@ namespace CrowdControl.Games.Packs
 
             if (!Connector.Read8(ADDR_MPC, out byte MPCURRENT))
 
-            
 
-            if (MPFULL == MPCURRENT)
-            {
-                Respond(request, EffectStatus.FailPermanent, "Magic already at maximum.");
-                return false;
-            }
+
+                if (MPFULL == MPCURRENT)
+                {
+                    Respond(request, EffectStatus.FailPermanent, "Magic already at maximum.");
+                    return false;
+                }
 
             if (MPCURRENT < MPFULL)
             {
@@ -462,13 +470,13 @@ namespace CrowdControl.Games.Packs
 
             if (!Connector.Read8(ADDR_LEVEL, out byte playerlvl))
 
-            {                
+            {
                 return false;
             }
 
             if (!Connector.Read8(ADDR_MPC, out byte cmp))
 
-            {                
+            {
                 return false;
             }
 
@@ -507,7 +515,7 @@ namespace CrowdControl.Games.Packs
                 DelayEffect(request);
                 return false;
             }
-                     
+
             if (maxhealth == chealth)
             {
                 Respond(request, EffectStatus.FailPermanent, "Health already at maximum.");
@@ -541,7 +549,7 @@ namespace CrowdControl.Games.Packs
             {
                 DelayEffect(request);
                 return false;
-            }            
+            }
 
             if ((mhealth - (playerlvl * factor) < 0))
             {
@@ -552,7 +560,7 @@ namespace CrowdControl.Games.Packs
                 }
             }
 
-            if (Connector.Write8(ADDR_HP, (byte) (mhealth - (playerlvl * factor))))
+            if (Connector.Write8(ADDR_HP, (byte)(mhealth - (playerlvl * factor))))
             {
                 Respond(request, EffectStatus.Success);
                 return true;
@@ -565,26 +573,26 @@ namespace CrowdControl.Games.Packs
         private bool TryBossLocation([NotNull] EffectRequest request, byte boss)
         {
             if (!Connector.Read8(ADDR_CURRENT_AREA, out byte bosslocation))
-           
-            if (bosslocation == boss)
-            {
-                
-                return true;
-            }
-            
+
+                if (bosslocation == boss)
+                {
+
+                    return true;
+                }
+
             if (bosslocation != boss)
             {
                 Respond(request, EffectStatus.FailPermanent, "Wrong location.");
                 return false;
-            }           
+            }
 
-            
+
             return true;
         }
-    
+
         private bool TryAlterBossHealth([NotNull] EffectRequest request, sbyte slope)
-    {
-           
+        {
+
             if (!Connector.Read8(ADDR_SCALING, out byte bossscale))
 
             {
@@ -603,14 +611,14 @@ namespace CrowdControl.Games.Packs
             {
                 Respond(request, EffectStatus.FailPermanent, "Near Death Fail.");
                 return false;
-            }          
+            }
 
             if ((bosschealth + ((bossscale * slope) / 2)) > 255)
             {
                 Respond(request, EffectStatus.FailPermanent, "Health already at maximum.");
                 return false;
             }
-            
+
             if (((bosschealth + ((bossscale * slope) / 2))) < 255)
             {
                 if (Connector.Write8(ADDR_BOSS_HEALTH1, (byte)((bosschealth + (bossscale * slope) / 2))))
@@ -618,11 +626,11 @@ namespace CrowdControl.Games.Packs
                     Respond(request, EffectStatus.Success);
                     return true;
                 }
-            }                       
+            }
 
             DelayEffect(request);
             return false;
-    }
+        }
 
         private bool TryAlterBossHealthSabera([NotNull] EffectRequest request, sbyte slope2)
         {
@@ -651,7 +659,7 @@ namespace CrowdControl.Games.Packs
                 Respond(request, EffectStatus.FailPermanent, "Health already at maximum.");
                 return false;
             }
-        
+
             if (Connector.Write8(ADDR_BOSS_HEALTH1, (byte)((bosschealth2 + (bossscale2 * slope2) / 2))))
             {
                 Respond(request, EffectStatus.Success);
@@ -685,14 +693,14 @@ namespace CrowdControl.Games.Packs
                     new Effect("Give Money (50 Gold)", "givemoney50", "general"),
                     new Effect("Give Money (100 Gold)", "givemoney100", "general"),
                     new Effect("Steal Money (50 Gold)", "takemoney50", "general"),
-                    new Effect("Steal Money (100 Gold)", "takemoney100", "general"),                    
+                    new Effect("Steal Money (100 Gold)", "takemoney100", "general"),
                     new Effect("Wild Warp", "wild", "general"),
                     new Effect("Mado Shake Mode", "screenshakemode", "general"),
                     
                     
                     //Heal Boss
                     //Note all boss fights check for boss area map to see if Effect can trigger but you can despawn the effect.  Will need to add screen fight transmition animation RAM action for better trigger.
-                    new Effect("Heal Boss (X% Scaled)", "healboss", ItemKind.Folder),  
+                    new Effect("Heal Boss (X% Scaled)", "healboss", ItemKind.Folder),
                     new Effect("Vampire", "healvamp1", "healboss"),
                     new Effect("Big Bug", "healbug", "healboss"),
                     new Effect("Kelbesque", "healkelby", "healboss"),
@@ -751,9 +759,9 @@ namespace CrowdControl.Games.Packs
                     new Effect("UnTimed Posion", "poison", "changecondition"),
                     new Effect("UnTimed Paralysis", "paralysis", "changecondition"),
                     new Effect("UnTimed Slime", "slime", "changecondition"),
-                    new Effect("UnTimed Stone", "stone", "changecondition"),  
+                    new Effect("UnTimed Stone", "stone", "changecondition"),
                     new Effect("Timed Posion", "timedpoison", "changecondition"),
-                    new Effect("Timed Paralysis", "timedparalysis", "changecondition"),                       
+                    new Effect("Timed Paralysis", "timedparalysis", "changecondition"),
                     new Effect("Timed Slime", "timedslime", "changecondition"),
 
                     // Power Down/Upgrade
@@ -768,7 +776,7 @@ namespace CrowdControl.Games.Packs
                     new Effect("Give Bracelet of Water", "brwater",  "givepower"),
                     new Effect("Give Bracelet of Thunder", "brthunder",  "givepower"),
 
-                    new Effect("Power Downgrade","takepower", ItemKind.Folder),                    
+                    new Effect("Power Downgrade","takepower", ItemKind.Folder),
                     new Effect("Steal Ball of Wind", "stealbowind", "takepower"),
                     new Effect("Steal Ball of Fire", "stealbofire",  "takepower"),
                     new Effect("Steal Ball of Water", "stealbowater", "takepower"),
@@ -782,7 +790,7 @@ namespace CrowdControl.Games.Packs
                     new Effect("Give Defense Item","givedef", ItemKind.Folder),
                     new Effect("Send Sacred Shield", "sshield","givedef"),
                     new Effect("Send Psycho Shield", "pshield","givedef"),
-                    new Effect("Send Battle Armor ", "barmor","givedef"),                    
+                    new Effect("Send Battle Armor ", "barmor","givedef"),
                     new Effect("Send Psycho Armor", "parmor", "givedef"),
 
                     //Spells
@@ -799,7 +807,7 @@ namespace CrowdControl.Games.Packs
                     
                     //Consumables
                     
-                    new Effect("Give Consumable","giveconsumable", ItemKind.Folder),                    
+                    new Effect("Give Consumable","giveconsumable", ItemKind.Folder),
                     new Effect("Give Medical Herb", "giveherb","giveconsumable"),
                     new Effect("Give Antidote", "giveanti","giveconsumable"),
                     new Effect("Give Magic Ring", "givemr","giveconsumable"),
@@ -843,7 +851,7 @@ namespace CrowdControl.Games.Packs
                 return effects;
             }
         }
-        
+
         public override List<(string, Action)> MenuActions => new List<(string, Action)>();
 
         public override Game Game { get; } = new Game(104, "Crystalis", "Crystalis", "NES", ConnectorType.NESConnector);
@@ -853,7 +861,7 @@ namespace CrowdControl.Games.Packs
         protected override void RequestData(DataRequest request) => Respond(request, request.Key, null, false, $"Variable name \"{request.Key}\" not known");
 
         protected override void StartEffect(EffectRequest request)
-        {                        
+        {
             if (!IsReady(request))
             {
                 DelayEffect(request);  //Note add current location = FF to fail for restart screen
@@ -880,7 +888,7 @@ namespace CrowdControl.Games.Packs
                         return;
                     }
 
-                case "wild":                  
+                case "wild":
                     {
                         TryEffect(request,
                             () => Connector.Write8(ADDR_U2HOOK, 0x02),
@@ -962,7 +970,7 @@ namespace CrowdControl.Games.Packs
                     }
 
                 case "lvl1shot":  //Note Bug Projectile is same address.  These effects can change if other is activated.
-                    {                                              
+                    {
                         var a = RepeatAction(request,
                         TimeSpan.FromSeconds(15),
                         () => Connector.IsNonZero8(ADDR_LEVEL), /*Effect Start Condition*/
@@ -975,7 +983,7 @@ namespace CrowdControl.Games.Packs
                         true);
                         a.WhenStarted.Then(t => Connector.SendMessage($"{request.DisplayViewer} deployed Warrior Ring Effect."));
                         a.WhenCompleted.Then(t => Connector.SendMessage($"{request.DisplayViewer}'s Warrior Ring Effect has dispered."));
-                        return;                                                                                
+                        return;
                     }
 
                 case "lvl2shot"://Note Bug Projectile.  These effects can change if other is activated.
@@ -1028,7 +1036,7 @@ namespace CrowdControl.Games.Packs
                         a.WhenCompleted.Then(t => Connector.SendMessage($"{request.DisplayViewer}'s Thunder Shot Effect has dispered."));
                         return;
                     }
-                
+
                 case "lagshot"://Note Bug Projectile.  These effects can change if other is activated.Doesn't work on non thunder bosses.
                     {
                         var a = RepeatAction(request,
@@ -1045,7 +1053,7 @@ namespace CrowdControl.Games.Packs
                         a.WhenCompleted.Then(t => Connector.SendMessage($"{request.DisplayViewer}'s Lag Storm Effect has dispered."));
                         return;
                     }
-               
+
                 case "recover":
                     {
                         if (!Connector.Read8(ADDR_Condition, out byte con))
@@ -1125,7 +1133,7 @@ namespace CrowdControl.Games.Packs
                         }
                         return;
                     }
-                
+
                 case "poison":
                     {
                         if (!Connector.Read8(ADDR_Condition, out byte con))
@@ -1202,7 +1210,7 @@ namespace CrowdControl.Games.Packs
                         slime.WhenCompleted.Then(t => Connector.SendMessage($"{request.DisplayViewer}'s slimed Effect has dispered."));
                         return;
                     }
-                    
+
 
                 case "bowind":
                     {
@@ -4079,7 +4087,7 @@ namespace CrowdControl.Games.Packs
                         }
                         return;
                     }
-                                    
+
                 case "givemoney50":     //UI update pending                   
                     {
                         if (TryGiveMoney(request, 50))
@@ -4132,22 +4140,22 @@ namespace CrowdControl.Games.Packs
                     {
                         if (TryAlterLevel(request, 1))
                         {
-                            Connector.Write8(ADDR_U3HOOK, 0x9D);
-                            Connector.Write8(ADDR_U2HOOK, 1);
+                            //Connector.Write8(ADDR_U3HOOK, 0x9D);
+                            //Connector.Write8(ADDR_U2HOOK, 1);
                             Connector.SendMessage($"{request.DisplayViewer} sent a level.");
-                            Connector.Write8(ADDR_U1HOOK, 1);
+                            //Connector.Write8(ADDR_U1HOOK, 1);
                         }
                         return;
                     }
-                
+
                 case "leveldown":   //UI update pending but currently only work in the up direction   
                     {
                         if (TryAlterLevel(request, -1))
                         {
-                            Connector.Write8(ADDR_U3HOOK, 0x9D);
-                            Connector.Write8(ADDR_U2HOOK, 1);
+                            //Connector.Write8(ADDR_U3HOOK, 0x9D);
+                            //Connector.Write8(ADDR_U2HOOK, 1);
                             Connector.SendMessage($"{request.DisplayViewer} removed a level.");
-                            Connector.Write8(ADDR_U1HOOK, 1);
+                            //Connector.Write8(ADDR_U1HOOK, 1);
                         }
                         return;
                     }
@@ -4156,52 +4164,47 @@ namespace CrowdControl.Games.Packs
                     {
                         if (TryAlterScale(request, 1))
                         {
-                            
+                            //Connector.Write8(ADDR_U3HOOK, 0x9D);
+                            //Connector.Write8(ADDR_U2HOOK, 1);
                             Connector.SendMessage($"{request.DisplayViewer} increased the difficulty.");
-                            Connector.Write8(ADDR_U1HOOK, 1);
+                            //Connector.Write8(ADDR_U1HOOK, 1);
                         }
                         return;
                     }
 
-                case "scaledown":
+                case "scaledown":    //UI update pending
                     {
                         if (TryAlterScale(request, -1))
                         {
-                            
+                            //Connector.Write8(ADDR_U3HOOK, 0x9D);
+                            //Connector.Write8(ADDR_U2HOOK, 1);
                             Connector.SendMessage($"{request.DisplayViewer} decreased the difficulty.");
-                            
+                            //Connector.Write8(ADDR_U1HOOK, 1);
                         }
                         return;
                     }
 
                 case "freeshops":   //Note need to fix the inns as they are currently zero outing money but everything else works.
                     {
-                        var shop1 = RepeatAction(request,
-                        TimeSpan.FromSeconds(45),
-                        () => Connector.IsNonZero8(ADDR_SHOP_CURRENT_PRICE1), /*Effect Start Condition*/
-                        () => Connector.Freeze8(ADDR_SHOP_CURRENT_PRICE1, 0x01), /*Start Action*/
+                        var shop = RepeatAction(request,
+                        TimeSpan.FromSeconds(30),
+                        () => Connector.IsNonZero8(ADDR_LEVEL), /*Effect Start Condition*/
+                        () => Connector.Freeze8(ADDR_SHOP_ITEM1_PRICE1, 0)
+                             && Connector.Freeze8(ADDR_SHOP_ITEM1_PRICE2, 0)
+                             && Connector.Freeze8(ADDR_SHOP_ITEM2_PRICE1, 0)
+                             && Connector.Freeze8(ADDR_SHOP_ITEM2_PRICE2, 0)
+                             && Connector.Freeze8(ADDR_SHOP_ITEM3_PRICE1, 0)
+                             && Connector.Freeze8(ADDR_SHOP_ITEM3_PRICE2, 0)
+                             && Connector.Freeze8(ADDR_SHOP_ITEM4_PRICE1, 0)
+                             && Connector.Freeze8(ADDR_SHOP_ITEM4_PRICE2, 0),         /*Start Action*/
                         TimeSpan.FromSeconds(1), /*Retry Timer*/
-                        () => Connector.Freeze8(ADDR_SHOP_CURRENT_PRICE1, 0x01) && Connector.IsNonZero8(ADDR_SHOP_CURRENT_PRICE1), /*Refresh Condtion*/
+                        () => Connector.IsZero8(ADDR_SHOP_ITEM1_PRICE1), /*Refresh Condtion*/
                         TimeSpan.FromMilliseconds(500), /*Refresh Retry Timer*/
                         () => true, /*Action*/
                         TimeSpan.FromSeconds(0.5),
                         true);
-                        shop1.WhenStarted.Then(t => Connector.SendMessage($"{request.DisplayViewer} made everything a Penny!!!"));
-                        shop1.WhenCompleted.Then(t => Connector.SendMessage($"{request.DisplayViewer}'s restored back to normal prices."));
-                       
-
-                        var shop2 = RepeatAction(request,
-                        TimeSpan.FromSeconds(45),
-                        () => Connector.IsNonZero8(ADDR_SHOP_CURRENT_PRICE2), /*Effect Start Condition*/
-                        () => Connector.Freeze8(ADDR_SHOP_CURRENT_PRICE2, 0x00), /*Start Action*/
-                        TimeSpan.FromSeconds(1), /*Retry Timer*/
-                        () => Connector.Freeze8(ADDR_SHOP_CURRENT_PRICE2, 0x00) && Connector.IsZero8(ADDR_SHOP_CURRENT_PRICE2), /*Refresh Condtion*/
-                        TimeSpan.FromMilliseconds(500), /*Refresh Retry Timer*/
-                        () => true, /*Action*/
-                        TimeSpan.FromSeconds(0.5),
-                        true);
-                        shop2.WhenStarted.Then(t => Connector.SendMessage($"{request.DisplayViewer} made everything a Penny!!!"));
-                        shop2.WhenCompleted.Then(t => Connector.SendMessage($"{request.DisplayViewer}'s restored back to normal prices."));
+                        shop.WhenStarted.Then(t => Connector.SendMessage($"{request.DisplayViewer} made everything free!!!"));
+                        shop.WhenCompleted.Then(t => Connector.SendMessage($"{request.DisplayViewer}'s restored back to normal prices."));
                         return;
                     }
 
@@ -4246,7 +4249,15 @@ namespace CrowdControl.Games.Packs
 
                 case "freeshops":
                     {
-                        result = Connector.Unfreeze(ADDR_SHOP_CURRENT_PRICE1) && Connector.Unfreeze(ADDR_SHOP_CURRENT_PRICE2);
+                        result = Connector.Unfreeze(ADDR_SHOP_ITEM1_PRICE1)
+                        && Connector.Unfreeze(ADDR_SHOP_ITEM1_PRICE2)
+                        && Connector.Unfreeze(ADDR_SHOP_ITEM2_PRICE1)
+                        && Connector.Unfreeze(ADDR_SHOP_ITEM2_PRICE2)
+                        && Connector.Unfreeze(ADDR_SHOP_ITEM3_PRICE1)
+                        && Connector.Unfreeze(ADDR_SHOP_ITEM3_PRICE2)
+                        && Connector.Unfreeze(ADDR_SHOP_ITEM4_PRICE1)
+                        && Connector.Unfreeze(ADDR_SHOP_ITEM4_PRICE2);
+                        //result = Connector.Unfreeze(ADDR_SHOP_CURRENT_PRICE1) && Connector.Unfreeze(ADDR_SHOP_CURRENT_PRICE2);
                         return result;
                     }
 
@@ -4278,16 +4289,16 @@ namespace CrowdControl.Games.Packs
 
                 case "timedpoison":
                     {
-                    Connector.Write8(ADDR_Condition, 0x00);
-                    Connector.SendMessage($"{request.DisplayViewer}'s removed your poison.");
-                    return result;
+                        Connector.Write8(ADDR_Condition, 0x00);
+                        Connector.SendMessage($"{request.DisplayViewer}'s removed your poison.");
+                        return result;
                     }
 
                 case "timedslime":
                     {
-                        Connector.Unfreeze(ADDR_Condition); 
+                        Connector.Unfreeze(ADDR_Condition);
                         Connector.Write8(ADDR_Condition, 0x00);
-                    return result;
+                        return result;
                     }
 
                 case "removewindsword":
@@ -4318,7 +4329,7 @@ namespace CrowdControl.Games.Packs
                         return result;
                     }
 
-                
+
 
             }
             return result;
