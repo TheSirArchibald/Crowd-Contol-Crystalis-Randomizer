@@ -679,25 +679,36 @@ namespace CrowdControl.Games.Packs
                 {
                  
                     // General
-                    new Effect("General", "general", ItemKind.Folder),
-                    new Effect("Free Shopping", "freeshops", "general"),
-                    new Effect("Scaling Increase", "scaleup", "general"),
-                    new Effect("Scaling Decrease", "scaledown", "general"),
-                    new Effect("Level Increase", "levelup", "general"),
-                    new Effect("Level Decrease", "leveldown", "general"),
-                    new Effect("Heal Player to Full", "healplayer", "general"),
-                    new Effect("Hurt Player (Scaled %)", "hurtplayer", "general"),
-                    new Effect("Cure Player", "recover", "general"),
-                    new Effect("Refill Magic to Full", "magicup", "general"),
-                    new Effect("Take Magic (Scaled %)", "magicdown", "general"),
-                    new Effect("Give Money (50 Gold)", "givemoney50", "general"),
-                    new Effect("Give Money (100 Gold)", "givemoney100", "general"),
-                    new Effect("Steal Money (50 Gold)", "takemoney50", "general"),
-                    new Effect("Steal Money (100 Gold)", "takemoney100", "general"),
-                    //new Effect("Wild Warp", "wild", "general"),   Note pending UI update push to main website but testing worked
-                    new Effect("Mado Shake Mode", "screenshakemode", "general"),
+                    new Effect("Free Shopping", "freeshops"),
+                    new Effect("Mado Screen Shake Mode", "screenshakemode"),
+                    //new Effect("Wild Warp", "wild"),   Note pending UI update push to main website but testing worked
+                    //new Effect("Reset", "reset"),   
+
+                    //Scaling and Leveling
+                    new Effect("Scaling and Leveling", "sandl", ItemKind.Folder),
+                    new Effect("Scaling Increase", "scaleup", "sandl"),
+                    new Effect("Scaling Decrease", "scaledown", "sandl"),
+                    new Effect("Level Increase", "levelup", "sandl"),
+                    new Effect("Level Decrease", "leveldown", "sandl"),
                     
+                    //Player
+                    new Effect("Player Effects", "player", ItemKind.Folder),
+                    new Effect("Heal Player to Full", "healplayer", "player"),
+                    new Effect("Hurt Player (Scaled %)", "hurtplayer", "player"),
+                    new Effect("Cure Player", "recover", "player"),
+
+                    //Magic
+                    new Effect("Magic", "magic", ItemKind.Folder),
+                    new Effect("Refill Magic to Full", "magicup", "magic"),
+                    new Effect("Take Magic (Scaled %)", "magicdown", "magic"),
                     
+                    //Money
+                    new Effect("Money", "money", ItemKind.Folder),
+                    new Effect("Give Money (50 Gold)", "givemoney50", "money"),
+                    new Effect("Give Money (100 Gold)", "givemoney100", "money"),
+                    new Effect("Steal Money (50 Gold)", "takemoney50", "money"),
+                    new Effect("Steal Money (100 Gold)", "takemoney100", "money"),
+                                        
                     //Heal Boss
                     //Note all boss fights check for boss area map to see if Effect can trigger but you can despawn the effect.  Will need to add screen fight transmition animation RAM action for better trigger.
                     new Effect("Heal Boss (X% Scaled)", "healboss", ItemKind.Folder),
@@ -817,7 +828,7 @@ namespace CrowdControl.Games.Packs
                     new Effect("Give Fruit of Repun", "givefor","giveconsumable"),
                     new Effect("Give Fruit of Lime", "givefol","giveconsumable"),
                     new Effect("Give Opel Statue", "giveopel","giveconsumable"),
-                    new Effect("Give Love Package Special", "allfol","giveconsumable"),
+                    new Effect("Give Fruit of Lime Care Package", "allfol","giveconsumable"),
 
                     new Effect("Take Consumable","takeconsumable", ItemKind.Folder),
                     new Effect("Clear Inventory", "clear","takeconsumable"),
@@ -1186,7 +1197,7 @@ namespace CrowdControl.Games.Packs
                         return;
                     }
 
-                case "slime":  //Consider redoing this one to be repeat to ensure screen transition doesn't work.
+                case "slime": 
                     {
                         if (!Connector.Read8(ADDR_Condition, out byte con))
                         {
@@ -1208,9 +1219,7 @@ namespace CrowdControl.Games.Packs
                         return;
                     }
 
-                case "timedslime": //Consider redoing this one to be repeat to ensure screen transition doesn't work.
-
-
+                case "timedslime": 
                     {
                         var slime = RepeatAction(request,
                         TimeSpan.FromSeconds(15),
@@ -1226,7 +1235,6 @@ namespace CrowdControl.Games.Packs
                         slime.WhenCompleted.Then(t => Connector.SendMessage($"{request.DisplayViewer}'s slimed Effect has dispered."));
                         return;
                     }
-
 
                 case "bowind":
                     {
@@ -1631,11 +1639,11 @@ namespace CrowdControl.Games.Packs
                 case "barmor":
                     {
                         //Slot 1 Check
-                        if (!Connector.Read8(ADDR_ArmorSlot1, out byte barmorone))
+                        if (!Connector.Read8(ADDR_ArmorSlot1, out byte barmor1))
                         {
                             DelayEffect(request);
                         }
-                        else if ((barmorone) < 0xFF)
+                        else if ((barmor1) < 0xFF)
                         {
                             //Slot 2 Check
                             if (!Connector.Read8(ADDR_ArmorSlot2, out byte barmor2))
@@ -1643,7 +1651,7 @@ namespace CrowdControl.Games.Packs
                                 DelayEffect(request);
                             }
                             //Battle Armor Sent Already Check
-                            else if ((barmorone) == 0x1B)
+                            else if ((barmor1) == 0x1B)
                             {
                                 Respond(request, EffectStatus.FailPermanent, "Battle Armor aquired already slot 1");
                             }
