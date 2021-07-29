@@ -846,7 +846,7 @@ namespace CrowdControl.Games.Packs
         
         public override List<(string, Action)> MenuActions => new List<(string, Action)>();
 
-        public override Game Game { get; } = new Game(100, "Crystalis", "Crystalis", "NES", ConnectorType.NESConnector);
+        public override Game Game { get; } = new Game(104, "Crystalis", "Crystalis", "NES", ConnectorType.NESConnector);
 
         protected override bool IsReady(EffectRequest request) => Connector.Read8(0x006C, out byte b) && (b < 0xFF);  //Start/Menu = FF
 
