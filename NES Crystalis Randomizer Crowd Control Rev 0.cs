@@ -962,6 +962,7 @@ namespace CrowdControl.Games.Packs
                           () =>
                           {
                               bool result = Connector.Write8(ADDR_Speed, 0x03);
+
                               if (result) { Connector.SendMessage($"{request.DisplayViewer} lowered your speed (45s)."); }
                               return result;
                           },
@@ -969,90 +970,105 @@ namespace CrowdControl.Games.Packs
                         return;
                     }
 
-                case "lvl1shot":  //Note Bug Projectile is same address.  These effects can change if other is activated.
+                case "lvl1shot":  
+                    
+                    if (!Connector.Read8(ADDR_Warrior, out byte charge))
                     {
-                        var a = RepeatAction(request,
-                        TimeSpan.FromSeconds(15),
-                        () => Connector.IsNonZero8(ADDR_LEVEL), /*Effect Start Condition*/
-                        () => Connector.Freeze8(ADDR_Warrior, 0x08), /*Start Action*/
-                        TimeSpan.FromSeconds(1), /*Retry Timer*/
-                        () => Connector.Write8(ADDR_Warrior, 0x08) && Connector.Freeze8(ADDR_Warrior, 0x08) && Connector.IsNonZero8(ADDR_LEVEL), /*Refresh Condtion*/
-                        TimeSpan.FromMilliseconds(500), /*Refresh Retry Timer*/
-                        () => true, /*Action*/
-                        TimeSpan.FromSeconds(0.5),
-                        true);
-                        a.WhenStarted.Then(t => Connector.SendMessage($"{request.DisplayViewer} deployed Warrior Ring Effect."));
-                        a.WhenCompleted.Then(t => Connector.SendMessage($"{request.DisplayViewer}'s Warrior Ring Effect has dispered."));
+                            DelayEffect(request);
+                    }
+                    else if ((charge) >= 0x01)
+                    {
+                        DelayEffect(request);
+                    }
+                    else
+                    {
+                        StartTimed(request,
+                        () => Connector.Freeze8(ADDR_Warrior, 0x08),
+                        () => Connector.SendMessage($"{request.DisplayViewer} deployed Warrior Ring Effect (15s)."),
+                        TimeSpan.FromSeconds(15));
                         return;
                     }
+                    return;
 
-                case "lvl2shot"://Note Bug Projectile.  These effects can change if other is activated.
-                    {
-                        var a = RepeatAction(request,
-                        TimeSpan.FromSeconds(15),
-                        () => Connector.IsNonZero8(ADDR_LEVEL), /*Effect Start Condition*/
-                        () => Connector.Freeze8(ADDR_Warrior, 0x10), /*Start Action*/
-                        TimeSpan.FromSeconds(1), /*Retry Timer*/
-                        () => Connector.Write8(ADDR_Warrior, 0x10) && Connector.Freeze8(ADDR_Warrior, 0x10) && Connector.IsNonZero8(ADDR_Warrior), /*Refresh Condtion*/
-                        TimeSpan.FromMilliseconds(500), /*Refresh Retry Timer*/
-                        () => true, /*Action*/
-                        TimeSpan.FromSeconds(0.5),
-                        true);
-                        a.WhenStarted.Then(t => Connector.SendMessage($"{request.DisplayViewer} deployed an LVL2 Warrior Ring  Effect."));
-                        a.WhenCompleted.Then(t => Connector.SendMessage($"{request.DisplayViewer}'s LVL2 Warrior Ring Effect has dispered."));
-                        return;
-                    }
+                case "lvl2shot":
 
-                case "trishot"://Note Bug Projectile.  These effects can change if other is activated. Doesn't work on non thunder bosses.
-                    {
-                        var a = RepeatAction(request,
-                        TimeSpan.FromSeconds(30),
-                        () => Connector.IsNonZero8(ADDR_LEVEL), /*Effect Start Condition*/
-                        () => Connector.Freeze8(ADDR_Warrior, 0x68), /*Start Action*/
-                        TimeSpan.FromSeconds(1), /*Retry Timer*/
-                        () => Connector.Write8(ADDR_Warrior, 0x68) && Connector.Freeze8(ADDR_Warrior, 0x68) && Connector.IsNonZero8(ADDR_Warrior), /*Refresh Condtion*/
-                        TimeSpan.FromMilliseconds(500), /*Refresh Retry Timer*/
-                        () => true, /*Action*/
-                        TimeSpan.FromSeconds(0.5),
-                        true);
-                        a.WhenStarted.Then(t => Connector.SendMessage($"{request.DisplayViewer} deployed an TriShot Effect."));
-                        a.WhenCompleted.Then(t => Connector.SendMessage($"{request.DisplayViewer}'s TriShot Effect has dispered."));
-                        return;
-                    }
 
-                case "thundershot"://Note Bug Projectile.  These effects can change if other is activated.Doesn't work on non thunder bosses.
+                    if (!Connector.Read8(ADDR_Warrior, out byte charge1))
                     {
-                        var a = RepeatAction(request,
-                        TimeSpan.FromSeconds(30),
-                        () => Connector.IsNonZero8(ADDR_LEVEL), /*Effect Start Condition*/
-                        () => Connector.Freeze8(ADDR_Warrior, 0x70), /*Start Action*/
-                        TimeSpan.FromSeconds(1), /*Retry Timer*/
-                        () => Connector.Write8(ADDR_Warrior, 0x70) && Connector.Freeze8(ADDR_Warrior, 0x70) && Connector.IsNonZero8(ADDR_Warrior), /*Refresh Condtion*/
-                        TimeSpan.FromMilliseconds(500), /*Refresh Retry Timer*/
-                        () => true, /*Action*/
-                        TimeSpan.FromSeconds(0.5),
-                        true);
-                        a.WhenStarted.Then(t => Connector.SendMessage($"{request.DisplayViewer} deployed an Thunder Shot Effect."));
-                        a.WhenCompleted.Then(t => Connector.SendMessage($"{request.DisplayViewer}'s Thunder Shot Effect has dispered."));
+                        DelayEffect(request);
+                    }
+                    else if ((charge1) >= 0x01)
+                    {
+                        DelayEffect(request);
+                    }
+                    else
+                    {
+                        StartTimed(request,
+                        () => Connector.Freeze8(ADDR_Warrior, 0x10),
+                        () => Connector.SendMessage($"{request.DisplayViewer} deployed a LVL2 Warrior Ring (15s)."),
+                        TimeSpan.FromSeconds(15));
                         return;
                     }
+                    return;
+                                        
+                case "trishot":
+                    if (!Connector.Read8(ADDR_Warrior, out byte charge2))
+                    {
+                        DelayEffect(request);
+                    }
+                    else if ((charge2) >= 0x01)
+                    {
+                        DelayEffect(request);
+                    }
+                    else
+                    {
+                        StartTimed(request,
+                        () => Connector.Freeze8(ADDR_Warrior, 0x68),
+                        () => Connector.SendMessage($"{request.DisplayViewer} deployed a TriShot Effect Effect (15s)."),
+                        TimeSpan.FromSeconds(15));
+                        return;
+                    }
+                    return;                  
 
-                case "lagshot"://Note Bug Projectile.  These effects can change if other is activated.Doesn't work on non thunder bosses.
+                case "thundershot":
+                    if (!Connector.Read8(ADDR_Warrior, out byte charge3))
                     {
-                        var a = RepeatAction(request,
-                        TimeSpan.FromSeconds(30),
-                        () => Connector.IsNonZero8(ADDR_LEVEL), /*Effect Start Condition*/
-                        () => Connector.Freeze8(ADDR_Warrior, 0x78), /*Start Action*/
-                        TimeSpan.FromSeconds(1), /*Retry Timer*/
-                        () => Connector.Write8(ADDR_Warrior, 0x78) && Connector.Freeze8(ADDR_Warrior, 0x78) && Connector.IsNonZero8(ADDR_Warrior), /*Refresh Condtion*/
-                        TimeSpan.FromMilliseconds(500), /*Refresh Retry Timer*/
-                        () => true, /*Action*/
-                        TimeSpan.FromSeconds(0.5),
-                        true);
-                        a.WhenStarted.Then(t => Connector.SendMessage($"{request.DisplayViewer} deployed an Lag Storm Effect."));
-                        a.WhenCompleted.Then(t => Connector.SendMessage($"{request.DisplayViewer}'s Lag Storm Effect has dispered."));
+                        DelayEffect(request);
+                    }
+                    else if ((charge3) >= 0x01)
+                    {
+                        DelayEffect(request);
+                    }
+                    else
+                    {
+                        StartTimed(request,
+                        () => Connector.Freeze8(ADDR_Warrior, 0x70),
+                        () => Connector.SendMessage($"{request.DisplayViewer} deployed a Thunder Shot Effect (15s)."),
+                        TimeSpan.FromSeconds(15));
                         return;
                     }
+                    return;
+                    
+                   
+                case "lagshot":
+                    if (!Connector.Read8(ADDR_Warrior, out byte charge4))
+                    {
+                        DelayEffect(request);
+                    }
+                    else if ((charge4) >= 0x01)
+                    {
+                        DelayEffect(request);
+                    }
+                    else
+                    {
+                        StartTimed(request,
+                        () => Connector.Freeze8(ADDR_Warrior, 0x78),
+                        () => Connector.SendMessage($"{request.DisplayViewer} deployed a Lag Storm Effect (15s)."),
+                        TimeSpan.FromSeconds(15));
+                        return;
+                    }
+                    return;
+                 
 
                 case "recover":
                     {
@@ -5214,7 +5230,7 @@ namespace CrowdControl.Games.Packs
                     {
                         var shop = RepeatAction(request,
                         TimeSpan.FromSeconds(30),
-                        () => Connector.IsNonZero8(ADDR_LEVEL), /*Effect Start Condition*/
+                        () => Connector.IsNonZero8(ADDR_LEVEL),                     /*Effect Start Condition*/
                         () => Connector.Freeze8(ADDR_SHOP_ITEM1_PRICE1, 0)
                              && Connector.Freeze8(ADDR_SHOP_ITEM1_PRICE2, 0)
                              && Connector.Freeze8(ADDR_SHOP_ITEM2_PRICE1, 0)
@@ -5222,10 +5238,10 @@ namespace CrowdControl.Games.Packs
                              && Connector.Freeze8(ADDR_SHOP_ITEM3_PRICE1, 0)
                              && Connector.Freeze8(ADDR_SHOP_ITEM3_PRICE2, 0)
                              && Connector.Freeze8(ADDR_SHOP_ITEM4_PRICE1, 0)
-                             && Connector.Freeze8(ADDR_SHOP_ITEM4_PRICE2, 0),         /*Start Action*/
-                        TimeSpan.FromSeconds(1), /*Retry Timer*/
-                        () => Connector.IsZero8(ADDR_SHOP_ITEM1_PRICE1), /*Refresh Condtion*/
-                        TimeSpan.FromMilliseconds(500), /*Refresh Retry Timer*/
+                             && Connector.Freeze8(ADDR_SHOP_ITEM4_PRICE2, 0),       /*Start Action*/
+                        TimeSpan.FromSeconds(1),                                    /*Retry Timer*/
+                        () => Connector.IsZero8(ADDR_SHOP_ITEM1_PRICE1),            /*Refresh Condtion*/
+                        TimeSpan.FromMilliseconds(500),                             /*Refresh Retry Timer*/
                         () => true, /*Action*/
                         TimeSpan.FromSeconds(0.5),
                         true);
@@ -5283,7 +5299,6 @@ namespace CrowdControl.Games.Packs
                         && Connector.Unfreeze(ADDR_SHOP_ITEM3_PRICE2)
                         && Connector.Unfreeze(ADDR_SHOP_ITEM4_PRICE1)
                         && Connector.Unfreeze(ADDR_SHOP_ITEM4_PRICE2);
-                        //result = Connector.Unfreeze(ADDR_SHOP_CURRENT_PRICE1) && Connector.Unfreeze(ADDR_SHOP_CURRENT_PRICE2);
                         return result;
                     }
 
