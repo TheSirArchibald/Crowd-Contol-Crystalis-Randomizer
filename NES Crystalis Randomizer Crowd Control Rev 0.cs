@@ -287,7 +287,7 @@ namespace CrowdControl.Games.Packs
             {
 
                 var blackout = RepeatAction(request,
-                TimeSpan.FromSeconds(10),
+                TimeSpan.FromSeconds(45),
                 () => Connector.IsNonZero8(ADDR_CURRENT_AREA), /*Effect Start Condition*/
                 () => Connector.Write8(0x07E0, 0x9A), /*Start Action*/
                 TimeSpan.FromSeconds(1), /*Retry Timer*/
