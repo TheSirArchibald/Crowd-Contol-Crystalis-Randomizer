@@ -41,6 +41,9 @@ namespace CrowdControl.Games.Packs
         private const ushort ADDR_Controller = 0x0048;
         private const ushort ADDR_CURRENT_AREA = 0x006C;
         private const ushort ADDR_MENU = 0x01F9;
+        private const ushort ADDR_Blackout1 = 0x07E0;
+        private const ushort ADDR_Blackout2 = 0x07E1;
+        private const ushort ADDR_Blackout3 = 0x07E2;
 
         //Sprites
         private const ushort ADDR_SPRITE_RAM = 0x0200;
@@ -268,12 +271,32 @@ namespace CrowdControl.Games.Packs
                 DelayEffect(request); 
                 return false;
             }
-            if (!Connector.Read8(0x07E0, out byte blackoutmode))
+            if (!Connector.Read8(ADDR_Blackout1, out byte blackoutmode1))
             {
                 DelayEffect(request);
                 return false;
             }
-            if (blackoutmode == 0x9A)
+            if (!Connector.Read8(ADDR_Blackout2, out byte blackoutmode2))
+            {
+                DelayEffect(request);
+                return false;
+            }
+            if (!Connector.Read8(ADDR_Blackout3, out byte blackoutmode3))
+            {
+                DelayEffect(request);
+                return false;
+            }
+            if (blackoutmode1 == 0x9A)
+            {
+                DelayEffect(request);
+                return false;
+            }
+            if (blackoutmode2 == 0x9A)
+            {
+                DelayEffect(request);
+                return false;
+            }
+            if (blackoutmode3 == 0x9A)
             {
                 DelayEffect(request);
                 return false;
@@ -287,11 +310,11 @@ namespace CrowdControl.Games.Packs
             {
 
                 var blackout = RepeatAction(request,
-                TimeSpan.FromSeconds(45),
+                TimeSpan.FromSeconds(10),
                 () => Connector.IsNonZero8(ADDR_CURRENT_AREA), /*Effect Start Condition*/
-                () => Connector.Write8(0x07E0, 0x9A), /*Start Action*/
+                () => Connector.Write8(ADDR_Blackout1, 0x9A), /*Start Action*/
                 TimeSpan.FromSeconds(1), /*Retry Timer*/
-                () => Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.Write8(0x07E0, 0x9A) && Connector.IsNonZero8(ADDR_CURRENT_AREA), /*Refresh Condtion*/
+                () => Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.Write8(ADDR_Blackout1, 0x9A) && Connector.IsNonZero8(ADDR_CURRENT_AREA), /*Refresh Condtion*/
                 TimeSpan.FromMilliseconds(500), /*Refresh Retry Timer*/
                 () => true, /*Action*/
                 TimeSpan.FromSeconds(0.5),
@@ -305,9 +328,9 @@ namespace CrowdControl.Games.Packs
                 var blackout = RepeatAction(request,
                 TimeSpan.FromSeconds(45),
                 () => Connector.IsNonZero8(ADDR_CURRENT_AREA), /*Effect Start Condition*/
-                () => Connector.Write8(0x07E2, 0x9A), /*Start Action*/
+                () => Connector.Write8(ADDR_Blackout3, 0x9A), /*Start Action*/
                 TimeSpan.FromSeconds(1), /*Retry Timer*/
-                () => Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.Write8(0x07E2, 0x9A) && Connector.IsNonZero8(ADDR_CURRENT_AREA), /*Refresh Condtion*/
+                () => Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.Write8(ADDR_Blackout3, 0x9A) && Connector.IsNonZero8(ADDR_CURRENT_AREA), /*Refresh Condtion*/
                 TimeSpan.FromMilliseconds(500), /*Refresh Retry Timer*/
                 () => true, /*Action*/
                 TimeSpan.FromSeconds(0.5),
@@ -320,9 +343,9 @@ namespace CrowdControl.Games.Packs
                 var blackout = RepeatAction(request,
                 TimeSpan.FromSeconds(45),
                 () => Connector.IsNonZero8(ADDR_CURRENT_AREA), /*Effect Start Condition*/
-                () => Connector.Write8(0x07E0, 0x9A), /*Start Action*/
+                () => Connector.Write8(ADDR_Blackout1, 0x9A), /*Start Action*/
                 TimeSpan.FromSeconds(1), /*Retry Timer*/
-                () => Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.Write8(0x07E0, 0x9A) && Connector.IsNonZero8(ADDR_CURRENT_AREA), /*Refresh Condtion*/
+                () => Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.Write8(ADDR_Blackout1, 0x9A) && Connector.IsNonZero8(ADDR_CURRENT_AREA), /*Refresh Condtion*/
                 TimeSpan.FromMilliseconds(500), /*Refresh Retry Timer*/
                 () => true, /*Action*/
                 TimeSpan.FromSeconds(0.5),
@@ -336,9 +359,9 @@ namespace CrowdControl.Games.Packs
                 var blackout = RepeatAction(request,
                 TimeSpan.FromSeconds(45),
                 () => Connector.IsNonZero8(ADDR_CURRENT_AREA), /*Effect Start Condition*/
-                () => Connector.Write8(0x07E0, 0x9A), /*Start Action*/
+                () => Connector.Write8(ADDR_Blackout1, 0x9A), /*Start Action*/
                 TimeSpan.FromSeconds(1), /*Retry Timer*/
-                () => Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.Write8(0x07E0, 0x9A) && Connector.Write8(0x07E1, 0x9A) && Connector.IsNonZero8(ADDR_CURRENT_AREA), /*Refresh Condtion*/
+                () => Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.Write8(ADDR_Blackout1, 0x9A) && Connector.Write8(ADDR_Blackout2, 0x9A) && Connector.IsNonZero8(ADDR_CURRENT_AREA), /*Refresh Condtion*/
                 TimeSpan.FromMilliseconds(500), /*Refresh Retry Timer*/
                 () => true, /*Action*/
                 TimeSpan.FromSeconds(0.5),
@@ -352,9 +375,9 @@ namespace CrowdControl.Games.Packs
                 var blackout = RepeatAction(request,
                 TimeSpan.FromSeconds(45),
                 () => Connector.IsNonZero8(ADDR_CURRENT_AREA), /*Effect Start Condition*/
-                () => Connector.Write8(0x07E0, 0x9A), /*Start Action*/
+                () => Connector.Write8(ADDR_Blackout1, 0x9A), /*Start Action*/
                 TimeSpan.FromSeconds(1), /*Retry Timer*/
-                () => Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.Write8(0x07E0, 0x9A) && Connector.IsNonZero8(ADDR_CURRENT_AREA), /*Refresh Condtion*/
+                () => Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.Write8(ADDR_Blackout1, 0x9A) && Connector.IsNonZero8(ADDR_CURRENT_AREA), /*Refresh Condtion*/
                 TimeSpan.FromMilliseconds(500), /*Refresh Retry Timer*/
                 () => true, /*Action*/
                 TimeSpan.FromSeconds(0.5),
@@ -368,9 +391,9 @@ namespace CrowdControl.Games.Packs
                 var blackout = RepeatAction(request,
                 TimeSpan.FromSeconds(45),
                 () => Connector.IsNonZero8(ADDR_CURRENT_AREA), /*Effect Start Condition*/
-                () => Connector.Write8(0x07E0, 0x9A), /*Start Action*/
+                () => Connector.Write8(ADDR_Blackout1, 0x9A), /*Start Action*/
                 TimeSpan.FromSeconds(1), /*Retry Timer*/
-                () => Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.Write8(0x07E0, 0x9A) && Connector.IsNonZero8(ADDR_CURRENT_AREA), /*Refresh Condtion*/
+                () => Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.Write8(ADDR_Blackout1, 0x9A) && Connector.IsNonZero8(ADDR_CURRENT_AREA), /*Refresh Condtion*/
                 TimeSpan.FromMilliseconds(500), /*Refresh Retry Timer*/
                 () => true, /*Action*/
                 TimeSpan.FromSeconds(0.5),
@@ -384,9 +407,9 @@ namespace CrowdControl.Games.Packs
                 var blackout = RepeatAction(request,
                 TimeSpan.FromSeconds(45),
                 () => Connector.IsNonZero8(ADDR_CURRENT_AREA), /*Effect Start Condition*/
-                () => Connector.Write8(0x07E0, 0x9A), /*Start Action*/
+                () => Connector.Write8(ADDR_Blackout1, 0x9A), /*Start Action*/
                 TimeSpan.FromSeconds(1), /*Retry Timer*/
-                () => Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.Write8(0x07E0, 0x9A) && Connector.IsNonZero8(ADDR_CURRENT_AREA), /*Refresh Condtion*/
+                () => Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.Write8(ADDR_Blackout1, 0x9A) && Connector.IsNonZero8(ADDR_CURRENT_AREA), /*Refresh Condtion*/
                 TimeSpan.FromMilliseconds(500), /*Refresh Retry Timer*/
                 () => true, /*Action*/
                 TimeSpan.FromSeconds(0.5),
@@ -399,10 +422,10 @@ namespace CrowdControl.Games.Packs
 
                 var blackout = RepeatAction(request,
                 TimeSpan.FromSeconds(45),
-                () => Connector.IsNonZero8(ADDR_CURRENT_AREA)&& Connector.Write8(0x07E1, 0x9A), /*Effect Start Condition*/
-                () => Connector.Write8(0x07E0, 0x9A) && Connector.Write8(0x07E2, 0x9A), /*Start Action*/
+                () => Connector.IsNonZero8(ADDR_CURRENT_AREA), /*Effect Start Condition*/
+                () => Connector.Write8(ADDR_Blackout1, 0x9A) && Connector.Write8(ADDR_Blackout3, 0x9A), /*Start Action*/
                 TimeSpan.FromSeconds(1), /*Retry Timer*/
-                () => Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.Write8(0x07E0, 0x9A) && Connector.Write8(0x07E2, 0x9A) && Connector.IsNonZero8(ADDR_CURRENT_AREA), /*Refresh Condtion*/
+                () => Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.Write8(ADDR_Blackout1, 0x9A) && Connector.Write8(ADDR_Blackout3, 0x9A) && Connector.IsNonZero8(ADDR_CURRENT_AREA), /*Refresh Condtion*/
                 TimeSpan.FromMilliseconds(500), /*Refresh Retry Timer*/
                 () => true, /*Action*/
                 TimeSpan.FromSeconds(0.5),
