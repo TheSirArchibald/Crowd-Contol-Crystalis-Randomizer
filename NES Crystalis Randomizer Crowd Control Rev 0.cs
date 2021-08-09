@@ -265,6 +265,16 @@ namespace CrowdControl.Games.Packs
         {
             if (!Connector.Read8(ADDR_CURRENT_AREA, out byte cavelocation))
             {
+                DelayEffect(request); 
+                return false;
+            }
+            if (!Connector.Read8(0x07E0, out byte blackoutmode))
+            {
+                DelayEffect(request);
+                return false;
+            }
+            if (blackoutmode == 0x9A)
+            {
                 DelayEffect(request);
                 return false;
             }
@@ -277,7 +287,7 @@ namespace CrowdControl.Games.Packs
             {
 
                 var blackout = RepeatAction(request,
-                TimeSpan.FromSeconds(15),
+                TimeSpan.FromSeconds(10),
                 () => Connector.IsNonZero8(ADDR_CURRENT_AREA), /*Effect Start Condition*/
                 () => Connector.Write8(0x07E0, 0x9A), /*Start Action*/
                 TimeSpan.FromSeconds(1), /*Retry Timer*/
@@ -293,7 +303,7 @@ namespace CrowdControl.Games.Packs
             {
 
                 var blackout = RepeatAction(request,
-                TimeSpan.FromSeconds(15),
+                TimeSpan.FromSeconds(45),
                 () => Connector.IsNonZero8(ADDR_CURRENT_AREA), /*Effect Start Condition*/
                 () => Connector.Write8(0x07E2, 0x9A), /*Start Action*/
                 TimeSpan.FromSeconds(1), /*Retry Timer*/
@@ -308,7 +318,7 @@ namespace CrowdControl.Games.Packs
             {
 
                 var blackout = RepeatAction(request,
-                TimeSpan.FromSeconds(15),
+                TimeSpan.FromSeconds(45),
                 () => Connector.IsNonZero8(ADDR_CURRENT_AREA), /*Effect Start Condition*/
                 () => Connector.Write8(0x07E0, 0x9A), /*Start Action*/
                 TimeSpan.FromSeconds(1), /*Retry Timer*/
@@ -324,7 +334,7 @@ namespace CrowdControl.Games.Packs
             {
 
                 var blackout = RepeatAction(request,
-                TimeSpan.FromSeconds(15),
+                TimeSpan.FromSeconds(45),
                 () => Connector.IsNonZero8(ADDR_CURRENT_AREA), /*Effect Start Condition*/
                 () => Connector.Write8(0x07E0, 0x9A), /*Start Action*/
                 TimeSpan.FromSeconds(1), /*Retry Timer*/
@@ -340,7 +350,7 @@ namespace CrowdControl.Games.Packs
             {
 
                 var blackout = RepeatAction(request,
-                TimeSpan.FromSeconds(15),
+                TimeSpan.FromSeconds(45),
                 () => Connector.IsNonZero8(ADDR_CURRENT_AREA), /*Effect Start Condition*/
                 () => Connector.Write8(0x07E0, 0x9A), /*Start Action*/
                 TimeSpan.FromSeconds(1), /*Retry Timer*/
@@ -356,7 +366,7 @@ namespace CrowdControl.Games.Packs
             {
 
                 var blackout = RepeatAction(request,
-                TimeSpan.FromSeconds(15),
+                TimeSpan.FromSeconds(45),
                 () => Connector.IsNonZero8(ADDR_CURRENT_AREA), /*Effect Start Condition*/
                 () => Connector.Write8(0x07E0, 0x9A), /*Start Action*/
                 TimeSpan.FromSeconds(1), /*Retry Timer*/
@@ -372,7 +382,7 @@ namespace CrowdControl.Games.Packs
             {
 
                 var blackout = RepeatAction(request,
-                TimeSpan.FromSeconds(15),
+                TimeSpan.FromSeconds(45),
                 () => Connector.IsNonZero8(ADDR_CURRENT_AREA), /*Effect Start Condition*/
                 () => Connector.Write8(0x07E0, 0x9A), /*Start Action*/
                 TimeSpan.FromSeconds(1), /*Retry Timer*/
@@ -388,7 +398,7 @@ namespace CrowdControl.Games.Packs
             {
 
                 var blackout = RepeatAction(request,
-                TimeSpan.FromSeconds(15),
+                TimeSpan.FromSeconds(45),
                 () => Connector.IsNonZero8(ADDR_CURRENT_AREA)&& Connector.Write8(0x07E1, 0x9A), /*Effect Start Condition*/
                 () => Connector.Write8(0x07E0, 0x9A) && Connector.Write8(0x07E2, 0x9A), /*Start Action*/
                 TimeSpan.FromSeconds(1), /*Retry Timer*/
@@ -894,6 +904,7 @@ namespace CrowdControl.Games.Packs
 
                     //Combat Effects
                     new Effect("Timed Combat Effects", "combat", ItemKind.Folder),
+                    new Effect("One Hit KO", "ohko", "combat"),
                     new Effect("Equip Wind Sword (Timed)", "windsword", "combat"),
                     new Effect("Equip Fire Sword (Timed)", "firesword", "combat"),
                     new Effect("Equip Water Sword (Timed)", "watersword", "combat"),
@@ -911,8 +922,7 @@ namespace CrowdControl.Games.Packs
                     new Effect("Heavy Mode", "heavy", "moveeffect"),
                     
                     // Status Conditions
-                    new Effect("Change Condition", "changecondition", ItemKind.Folder),
-                    new Effect("One Hit KO", "ohko", "changecondition"),
+                    new Effect("Change Condition", "changecondition", ItemKind.Folder),                    
                     new Effect("UnTimed Posion", "poison", "changecondition"),
                     new Effect("UnTimed Paralysis", "paralysis", "changecondition"),
                     new Effect("UnTimed Slime", "slime", "changecondition"),
@@ -1403,7 +1413,7 @@ namespace CrowdControl.Games.Packs
                         return;                       
                     }
 
-                case "slime":
+                case "slime":   //Note will need to fail at boss area since it would lock you there or death.
                     {
                         if (!Connector.Read8(ADDR_Condition, out byte con))
                         {
