@@ -1030,11 +1030,18 @@ namespace CrowdControl.Games.Packs
             {
                 case "invis":
                     {
-                        StartTimed(request,
-                        () => Connector.Freeze8(0x07E4, 0xFA),
-                        () => Connector.SendMessage($"{request.DisplayViewer} started invisible mode (45s)."),
-                        TimeSpan.FromSeconds(45));
-                        return; 
+                        var invs = RepeatAction(request,
+                        TimeSpan.FromSeconds(45),
+                        () => Connector.IsZero8(0x07E4), /*Effect Start Condition*/
+                        () => Connector.Freeze8(0x07E4, 0xFA), /*Start Action*/
+                        TimeSpan.FromSeconds(1), /*Retry Timer*/
+                        () => Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.Freeze8(0x07E4, 0xFA), /*Refresh Condtion*/
+                        TimeSpan.FromMilliseconds(500), /*Refresh Retry Timer*/
+                        () => true, /*Action*/
+                        TimeSpan.FromSeconds(0.5),
+                        true);
+                        invs.WhenStarted.Then(t => Connector.SendMessage($"{request.DisplayViewer} started invisible mode (45s)."));
+                        return;                          
                     }
 
                 case "ohko":
@@ -1123,17 +1130,18 @@ namespace CrowdControl.Games.Packs
                     }
 
                 case "heavy":
-                    {
-                        StartTimed(request,
-                          () => Connector.Read8(ADDR_Speed, out byte b) && (b == 0x06),
-                          () =>
-                          {
-                              bool result = Connector.Write8(ADDR_Speed, 0x03);
-
-                              if (result) { Connector.SendMessage($"{request.DisplayViewer} lowered your speed (45s)."); }
-                              return result;
-                          },
-                          TimeSpan.FromSeconds(45));
+                    {                        
+                        var heavy = RepeatAction(request,
+                        TimeSpan.FromSeconds(15),
+                        () => Connector.Read8(ADDR_Speed, out byte b) && (b == 0x06), /*Effect Start Condition*/
+                        () => Connector.Write8(ADDR_Speed, 0x03), /*Start Action*/
+                        TimeSpan.FromSeconds(1), /*Retry Timer*/
+                        () => Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.Write8(ADDR_Speed, 0x03), /*Refresh Condtion*/
+                        TimeSpan.FromMilliseconds(50), /*Refresh Retry Timer*/
+                        () => true, /*Action*/
+                        TimeSpan.FromSeconds(0.1),
+                        true);
+                        heavy.WhenStarted.Then(t => Connector.SendMessage($"{request.DisplayViewer} lowered your speed (45s)."));
                         return;
                     }
 
@@ -1148,12 +1156,20 @@ namespace CrowdControl.Games.Packs
                         DelayEffect(request);
                     }
                     else
-                    {
-                        StartTimed(request,
-                        () => Connector.Freeze8(ADDR_Warrior, 0x08),
-                        () => Connector.SendMessage($"{request.DisplayViewer} deployed Warrior Ring Effect (15s)."),
-                        TimeSpan.FromSeconds(15));
+                    {                       
+                        var war = RepeatAction(request,
+                        TimeSpan.FromSeconds(15),
+                        () => Connector.IsZero8(ADDR_Warrior), /*Effect Start Condition*/
+                        () => Connector.Freeze8(ADDR_Warrior, 0x08), /*Start Action*/
+                        TimeSpan.FromSeconds(1), /*Retry Timer*/
+                        () => Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.Freeze8(ADDR_Warrior, 0x08), /*Refresh Condtion*/
+                        TimeSpan.FromMilliseconds(50), /*Refresh Retry Timer*/
+                        () => true, /*Action*/
+                        TimeSpan.FromSeconds(0.1),
+                        true);
+                        war.WhenStarted.Then(t => Connector.SendMessage($"{request.DisplayViewer} deployed Warrior Ring Effect (15s)."));
                         return;
+
                     }
                     return;
 
@@ -1170,11 +1186,19 @@ namespace CrowdControl.Games.Packs
                     }
                     else
                     {
-                        StartTimed(request,
-                        () => Connector.Freeze8(ADDR_Warrior, 0x10),
-                        () => Connector.SendMessage($"{request.DisplayViewer} deployed a LVL2 Warrior Ring (15s)."),
-                        TimeSpan.FromSeconds(15));
-                        return;
+                        var war = RepeatAction(request,
+                        TimeSpan.FromSeconds(15),
+                        () => Connector.IsZero8(ADDR_Warrior), /*Effect Start Condition*/
+                        () => Connector.Freeze8(ADDR_Warrior, 0x10), /*Start Action*/
+                        TimeSpan.FromSeconds(1), /*Retry Timer*/
+                        () => Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.Freeze8(ADDR_Warrior, 0x10), /*Refresh Condtion*/
+                        TimeSpan.FromMilliseconds(50), /*Refresh Retry Timer*/
+                        () => true, /*Action*/
+                        TimeSpan.FromSeconds(0.1),
+                        true);
+                        war.WhenStarted.Then(t => Connector.SendMessage($"{request.DisplayViewer} deployed LVL2 Warrior Ring Effect (15s)."));
+                        return; 
+                        
                     }
                     return;
 
@@ -1189,11 +1213,19 @@ namespace CrowdControl.Games.Packs
                     }
                     else
                     {
-                        StartTimed(request,
-                        () => Connector.Freeze8(ADDR_Warrior, 0x68),
-                        () => Connector.SendMessage($"{request.DisplayViewer} deployed a TriShot Effect Effect (15s)."),
-                        TimeSpan.FromSeconds(15));
+                        var war = RepeatAction(request,
+                        TimeSpan.FromSeconds(15),
+                        () => Connector.IsZero8(ADDR_Warrior), /*Effect Start Condition*/
+                        () => Connector.Freeze8(ADDR_Warrior, 0x68), /*Start Action*/
+                        TimeSpan.FromSeconds(1), /*Retry Timer*/
+                        () => Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.Freeze8(ADDR_Warrior, 0x68), /*Refresh Condtion*/
+                        TimeSpan.FromMilliseconds(50), /*Refresh Retry Timer*/
+                        () => true, /*Action*/
+                        TimeSpan.FromSeconds(0.1),
+                        true);
+                        war.WhenStarted.Then(t => Connector.SendMessage($"{request.DisplayViewer} deployed TriShot Effect (15s)."));
                         return;
+
                     }
                     return;
 
@@ -1208,11 +1240,18 @@ namespace CrowdControl.Games.Packs
                     }
                     else
                     {
-                        StartTimed(request,
-                        () => Connector.Freeze8(ADDR_Warrior, 0x70),
-                        () => Connector.SendMessage($"{request.DisplayViewer} deployed a Thunder Shot Effect (15s)."),
-                        TimeSpan.FromSeconds(15));
-                        return;
+                        var war = RepeatAction(request,
+                        TimeSpan.FromSeconds(15),
+                        () => Connector.IsZero8(ADDR_Warrior), /*Effect Start Condition*/
+                        () => Connector.Freeze8(ADDR_Warrior, 0x70), /*Start Action*/
+                        TimeSpan.FromSeconds(1), /*Retry Timer*/
+                        () => Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.Freeze8(ADDR_Warrior, 0x70), /*Refresh Condtion*/
+                        TimeSpan.FromMilliseconds(50), /*Refresh Retry Timer*/
+                        () => true, /*Action*/
+                        TimeSpan.FromSeconds(0.1),
+                        true);
+                        war.WhenStarted.Then(t => Connector.SendMessage($"{request.DisplayViewer} deployed Thunder Shot Effect (15s)."));
+                        return;                         
                     }
                     return;
 
@@ -1228,11 +1267,18 @@ namespace CrowdControl.Games.Packs
                     }
                     else
                     {
-                        StartTimed(request,
-                        () => Connector.Freeze8(ADDR_Warrior, 0x78),
-                        () => Connector.SendMessage($"{request.DisplayViewer} deployed a Lag Storm Effect (15s)."),
-                        TimeSpan.FromSeconds(15));
-                        return;
+                        var war = RepeatAction(request,
+                        TimeSpan.FromSeconds(15),
+                        () => Connector.IsZero8(ADDR_Warrior), /*Effect Start Condition*/
+                        () => Connector.Freeze8(ADDR_Warrior, 0x78), /*Start Action*/
+                        TimeSpan.FromSeconds(1), /*Retry Timer*/
+                        () => Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.Freeze8(ADDR_Warrior, 0x78), /*Refresh Condtion*/
+                        TimeSpan.FromMilliseconds(50), /*Refresh Retry Timer*/
+                        () => true, /*Action*/
+                        TimeSpan.FromSeconds(0.1),
+                        true);
+                        war.WhenStarted.Then(t => Connector.SendMessage($"{request.DisplayViewer} deployed Thunder Shot Effect (15s)."));
+                        return;                                                
                     }
                     return;
 
@@ -1283,15 +1329,17 @@ namespace CrowdControl.Games.Packs
 
                 case "timedparalysis":
                     {
-                        StartTimed(request,
-                          () => Connector.Read8(ADDR_Condition, out byte b) && (b == 0x00),
-                          () =>
-                          {
-                              bool result = Connector.Write8(ADDR_Condition, 0x01);
-                              if (result) { Connector.SendMessage($"{request.DisplayViewer} paralysised you (15s)."); }
-                              return result;
-                          },
-                          TimeSpan.FromSeconds(15));
+                        var cond = RepeatAction(request,
+                        TimeSpan.FromSeconds(15),
+                        () => Connector.Read8(ADDR_Condition, out byte b) && (b == 0x00), /*Effect Start Condition*/
+                        () => Connector.Write8(ADDR_Condition, 0x01), /*Start Action*/
+                        TimeSpan.FromSeconds(1), /*Retry Timer*/
+                        () => Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.Write8(ADDR_Condition, 0x01), /*Refresh Condtion*/
+                        TimeSpan.FromMilliseconds(50), /*Refresh Retry Timer*/
+                        () => true, /*Action*/
+                        TimeSpan.FromSeconds(0.1),
+                        true);
+                        cond.WhenStarted.Then(t => Connector.SendMessage($"{request.DisplayViewer} paralysised you (15s)."));
                         return;
                     }
 
@@ -1341,16 +1389,18 @@ namespace CrowdControl.Games.Packs
 
                 case "timedpoison":
                     {
-                        StartTimed(request,
-                          () => Connector.Read8(ADDR_Condition, out byte b) && (b == 0x00),
-                          () =>
-                          {
-                              bool result = Connector.Write8(ADDR_Condition, 0x03);
-                              if (result) { Connector.SendMessage($"{request.DisplayViewer} poisoned you (15s)."); }
-                              return result;
-                          },
-                          TimeSpan.FromSeconds(15));
-                        return;
+                        var cond = RepeatAction(request,
+                        TimeSpan.FromSeconds(15),
+                        () => Connector.Read8(ADDR_Condition, out byte b) && (b == 0x00), /*Effect Start Condition*/
+                        () => Connector.Write8(ADDR_Condition, 0x03), /*Start Action*/
+                        TimeSpan.FromSeconds(1), /*Retry Timer*/
+                        () => Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.Write8(ADDR_Condition, 0x03), /*Refresh Condtion*/
+                        TimeSpan.FromMilliseconds(50), /*Refresh Retry Timer*/
+                        () => true, /*Action*/
+                        TimeSpan.FromSeconds(0.1),
+                        true);
+                        cond.WhenStarted.Then(t => Connector.SendMessage($"{request.DisplayViewer} poisoned you (15s)."));
+                        return;                       
                     }
 
                 case "slime":
@@ -4983,58 +5033,66 @@ namespace CrowdControl.Games.Packs
 
                 case "removewindsword":
                     {
-                        StartTimed(request,
-                          () => Connector.Read8(ADDR_SwordSlot1, out byte b) && (b == 0x00),
-                          () =>
-                          {
-                              bool result = Connector.Write8(ADDR_SwordSlot1, 0xFF);
-                              if (result) { Connector.SendMessage($"{request.DisplayViewer} stole your Sword of Wind."); }
-                              return result;
-                          },
-                          TimeSpan.FromSeconds(30));
-                        return;
+                        var rwsword = RepeatAction(request,
+                        TimeSpan.FromSeconds(15),
+                        () => Connector.Read8(ADDR_SwordSlot1, out byte b) && (b == 0x00), /*Effect Start Condition*/
+                        () => Connector.Write8(ADDR_SwordSlot1, 0xFF), /*Start Action*/
+                        TimeSpan.FromSeconds(1), /*Retry Timer*/
+                        () => Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.Write8(ADDR_SwordSlot1, 0xFF), /*Refresh Condtion*/
+                        TimeSpan.FromMilliseconds(50), /*Refresh Retry Timer*/
+                        () => true, /*Action*/
+                        TimeSpan.FromSeconds(0.1),
+                        true);
+                        rwsword.WhenStarted.Then(t => Connector.SendMessage($"{request.DisplayViewer} stole your Sword of Wind (15s)."));
+                        return;                                               
                     }
 
                 case "removefiresword":
                     {
-                        StartTimed(request,
-                          () => Connector.Read8(ADDR_SwordSlot2, out byte b) && (b == 0x01),
-                          () =>
-                          {
-                              bool result = Connector.Write8(ADDR_SwordSlot2, 0xFF);
-                              if (result) { Connector.SendMessage($"{request.DisplayViewer} stole your Sword of Fire."); }
-                              return result;
-                          },
-                          TimeSpan.FromSeconds(30));
-                        return;
+                        var rfsword = RepeatAction(request,
+                        TimeSpan.FromSeconds(15),
+                        () => Connector.Read8(ADDR_SwordSlot2, out byte b) && (b == 0x01), /*Effect Start Condition*/
+                        () => Connector.Write8(ADDR_SwordSlot2, 0xFF), /*Start Action*/
+                        TimeSpan.FromSeconds(1), /*Retry Timer*/
+                        () => Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.Write8(ADDR_SwordSlot2, 0xFF), /*Refresh Condtion*/
+                        TimeSpan.FromMilliseconds(50), /*Refresh Retry Timer*/
+                        () => true, /*Action*/
+                        TimeSpan.FromSeconds(0.1),
+                        true);
+                        rfsword.WhenStarted.Then(t => Connector.SendMessage($"{request.DisplayViewer} stole your Sword of Fire (15s)."));
+                        return;                                                
                     }
 
                 case "removewatersword":
                     {
-                        StartTimed(request,
-                          () => Connector.Read8(ADDR_SwordSlot3, out byte b) && (b == 0x02),
-                          () =>
-                          {
-                              bool result = Connector.Write8(ADDR_SwordSlot3, 0xFF);
-                              if (result) { Connector.SendMessage($"{request.DisplayViewer} stole your Sword of Water."); }
-                              return result;
-                          },
-                          TimeSpan.FromSeconds(30));
-                        return;
+                        var rwwsword = RepeatAction(request,
+                        TimeSpan.FromSeconds(15),
+                        () => Connector.Read8(ADDR_SwordSlot3, out byte b) && (b == 0x02), /*Effect Start Condition*/
+                        () => Connector.Write8(ADDR_SwordSlot3, 0xFF), /*Start Action*/
+                        TimeSpan.FromSeconds(1), /*Retry Timer*/
+                        () => Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.Write8(ADDR_SwordSlot3, 0xFF), /*Refresh Condtion*/
+                        TimeSpan.FromMilliseconds(50), /*Refresh Retry Timer*/
+                        () => true, /*Action*/
+                        TimeSpan.FromSeconds(0.1),
+                        true);
+                        rwwsword.WhenStarted.Then(t => Connector.SendMessage($"{request.DisplayViewer} stole your Sword of Water (15s)."));
+                        return;                                             
                     }
 
                 case "removethundersword":
                     {
-                        StartTimed(request,
-                          () => Connector.Read8(ADDR_SwordSlot4, out byte b) && (b == 0x03),
-                          () =>
-                          {
-                              bool result = Connector.Write8(ADDR_SwordSlot4, 0xFF);
-                              if (result) { Connector.SendMessage($"{request.DisplayViewer} stole your Sword of Thunder."); }
-                              return result;
-                          },
-                          TimeSpan.FromSeconds(30));
-                        return;
+                        var rtsword = RepeatAction(request,
+                        TimeSpan.FromSeconds(15),
+                        () => Connector.Read8(ADDR_SwordSlot4, out byte b) && (b == 0x03), /*Effect Start Condition*/
+                        () => Connector.Write8(ADDR_SwordSlot4, 0xFF), /*Start Action*/
+                        TimeSpan.FromSeconds(1), /*Retry Timer*/
+                        () => Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.Write8(ADDR_SwordSlot4, 0xFF), /*Refresh Condtion*/
+                        TimeSpan.FromMilliseconds(50), /*Refresh Retry Timer*/
+                        () => true, /*Action*/
+                        TimeSpan.FromSeconds(0.1),
+                        true);
+                        rtsword.WhenStarted.Then(t => Connector.SendMessage($"{request.DisplayViewer} stole your Sword of Thunder (15s)."));
+                        return;                           
                     }
 
                 case "healvamp1":
