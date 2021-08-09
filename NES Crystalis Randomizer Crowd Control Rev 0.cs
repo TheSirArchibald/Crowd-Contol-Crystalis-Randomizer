@@ -315,7 +315,7 @@ namespace CrowdControl.Games.Packs
                 () => Connector.Write8(ADDR_Blackout1, 0x9A), /*Start Action*/
                 TimeSpan.FromSeconds(1), /*Retry Timer*/
                 () => Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.Write8(ADDR_Blackout1, 0x9A) && Connector.IsNonZero8(ADDR_CURRENT_AREA), /*Refresh Condtion*/
-                TimeSpan.FromMilliseconds(500), /*Refresh Retry Timer*/
+                TimeSpan.FromMilliseconds(100), /*Refresh Retry Timer*/
                 () => true, /*Action*/
                 TimeSpan.FromSeconds(0.5),
                 true);               
@@ -328,10 +328,10 @@ namespace CrowdControl.Games.Packs
                 var blackout = RepeatAction(request,
                 TimeSpan.FromSeconds(45),
                 () => Connector.IsNonZero8(ADDR_CURRENT_AREA), /*Effect Start Condition*/
-                () => Connector.Write8(ADDR_Blackout3, 0x9A), /*Start Action*/
+                () => Connector.Write8(ADDR_Blackout3, 0x9A) && Connector.Write8(ADDR_Blackout1, 0x9A), /*Start Action*/
                 TimeSpan.FromSeconds(1), /*Retry Timer*/
-                () => Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.Write8(ADDR_Blackout3, 0x9A) && Connector.IsNonZero8(ADDR_CURRENT_AREA), /*Refresh Condtion*/
-                TimeSpan.FromMilliseconds(500), /*Refresh Retry Timer*/
+                () => Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.Write8(ADDR_Blackout3, 0x9A) && Connector.Write8(ADDR_Blackout1, 0x9A) && Connector.IsNonZero8(ADDR_CURRENT_AREA), /*Refresh Condtion*/
+                TimeSpan.FromMilliseconds(100), /*Refresh Retry Timer*/
                 () => true, /*Action*/
                 TimeSpan.FromSeconds(0.5),
                 true);
@@ -346,7 +346,7 @@ namespace CrowdControl.Games.Packs
                 () => Connector.Write8(ADDR_Blackout1, 0x9A), /*Start Action*/
                 TimeSpan.FromSeconds(1), /*Retry Timer*/
                 () => Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.Write8(ADDR_Blackout1, 0x9A) && Connector.IsNonZero8(ADDR_CURRENT_AREA), /*Refresh Condtion*/
-                TimeSpan.FromMilliseconds(500), /*Refresh Retry Timer*/
+                TimeSpan.FromMilliseconds(100), /*Refresh Retry Timer*/
                 () => true, /*Action*/
                 TimeSpan.FromSeconds(0.5),
                 true);
@@ -362,7 +362,7 @@ namespace CrowdControl.Games.Packs
                 () => Connector.Write8(ADDR_Blackout1, 0x9A), /*Start Action*/
                 TimeSpan.FromSeconds(1), /*Retry Timer*/
                 () => Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.Write8(ADDR_Blackout1, 0x9A) && Connector.Write8(ADDR_Blackout2, 0x9A) && Connector.IsNonZero8(ADDR_CURRENT_AREA), /*Refresh Condtion*/
-                TimeSpan.FromMilliseconds(500), /*Refresh Retry Timer*/
+                TimeSpan.FromMilliseconds(100), /*Refresh Retry Timer*/
                 () => true, /*Action*/
                 TimeSpan.FromSeconds(0.5),
                 true);
@@ -378,7 +378,7 @@ namespace CrowdControl.Games.Packs
                 () => Connector.Write8(ADDR_Blackout1, 0x9A), /*Start Action*/
                 TimeSpan.FromSeconds(1), /*Retry Timer*/
                 () => Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.Write8(ADDR_Blackout1, 0x9A) && Connector.IsNonZero8(ADDR_CURRENT_AREA), /*Refresh Condtion*/
-                TimeSpan.FromMilliseconds(500), /*Refresh Retry Timer*/
+                TimeSpan.FromMilliseconds(100), /*Refresh Retry Timer*/
                 () => true, /*Action*/
                 TimeSpan.FromSeconds(0.5),
                 true);
@@ -394,7 +394,7 @@ namespace CrowdControl.Games.Packs
                 () => Connector.Write8(ADDR_Blackout1, 0x9A), /*Start Action*/
                 TimeSpan.FromSeconds(1), /*Retry Timer*/
                 () => Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.Write8(ADDR_Blackout1, 0x9A) && Connector.IsNonZero8(ADDR_CURRENT_AREA), /*Refresh Condtion*/
-                TimeSpan.FromMilliseconds(500), /*Refresh Retry Timer*/
+                TimeSpan.FromMilliseconds(100), /*Refresh Retry Timer*/
                 () => true, /*Action*/
                 TimeSpan.FromSeconds(0.5),
                 true);
@@ -410,7 +410,7 @@ namespace CrowdControl.Games.Packs
                 () => Connector.Write8(ADDR_Blackout1, 0x9A), /*Start Action*/
                 TimeSpan.FromSeconds(1), /*Retry Timer*/
                 () => Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.Write8(ADDR_Blackout1, 0x9A) && Connector.IsNonZero8(ADDR_CURRENT_AREA), /*Refresh Condtion*/
-                TimeSpan.FromMilliseconds(500), /*Refresh Retry Timer*/
+                TimeSpan.FromMilliseconds(100), /*Refresh Retry Timer*/
                 () => true, /*Action*/
                 TimeSpan.FromSeconds(0.5),
                 true);
@@ -426,7 +426,7 @@ namespace CrowdControl.Games.Packs
                 () => Connector.Write8(ADDR_Blackout1, 0x9A) && Connector.Write8(ADDR_Blackout3, 0x9A), /*Start Action*/
                 TimeSpan.FromSeconds(1), /*Retry Timer*/
                 () => Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.Write8(ADDR_Blackout1, 0x9A) && Connector.Write8(ADDR_Blackout3, 0x9A) && Connector.IsNonZero8(ADDR_CURRENT_AREA), /*Refresh Condtion*/
-                TimeSpan.FromMilliseconds(500), /*Refresh Retry Timer*/
+                TimeSpan.FromMilliseconds(100), /*Refresh Retry Timer*/
                 () => true, /*Action*/
                 TimeSpan.FromSeconds(0.5),
                 true);
@@ -1025,10 +1025,7 @@ namespace CrowdControl.Games.Packs
                     //Spawn Enemy
                     // Note unclear how to read spawn tables to get proper spawn or any for now.
                     //new Effect("Spawn Enemy", "spawn"),
-                    
-                    // Blackout Mode (need to talk with Steve)
-                    //new Effect("Blackout", "blackout"),
-                                        
+                                                                                
                     // Modify Triggers
                     //new Effect("Deactivate Dolphin", "dolphin"),
 
