@@ -260,6 +260,150 @@ namespace CrowdControl.Games.Packs
         //                   return result;
         //}
 
+        private bool TryBlackoutMode([NotNull] EffectRequest request)  //Note Scaling max requested on ROM side
+        {
+            if (!Connector.Read8(ADDR_CURRENT_AREA, out byte cavelocation))
+            {
+                DelayEffect(request);
+                return false;
+            }
+            if (cavelocation == 0x00)
+            {
+                DelayEffect(request);
+                return false;
+            }
+            if ((cavelocation >= 0x01) && (cavelocation <= 0x1e))
+            {
+
+                var blackout = RepeatAction(request,
+                TimeSpan.FromSeconds(15),
+                () => Connector.IsNonZero8(ADDR_CURRENT_AREA), /*Effect Start Condition*/
+                () => Connector.Write8(0x07E0, 0x9A), /*Start Action*/
+                TimeSpan.FromSeconds(1), /*Retry Timer*/
+                () => Connector.Write8(0x07E0, 0x9A) && Connector.IsNonZero8(ADDR_CURRENT_AREA), /*Refresh Condtion*/
+                TimeSpan.FromMilliseconds(500), /*Refresh Retry Timer*/
+                () => true, /*Action*/
+                TimeSpan.FromSeconds(0.5),
+                true);               
+                return true;
+            }
+            
+            if ((cavelocation >= 0x20) && (cavelocation <= 0x3e))
+            {
+
+                var blackout = RepeatAction(request,
+                TimeSpan.FromSeconds(15),
+                () => Connector.IsNonZero8(ADDR_CURRENT_AREA), /*Effect Start Condition*/
+                () => Connector.Write8(0x07E2, 0x9A), /*Start Action*/
+                TimeSpan.FromSeconds(1), /*Retry Timer*/
+                () => Connector.Write8(0x07E2, 0x9A) && Connector.IsNonZero8(ADDR_CURRENT_AREA), /*Refresh Condtion*/
+                TimeSpan.FromMilliseconds(500), /*Refresh Retry Timer*/
+                () => true, /*Action*/
+                TimeSpan.FromSeconds(0.5),
+                true);
+                return true;
+            }
+            if ((cavelocation >= 0x40) && (cavelocation <= 0x6b))
+            {
+
+                var blackout = RepeatAction(request,
+                TimeSpan.FromSeconds(15),
+                () => Connector.IsNonZero8(ADDR_CURRENT_AREA), /*Effect Start Condition*/
+                () => Connector.Write8(0x07E0, 0x9A), /*Start Action*/
+                TimeSpan.FromSeconds(1), /*Retry Timer*/
+                () => Connector.Write8(0x07E0, 0x9A) && Connector.IsNonZero8(ADDR_CURRENT_AREA), /*Refresh Condtion*/
+                TimeSpan.FromMilliseconds(500), /*Refresh Retry Timer*/
+                () => true, /*Action*/
+                TimeSpan.FromSeconds(0.5),
+                true);
+                return true;
+            }
+            
+            if ((cavelocation >= 0x6c) && (cavelocation <= 0x6e))
+            {
+
+                var blackout = RepeatAction(request,
+                TimeSpan.FromSeconds(15),
+                () => Connector.IsNonZero8(ADDR_CURRENT_AREA), /*Effect Start Condition*/
+                () => Connector.Write8(0x07E0, 0x9A), /*Start Action*/
+                TimeSpan.FromSeconds(1), /*Retry Timer*/
+                () => Connector.Write8(0x07E0, 0x9A) && Connector.Write8(0x07E1, 0x9A) && Connector.IsNonZero8(ADDR_CURRENT_AREA), /*Refresh Condtion*/
+                TimeSpan.FromMilliseconds(500), /*Refresh Retry Timer*/
+                () => true, /*Action*/
+                TimeSpan.FromSeconds(0.5),
+                true);
+                return true;
+            }
+            
+            if ((cavelocation >= 0x7) && (cavelocation <= 0x78))
+            {
+
+                var blackout = RepeatAction(request,
+                TimeSpan.FromSeconds(15),
+                () => Connector.IsNonZero8(ADDR_CURRENT_AREA), /*Effect Start Condition*/
+                () => Connector.Write8(0x07E0, 0x9A), /*Start Action*/
+                TimeSpan.FromSeconds(1), /*Retry Timer*/
+                () => Connector.Write8(0x07E0, 0x9A) && Connector.IsNonZero8(ADDR_CURRENT_AREA), /*Refresh Condtion*/
+                TimeSpan.FromMilliseconds(500), /*Refresh Retry Timer*/
+                () => true, /*Action*/
+                TimeSpan.FromSeconds(0.5),
+                true);
+                return true;
+            }
+
+            if ((cavelocation >= 0x7c) && (cavelocation <= 0x8e))
+            {
+
+                var blackout = RepeatAction(request,
+                TimeSpan.FromSeconds(15),
+                () => Connector.IsNonZero8(ADDR_CURRENT_AREA), /*Effect Start Condition*/
+                () => Connector.Write8(0x07E0, 0x9A), /*Start Action*/
+                TimeSpan.FromSeconds(1), /*Retry Timer*/
+                () => Connector.Write8(0x07E0, 0x9A) && Connector.IsNonZero8(ADDR_CURRENT_AREA), /*Refresh Condtion*/
+                TimeSpan.FromMilliseconds(500), /*Refresh Retry Timer*/
+                () => true, /*Action*/
+                TimeSpan.FromSeconds(0.5),
+                true);
+                return true;
+            }
+
+            if ((cavelocation >= 0x8f) && (cavelocation <= 0x96))
+            {
+
+                var blackout = RepeatAction(request,
+                TimeSpan.FromSeconds(15),
+                () => Connector.IsNonZero8(ADDR_CURRENT_AREA), /*Effect Start Condition*/
+                () => Connector.Write8(0x07E0, 0x9A), /*Start Action*/
+                TimeSpan.FromSeconds(1), /*Retry Timer*/
+                () => Connector.Write8(0x07E0, 0x9A) && Connector.IsNonZero8(ADDR_CURRENT_AREA), /*Refresh Condtion*/
+                TimeSpan.FromMilliseconds(500), /*Refresh Retry Timer*/
+                () => true, /*Action*/
+                TimeSpan.FromSeconds(0.5),
+                true);
+                return true;
+            }
+
+            if ((cavelocation >= 0x98) && (cavelocation <= 0xc5))
+            {
+
+                var blackout = RepeatAction(request,
+                TimeSpan.FromSeconds(15),
+                () => Connector.IsNonZero8(ADDR_CURRENT_AREA)&& Connector.Write8(0x07E1, 0x9A), /*Effect Start Condition*/
+                () => Connector.Write8(0x07E0, 0x9A) && Connector.Write8(0x07E2, 0x9A), /*Start Action*/
+                TimeSpan.FromSeconds(1), /*Retry Timer*/
+                () => Connector.Write8(0x07E0, 0x9A) && Connector.Write8(0x07E2, 0x9A) && Connector.IsNonZero8(ADDR_CURRENT_AREA), /*Refresh Condtion*/
+                TimeSpan.FromMilliseconds(500), /*Refresh Retry Timer*/
+                () => true, /*Action*/
+                TimeSpan.FromSeconds(0.5),
+                true);
+                return true;
+            }
+
+            DelayEffect(request);
+                return false;
+        }
+        
+        
         private bool TryAlterScale([NotNull] EffectRequest request, sbyte scale)  //Note Scaling max requested on ROM side
         {
             if (!Connector.Read8(ADDR_SCALING, out byte cscale))
@@ -681,6 +825,8 @@ namespace CrowdControl.Games.Packs
                     // General
                     new Effect("Free Shopping", "freeshops"),
                     new Effect("Mado Screen Shake Mode", "screenshakemode"),
+                    new Effect("Blackout Mode", "blackout"),
+                    new Effect("Camouflage Mode", "invis"),
                     //new Effect("Wild Warp", "wild"),   Note pending UI update push to main website but testing worked
                     //new Effect("Reset", "reset"),   
 
@@ -881,6 +1027,15 @@ namespace CrowdControl.Games.Packs
             string[] effectT = request.FinalCode.Split('_');
             switch (effectT[0])
             {
+                case "invis":
+                    {
+                        StartTimed(request,
+                        () => Connector.Freeze8(0x07E4, 0xFA),
+                        () => Connector.SendMessage($"{request.DisplayViewer} started invisible mode (45s)."),
+                        TimeSpan.FromSeconds(45));
+                        return; 
+                    }
+
                 case "ohko":
                     {
                         //Requires UI refresh at start and end
@@ -981,11 +1136,11 @@ namespace CrowdControl.Games.Packs
                         return;
                     }
 
-                case "lvl1shot":  
-                    
+                case "lvl1shot":
+
                     if (!Connector.Read8(ADDR_Warrior, out byte charge))
                     {
-                            DelayEffect(request);
+                        DelayEffect(request);
                     }
                     else if ((charge) >= 0x01)
                     {
@@ -1021,7 +1176,7 @@ namespace CrowdControl.Games.Packs
                         return;
                     }
                     return;
-                                        
+
                 case "trishot":
                     if (!Connector.Read8(ADDR_Warrior, out byte charge2))
                     {
@@ -1039,7 +1194,7 @@ namespace CrowdControl.Games.Packs
                         TimeSpan.FromSeconds(15));
                         return;
                     }
-                    return;                  
+                    return;
 
                 case "thundershot":
                     if (!Connector.Read8(ADDR_Warrior, out byte charge3))
@@ -1059,8 +1214,8 @@ namespace CrowdControl.Games.Packs
                         return;
                     }
                     return;
-                    
-                   
+
+
                 case "lagshot":
                     if (!Connector.Read8(ADDR_Warrior, out byte charge4))
                     {
@@ -1079,7 +1234,7 @@ namespace CrowdControl.Games.Packs
                         return;
                     }
                     return;
-                 
+
 
                 case "recover":
                     {
@@ -1197,7 +1352,7 @@ namespace CrowdControl.Games.Packs
                         return;
                     }
 
-                case "slime": 
+                case "slime":
                     {
                         if (!Connector.Read8(ADDR_Condition, out byte con))
                         {
@@ -1219,7 +1374,7 @@ namespace CrowdControl.Games.Packs
                         return;
                     }
 
-                case "timedslime": 
+                case "timedslime":
                     {
                         var slime = RepeatAction(request,
                         TimeSpan.FromSeconds(15),
@@ -5234,6 +5389,15 @@ namespace CrowdControl.Games.Packs
                         return;
                     }
 
+                case "blackout":   
+                    {
+                        if (TryBlackoutMode(request))
+                        {                            
+                            Connector.SendMessage($"{request.DisplayViewer} made cave and forts dark.");
+                        }
+                        return;
+                    }
+
                 case "freeshops":   //Note need to fix the inns as they are currently zero outing money but everything else works.
                     {
                         var shop = RepeatAction(request,
@@ -5267,6 +5431,13 @@ namespace CrowdControl.Games.Packs
             var effect = request.FinalCode.Split('_');
             switch (effect[0])
             {
+                case "invis":
+                    {
+                        Connector.Unfreeze(0X07E4);
+                        Connector.Write8(0X07E4, 0x00);
+                        return result;
+                    }
+                
                 case "lvl1shot":
                     {
                         result = Connector.Unfreeze(ADDR_Warrior);
@@ -5378,7 +5549,12 @@ namespace CrowdControl.Games.Packs
                         return result;
                     }
 
-
+                case "blackout":
+                    {
+                        Connector.Unfreeze(0x07E0); 
+                        Connector.SendMessage($"{request.DisplayViewer}'s turned the lights back on.");
+                        return result;
+                    }
 
             }
             return result;
