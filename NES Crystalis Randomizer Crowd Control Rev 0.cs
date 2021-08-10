@@ -2525,7 +2525,7 @@ namespace CrowdControl.Games.Packs
 
                     }
 
-                case "allfol":
+                case "allfol":  //Note Community Joke for this most usless item
                     {
                         if (!Connector.Read8(ADDR_ConsumeSlot1, out byte con1))
                         {
@@ -2583,7 +2583,6 @@ namespace CrowdControl.Games.Packs
                                                         else
                                                         {
                                                             Connector.Write8(ADDR_ConsumeSlot8, 0x20);
-                                                            Connector.SendMessage($"{request.DisplayViewer} made you Stomp");
                                                         }
 
                         if (!Connector.SetBits(ADDR_ConsumeSlot7, 0x20, out _))
@@ -2592,7 +2591,6 @@ namespace CrowdControl.Games.Packs
                         else
                         {
                             Connector.Write8(ADDR_ConsumeSlot7, 0x20);
-                            Connector.SendMessage($"{request.DisplayViewer} made you Stomp");
                         }
 
 
@@ -2602,7 +2600,6 @@ namespace CrowdControl.Games.Packs
                         else
                         {
                             Connector.Write8(ADDR_ConsumeSlot6, 0x20);
-                            Connector.SendMessage($"{request.DisplayViewer} made you Stomp");
                         }
 
                         if (!Connector.SetBits(ADDR_ConsumeSlot5, 0x20, out _))
@@ -2611,7 +2608,6 @@ namespace CrowdControl.Games.Packs
                         else
                         {
                             Connector.Write8(ADDR_ConsumeSlot5, 0x20);
-                            Connector.SendMessage($"{request.DisplayViewer} made you Stomp");
                         }
 
                         if (!Connector.SetBits(ADDR_ConsumeSlot4, 0x20, out _))
@@ -2620,7 +2616,6 @@ namespace CrowdControl.Games.Packs
                         else
                         {
                             Connector.Write8(ADDR_ConsumeSlot4, 0x20);
-                            Connector.SendMessage($"{request.DisplayViewer} made you Stomp");
                         }
 
 
@@ -2630,7 +2625,6 @@ namespace CrowdControl.Games.Packs
                         else
                         {
                             Connector.Write8(ADDR_ConsumeSlot3, 0x20);
-                            Connector.SendMessage($"{request.DisplayViewer} made you Stomp");
                         }
 
 
@@ -2641,7 +2635,6 @@ namespace CrowdControl.Games.Packs
                         else
                         {
                             Connector.Write8(ADDR_ConsumeSlot2, 0x20);
-                            Connector.SendMessage($"{request.DisplayViewer} made you Stomp");
                         }
                         if (!Connector.SetBits(ADDR_ConsumeSlot1, 0x20, out _))
                             DelayEffect(request);
@@ -2649,8 +2642,9 @@ namespace CrowdControl.Games.Packs
                         else
                         {
                             Connector.Write8(ADDR_ConsumeSlot1, 0x20);
-                            Connector.SendMessage($"{request.DisplayViewer} made you Stomp");
-                        }
+                            Connector.SendMessage($"{request.DisplayViewer} loves you so much"); 
+                            Connector.SendMessage($"{request.DisplayViewer} sent you a care package of 8 Fruit of Limes. Get Stomping");
+                                                    }
                         return;
 
                     }
@@ -2707,7 +2701,7 @@ namespace CrowdControl.Games.Packs
                                                     }
                                                     else if ((con8) != 0xFF)
                                                     {
-                                                        Respond(request, EffectStatus.FailPermanent, "No Slot open in inventory");
+                                                        Respond(request, EffectStatus.FailPermanent, "No Slot open in inventory.");
                                                     }
                                                     else if (!Connector.SetBits(ADDR_ConsumeSlot8, item, out _))
                                                     {
@@ -2716,7 +2710,7 @@ namespace CrowdControl.Games.Packs
                                                     else
                                                     {
                                                         Connector.Write8(ADDR_ConsumeSlot8, item);
-                                                        Connector.SendMessage($"{request.DisplayViewer} sent Medical Herb");
+                                                        Connector.SendMessage($"{request.DisplayViewer} sent Medical Herb.");
                                                     }
                                                 }
                                                 else if (!Connector.SetBits(ADDR_ConsumeSlot7, item, out _))
@@ -2726,7 +2720,7 @@ namespace CrowdControl.Games.Packs
                                                 else
                                                 {
                                                     Connector.Write8(ADDR_ConsumeSlot7, item);
-                                                    Connector.SendMessage($"{request.DisplayViewer} sent Medical Herb");
+                                                    Connector.SendMessage($"{request.DisplayViewer} sent Medical Herb.");
                                                 }
                                             }
                                             else if (!Connector.SetBits(ADDR_ConsumeSlot6, item, out _))
@@ -2736,7 +2730,7 @@ namespace CrowdControl.Games.Packs
                                             else
                                             {
                                                 Connector.Write8(ADDR_ConsumeSlot6, item);
-                                                Connector.SendMessage($"{request.DisplayViewer} sent Medical Herb");
+                                                Connector.SendMessage($"{request.DisplayViewer} sent Medical Herb.");
                                             }
                                         }
                                         else if (!Connector.SetBits(ADDR_ConsumeSlot5, item, out _))
@@ -2746,7 +2740,7 @@ namespace CrowdControl.Games.Packs
                                         else
                                         {
                                             Connector.Write8(ADDR_ConsumeSlot5, item);
-                                            Connector.SendMessage($"{request.DisplayViewer} sent Medical Herb");
+                                            Connector.SendMessage($"{request.DisplayViewer} sent Medical Herb.");
                                         }
                                     }
                                     else if (!Connector.SetBits(ADDR_ConsumeSlot4, item, out _))
@@ -2756,7 +2750,7 @@ namespace CrowdControl.Games.Packs
                                     else
                                     {
                                         Connector.Write8(ADDR_ConsumeSlot4, item);
-                                        Connector.SendMessage($"{request.DisplayViewer} sent Medical Herb");
+                                        Connector.SendMessage($"{request.DisplayViewer} sent Medical Herb.");
                                     }
                                 }
                                 else if (!Connector.SetBits(ADDR_ConsumeSlot3, item, out _))
@@ -2766,7 +2760,7 @@ namespace CrowdControl.Games.Packs
                                 else
                                 {
                                     Connector.Write8(ADDR_ConsumeSlot3, item);
-                                    Connector.SendMessage($"{request.DisplayViewer} sent Medical Herb");
+                                    Connector.SendMessage($"{request.DisplayViewer} sent Medical Herb.");
                                 }
                             }
                             else if (!Connector.SetBits(ADDR_ConsumeSlot2, item, out _))
@@ -2776,7 +2770,7 @@ namespace CrowdControl.Games.Packs
                             else
                             {
                                 Connector.Write8(ADDR_ConsumeSlot2, item);
-                                Connector.SendMessage($"{request.DisplayViewer} sent Medical Herb");
+                                Connector.SendMessage($"{request.DisplayViewer} sent Medical Herb.");
                             }
                         }
                         else if (!Connector.SetBits(ADDR_ConsumeSlot1, item, out _))
@@ -2786,7 +2780,7 @@ namespace CrowdControl.Games.Packs
                         else
                         {
                             Connector.Write8(ADDR_ConsumeSlot1, item);
-                            Connector.SendMessage($"{request.DisplayViewer} sent Medical Herb");
+                            Connector.SendMessage($"{request.DisplayViewer} sent Medical Herb.");
                         }
                         return;
                     }
@@ -2843,7 +2837,7 @@ namespace CrowdControl.Games.Packs
                                                     }
                                                     else if ((con8) != herb)
                                                     {
-                                                        Respond(request, EffectStatus.FailPermanent, "No Medical Herb in inventory");
+                                                        Respond(request, EffectStatus.FailPermanent, "No Medical Herb in inventory.");
                                                     }
                                                     else if (!Connector.SetBits(ADDR_ConsumeSlot8, 0xFF, out _))
                                                     {
@@ -2852,7 +2846,7 @@ namespace CrowdControl.Games.Packs
                                                     else
                                                     {
                                                         Connector.Write8(ADDR_ConsumeSlot8, 0xFF);
-                                                        Connector.SendMessage($"{request.DisplayViewer} took Medical Herb");
+                                                        Connector.SendMessage($"{request.DisplayViewer} took Medical Herb.");
                                                     }
                                                 }
                                                 else if (!Connector.SetBits(ADDR_ConsumeSlot7, 0xFF, out _))
@@ -2862,7 +2856,7 @@ namespace CrowdControl.Games.Packs
                                                 else
                                                 {
                                                     Connector.Write8(ADDR_ConsumeSlot7, 0xFF);
-                                                    Connector.SendMessage($"{request.DisplayViewer} took Medical Herb");
+                                                    Connector.SendMessage($"{request.DisplayViewer} took Medical Herb.");
                                                 }
                                             }
                                             else if (!Connector.SetBits(ADDR_ConsumeSlot6, 0xFF, out _))
@@ -2872,7 +2866,7 @@ namespace CrowdControl.Games.Packs
                                             else
                                             {
                                                 Connector.Write8(ADDR_ConsumeSlot6, 0xFF);
-                                                Connector.SendMessage($"{request.DisplayViewer} took Medical Herb");
+                                                Connector.SendMessage($"{request.DisplayViewer} took Medical Herb.");
                                             }
                                         }
                                         else if (!Connector.SetBits(ADDR_ConsumeSlot5, 0xFF, out _))
@@ -2882,7 +2876,7 @@ namespace CrowdControl.Games.Packs
                                         else
                                         {
                                             Connector.Write8(ADDR_ConsumeSlot5, 0xFF);
-                                            Connector.SendMessage($"{request.DisplayViewer} took Medical Herb");
+                                            Connector.SendMessage($"{request.DisplayViewer} took Medical Herb.");
                                         }
                                     }
                                     else if (!Connector.SetBits(ADDR_ConsumeSlot4, 0xFF, out _))
@@ -2892,7 +2886,7 @@ namespace CrowdControl.Games.Packs
                                     else
                                     {
                                         Connector.Write8(ADDR_ConsumeSlot4, 0xFF);
-                                        Connector.SendMessage($"{request.DisplayViewer} took Medical Herb");
+                                        Connector.SendMessage($"{request.DisplayViewer} took Medical Herb.");
                                     }
                                 }
                                 else if (!Connector.SetBits(ADDR_ConsumeSlot3, 0xFF, out _))
@@ -2902,7 +2896,7 @@ namespace CrowdControl.Games.Packs
                                 else
                                 {
                                     Connector.Write8(ADDR_ConsumeSlot3, 0xFF);
-                                    Connector.SendMessage($"{request.DisplayViewer} took Medical Herb");
+                                    Connector.SendMessage($"{request.DisplayViewer} took Medical Herb.");
                                 }
                             }
                             else if (!Connector.SetBits(ADDR_ConsumeSlot2, 0xFF, out _))
@@ -2912,7 +2906,7 @@ namespace CrowdControl.Games.Packs
                             else
                             {
                                 Connector.Write8(ADDR_ConsumeSlot2, 0xFF);
-                                Connector.SendMessage($"{request.DisplayViewer} took Medical Herb");
+                                Connector.SendMessage($"{request.DisplayViewer} took Medical Herb.");
                             }
                         }
                         else if (!Connector.SetBits(ADDR_ConsumeSlot1, 0xFF, out _))
@@ -2922,7 +2916,7 @@ namespace CrowdControl.Games.Packs
                         else
                         {
                             Connector.Write8(ADDR_ConsumeSlot1, 0xFF);
-                            Connector.SendMessage($"{request.DisplayViewer} took Medical Herb");
+                            Connector.SendMessage($"{request.DisplayViewer} took Medical Herb.");
                         }
                         return;
                     }
@@ -2979,7 +2973,7 @@ namespace CrowdControl.Games.Packs
                                                     }
                                                     else if ((con8) != 0xFF)
                                                     {
-                                                        Respond(request, EffectStatus.FailPermanent, "No Slot open in inventory");
+                                                        Respond(request, EffectStatus.FailPermanent, "No Slot open in inventory.");
                                                     }
                                                     else if (!Connector.SetBits(ADDR_ConsumeSlot8, item, out _))
                                                     {
@@ -3115,7 +3109,7 @@ namespace CrowdControl.Games.Packs
                                                     }
                                                     else if ((con8) != anti)
                                                     {
-                                                        Respond(request, EffectStatus.FailPermanent, "No Antidote in inventory");
+                                                        Respond(request, EffectStatus.FailPermanent, "No Antidote in inventory.");
                                                     }
                                                     else if (!Connector.SetBits(ADDR_ConsumeSlot8, 0xFF, out _))
                                                     {
@@ -3124,7 +3118,7 @@ namespace CrowdControl.Games.Packs
                                                     else
                                                     {
                                                         Connector.Write8(ADDR_ConsumeSlot8, 0xFF);
-                                                        Connector.SendMessage($"{request.DisplayViewer} took Antidote");
+                                                        Connector.SendMessage($"{request.DisplayViewer} took Antidote.");
                                                     }
                                                 }
                                                 else if (!Connector.SetBits(ADDR_ConsumeSlot7, 0xFF, out _))
@@ -3134,7 +3128,7 @@ namespace CrowdControl.Games.Packs
                                                 else
                                                 {
                                                     Connector.Write8(ADDR_ConsumeSlot7, 0xFF);
-                                                    Connector.SendMessage($"{request.DisplayViewer} took Antidote");
+                                                    Connector.SendMessage($"{request.DisplayViewer} took Antidote.");
                                                 }
                                             }
                                             else if (!Connector.SetBits(ADDR_ConsumeSlot6, 0xFF, out _))
@@ -3144,7 +3138,7 @@ namespace CrowdControl.Games.Packs
                                             else
                                             {
                                                 Connector.Write8(ADDR_ConsumeSlot6, 0xFF);
-                                                Connector.SendMessage($"{request.DisplayViewer} took Antidote");
+                                                Connector.SendMessage($"{request.DisplayViewer} took Antidote.");
                                             }
                                         }
                                         else if (!Connector.SetBits(ADDR_ConsumeSlot5, 0xFF, out _))
@@ -3154,7 +3148,7 @@ namespace CrowdControl.Games.Packs
                                         else
                                         {
                                             Connector.Write8(ADDR_ConsumeSlot5, 0xFF);
-                                            Connector.SendMessage($"{request.DisplayViewer} took Antidote");
+                                            Connector.SendMessage($"{request.DisplayViewer} took Antidote.");
                                         }
                                     }
                                     else if (!Connector.SetBits(ADDR_ConsumeSlot4, 0xFF, out _))
@@ -3164,7 +3158,7 @@ namespace CrowdControl.Games.Packs
                                     else
                                     {
                                         Connector.Write8(ADDR_ConsumeSlot4, 0xFF);
-                                        Connector.SendMessage($"{request.DisplayViewer} took Antidote");
+                                        Connector.SendMessage($"{request.DisplayViewer} took Antidote.");
                                     }
                                 }
                                 else if (!Connector.SetBits(ADDR_ConsumeSlot3, 0xFF, out _))
@@ -3174,7 +3168,7 @@ namespace CrowdControl.Games.Packs
                                 else
                                 {
                                     Connector.Write8(ADDR_ConsumeSlot3, 0xFF);
-                                    Connector.SendMessage($"{request.DisplayViewer} took Antidote");
+                                    Connector.SendMessage($"{request.DisplayViewer} took Antidote.");
                                 }
                             }
                             else if (!Connector.SetBits(ADDR_ConsumeSlot2, 0xFF, out _))
@@ -3184,7 +3178,7 @@ namespace CrowdControl.Games.Packs
                             else
                             {
                                 Connector.Write8(ADDR_ConsumeSlot2, 0xFF);
-                                Connector.SendMessage($"{request.DisplayViewer} took Antidote");
+                                Connector.SendMessage($"{request.DisplayViewer} took Antidote.");
                             }
                         }
                         else if (!Connector.SetBits(ADDR_ConsumeSlot1, 0xFF, out _))
@@ -3194,7 +3188,7 @@ namespace CrowdControl.Games.Packs
                         else
                         {
                             Connector.Write8(ADDR_ConsumeSlot1, 0xFF);
-                            Connector.SendMessage($"{request.DisplayViewer} took Antidote");
+                            Connector.SendMessage($"{request.DisplayViewer} took Antidote.");
                         }
                         return;
                     }
@@ -3251,7 +3245,7 @@ namespace CrowdControl.Games.Packs
                                                     }
                                                     else if ((con8) != 0xFF)
                                                     {
-                                                        Respond(request, EffectStatus.FailPermanent, "No Slot open in inventory");
+                                                        Respond(request, EffectStatus.FailPermanent, "No Slot open in inventory.");
                                                     }
                                                     else if (!Connector.SetBits(ADDR_ConsumeSlot8, item, out _))
                                                     {
@@ -3260,7 +3254,7 @@ namespace CrowdControl.Games.Packs
                                                     else
                                                     {
                                                         Connector.Write8(ADDR_ConsumeSlot8, item);
-                                                        Connector.SendMessage($"{request.DisplayViewer} sent Lysis Plant");
+                                                        Connector.SendMessage($"{request.DisplayViewer} sent Lysis Plant.");
                                                     }
                                                 }
                                                 else if (!Connector.SetBits(ADDR_ConsumeSlot7, item, out _))
@@ -3270,7 +3264,7 @@ namespace CrowdControl.Games.Packs
                                                 else
                                                 {
                                                     Connector.Write8(ADDR_ConsumeSlot7, item);
-                                                    Connector.SendMessage($"{request.DisplayViewer} sent Lysis Plant");
+                                                    Connector.SendMessage($"{request.DisplayViewer} sent Lysis Plant.");
                                                 }
                                             }
                                             else if (!Connector.SetBits(ADDR_ConsumeSlot6, item, out _))
@@ -3280,7 +3274,7 @@ namespace CrowdControl.Games.Packs
                                             else
                                             {
                                                 Connector.Write8(ADDR_ConsumeSlot6, item);
-                                                Connector.SendMessage($"{request.DisplayViewer} sent Lysis Plant");
+                                                Connector.SendMessage($"{request.DisplayViewer} sent Lysis Plant.");
                                             }
                                         }
                                         else if (!Connector.SetBits(ADDR_ConsumeSlot5, item, out _))
@@ -3290,7 +3284,7 @@ namespace CrowdControl.Games.Packs
                                         else
                                         {
                                             Connector.Write8(ADDR_ConsumeSlot5, item);
-                                            Connector.SendMessage($"{request.DisplayViewer} sent Lysis Plant");
+                                            Connector.SendMessage($"{request.DisplayViewer} sent Lysis Plant.");
                                         }
                                     }
                                     else if (!Connector.SetBits(ADDR_ConsumeSlot4, item, out _))
@@ -3300,7 +3294,7 @@ namespace CrowdControl.Games.Packs
                                     else
                                     {
                                         Connector.Write8(ADDR_ConsumeSlot4, item);
-                                        Connector.SendMessage($"{request.DisplayViewer} sent Lysis Plant");
+                                        Connector.SendMessage($"{request.DisplayViewer} sent Lysis Plant.");
                                     }
                                 }
                                 else if (!Connector.SetBits(ADDR_ConsumeSlot3, item, out _))
@@ -3310,7 +3304,7 @@ namespace CrowdControl.Games.Packs
                                 else
                                 {
                                     Connector.Write8(ADDR_ConsumeSlot3, item);
-                                    Connector.SendMessage($"{request.DisplayViewer} sent Lysis Plant");
+                                    Connector.SendMessage($"{request.DisplayViewer} sent Lysis Plant.");
                                 }
                             }
                             else if (!Connector.SetBits(ADDR_ConsumeSlot2, item, out _))
@@ -3320,7 +3314,7 @@ namespace CrowdControl.Games.Packs
                             else
                             {
                                 Connector.Write8(ADDR_ConsumeSlot2, item);
-                                Connector.SendMessage($"{request.DisplayViewer} sent Lysis Plant");
+                                Connector.SendMessage($"{request.DisplayViewer} sent Lysis Plant.");
                             }
                         }
                         else if (!Connector.SetBits(ADDR_ConsumeSlot1, item, out _))
@@ -3330,7 +3324,7 @@ namespace CrowdControl.Games.Packs
                         else
                         {
                             Connector.Write8(ADDR_ConsumeSlot1, item);
-                            Connector.SendMessage($"{request.DisplayViewer} sent Lysis Plant");
+                            Connector.SendMessage($"{request.DisplayViewer} sent Lysis Plant.");
                         }
                         return;
                     }
@@ -3387,7 +3381,7 @@ namespace CrowdControl.Games.Packs
                                                     }
                                                     else if ((con8) != lp)
                                                     {
-                                                        Respond(request, EffectStatus.FailPermanent, "No Lysis Plant in inventory");
+                                                        Respond(request, EffectStatus.FailPermanent, "No Lysis Plant in inventory.");
                                                     }
                                                     else if (!Connector.SetBits(ADDR_ConsumeSlot8, 0xFF, out _))
                                                     {
@@ -3396,7 +3390,7 @@ namespace CrowdControl.Games.Packs
                                                     else
                                                     {
                                                         Connector.Write8(ADDR_ConsumeSlot8, 0xFF);
-                                                        Connector.SendMessage($"{request.DisplayViewer} took Lysis Plant");
+                                                        Connector.SendMessage($"{request.DisplayViewer} took Lysis Plant.");
                                                     }
                                                 }
                                                 else if (!Connector.SetBits(ADDR_ConsumeSlot7, 0xFF, out _))
@@ -3406,7 +3400,7 @@ namespace CrowdControl.Games.Packs
                                                 else
                                                 {
                                                     Connector.Write8(ADDR_ConsumeSlot7, 0xFF);
-                                                    Connector.SendMessage($"{request.DisplayViewer} took Lysis Plant");
+                                                    Connector.SendMessage($"{request.DisplayViewer} took Lysis Plant.");
                                                 }
                                             }
                                             else if (!Connector.SetBits(ADDR_ConsumeSlot6, 0xFF, out _))
@@ -3416,7 +3410,7 @@ namespace CrowdControl.Games.Packs
                                             else
                                             {
                                                 Connector.Write8(ADDR_ConsumeSlot6, 0xFF);
-                                                Connector.SendMessage($"{request.DisplayViewer} took Lysis Plant");
+                                                Connector.SendMessage($"{request.DisplayViewer} took Lysis Plant.");
                                             }
                                         }
                                         else if (!Connector.SetBits(ADDR_ConsumeSlot5, 0xFF, out _))
@@ -3426,7 +3420,7 @@ namespace CrowdControl.Games.Packs
                                         else
                                         {
                                             Connector.Write8(ADDR_ConsumeSlot5, 0xFF);
-                                            Connector.SendMessage($"{request.DisplayViewer} took Lysis Plant");
+                                            Connector.SendMessage($"{request.DisplayViewer} took Lysis Plant.");
                                         }
                                     }
                                     else if (!Connector.SetBits(ADDR_ConsumeSlot4, 0xFF, out _))
@@ -3436,7 +3430,7 @@ namespace CrowdControl.Games.Packs
                                     else
                                     {
                                         Connector.Write8(ADDR_ConsumeSlot4, 0xFF);
-                                        Connector.SendMessage($"{request.DisplayViewer} took Lysis Plant");
+                                        Connector.SendMessage($"{request.DisplayViewer} took Lysis Plant.");
                                     }
                                 }
                                 else if (!Connector.SetBits(ADDR_ConsumeSlot3, 0xFF, out _))
@@ -3446,7 +3440,7 @@ namespace CrowdControl.Games.Packs
                                 else
                                 {
                                     Connector.Write8(ADDR_ConsumeSlot3, 0xFF);
-                                    Connector.SendMessage($"{request.DisplayViewer} took Lysis Plant");
+                                    Connector.SendMessage($"{request.DisplayViewer} took Lysis Plant.");
                                 }
                             }
                             else if (!Connector.SetBits(ADDR_ConsumeSlot2, 0xFF, out _))
@@ -3456,7 +3450,7 @@ namespace CrowdControl.Games.Packs
                             else
                             {
                                 Connector.Write8(ADDR_ConsumeSlot2, 0xFF);
-                                Connector.SendMessage($"{request.DisplayViewer} took Lysis Plant");
+                                Connector.SendMessage($"{request.DisplayViewer} took Lysis Plant.");
                             }
                         }
                         else if (!Connector.SetBits(ADDR_ConsumeSlot1, 0xFF, out _))
@@ -3466,7 +3460,7 @@ namespace CrowdControl.Games.Packs
                         else
                         {
                             Connector.Write8(ADDR_ConsumeSlot1, 0xFF);
-                            Connector.SendMessage($"{request.DisplayViewer} took Lysis Plant");
+                            Connector.SendMessage($"{request.DisplayViewer} took Lysis Plant.");
                         }
                         return;
                     }
@@ -3523,7 +3517,7 @@ namespace CrowdControl.Games.Packs
                                                     }
                                                     else if ((con8) != 0xFF)
                                                     {
-                                                        Respond(request, EffectStatus.FailPermanent, "No Slot open in inventory");
+                                                        Respond(request, EffectStatus.FailPermanent, "No Slot open in inventory.");
                                                     }
                                                     else if (!Connector.SetBits(ADDR_ConsumeSlot8, item, out _))
                                                     {
@@ -3532,7 +3526,7 @@ namespace CrowdControl.Games.Packs
                                                     else
                                                     {
                                                         Connector.Write8(ADDR_ConsumeSlot8, item);
-                                                        Connector.SendMessage($"{request.DisplayViewer} sent Fruit of Lime");
+                                                        Connector.SendMessage($"{request.DisplayViewer} sent Fruit of Lime.");
                                                     }
                                                 }
                                                 else if (!Connector.SetBits(ADDR_ConsumeSlot7, item, out _))
@@ -3542,7 +3536,7 @@ namespace CrowdControl.Games.Packs
                                                 else
                                                 {
                                                     Connector.Write8(ADDR_ConsumeSlot7, item);
-                                                    Connector.SendMessage($"{request.DisplayViewer} sent Fruit of Lime");
+                                                    Connector.SendMessage($"{request.DisplayViewer} sent Fruit of Lime.");
                                                 }
                                             }
                                             else if (!Connector.SetBits(ADDR_ConsumeSlot6, item, out _))
@@ -3552,7 +3546,7 @@ namespace CrowdControl.Games.Packs
                                             else
                                             {
                                                 Connector.Write8(ADDR_ConsumeSlot6, item);
-                                                Connector.SendMessage($"{request.DisplayViewer} sent Fruit of Lime");
+                                                Connector.SendMessage($"{request.DisplayViewer} sent Fruit of Lime.");
                                             }
                                         }
                                         else if (!Connector.SetBits(ADDR_ConsumeSlot5, item, out _))
@@ -3562,7 +3556,7 @@ namespace CrowdControl.Games.Packs
                                         else
                                         {
                                             Connector.Write8(ADDR_ConsumeSlot5, item);
-                                            Connector.SendMessage($"{request.DisplayViewer} sent Fruit of Lime");
+                                            Connector.SendMessage($"{request.DisplayViewer} sent Fruit of Lime.");
                                         }
                                     }
                                     else if (!Connector.SetBits(ADDR_ConsumeSlot4, item, out _))
@@ -3572,7 +3566,7 @@ namespace CrowdControl.Games.Packs
                                     else
                                     {
                                         Connector.Write8(ADDR_ConsumeSlot4, item);
-                                        Connector.SendMessage($"{request.DisplayViewer} sent Fruit of Lime");
+                                        Connector.SendMessage($"{request.DisplayViewer} sent Fruit of Lime.");
                                     }
                                 }
                                 else if (!Connector.SetBits(ADDR_ConsumeSlot3, item, out _))
@@ -3582,7 +3576,7 @@ namespace CrowdControl.Games.Packs
                                 else
                                 {
                                     Connector.Write8(ADDR_ConsumeSlot3, item);
-                                    Connector.SendMessage($"{request.DisplayViewer} sent Fruit of Lime");
+                                    Connector.SendMessage($"{request.DisplayViewer} sent Fruit of Lime.");
                                 }
                             }
                             else if (!Connector.SetBits(ADDR_ConsumeSlot2, item, out _))
@@ -3592,7 +3586,7 @@ namespace CrowdControl.Games.Packs
                             else
                             {
                                 Connector.Write8(ADDR_ConsumeSlot2, item);
-                                Connector.SendMessage($"{request.DisplayViewer} sent Fruit of Lime");
+                                Connector.SendMessage($"{request.DisplayViewer} sent Fruit of Lime.");
                             }
                         }
                         else if (!Connector.SetBits(ADDR_ConsumeSlot1, item, out _))
@@ -3602,7 +3596,7 @@ namespace CrowdControl.Games.Packs
                         else
                         {
                             Connector.Write8(ADDR_ConsumeSlot1, item);
-                            Connector.SendMessage($"{request.DisplayViewer} sent Fruit of Lime");
+                            Connector.SendMessage($"{request.DisplayViewer} sent Fruit of Lime.");
                         }
                         return;
                     }
@@ -3659,7 +3653,7 @@ namespace CrowdControl.Games.Packs
                                                     }
                                                     else if ((con8) != fol)
                                                     {
-                                                        Respond(request, EffectStatus.FailPermanent, "No Fruit of Lime in inventory");
+                                                        Respond(request, EffectStatus.FailPermanent, "No Fruit of Lime in inventory.");
                                                     }
                                                     else if (!Connector.SetBits(ADDR_ConsumeSlot8, 0xFF, out _))
                                                     {
@@ -3668,7 +3662,7 @@ namespace CrowdControl.Games.Packs
                                                     else
                                                     {
                                                         Connector.Write8(ADDR_ConsumeSlot8, 0xFF);
-                                                        Connector.SendMessage($"{request.DisplayViewer} took Fruit of Lime");
+                                                        Connector.SendMessage($"{request.DisplayViewer} took Fruit of Lime.");
                                                     }
                                                 }
                                                 else if (!Connector.SetBits(ADDR_ConsumeSlot7, 0xFF, out _))
@@ -3678,7 +3672,7 @@ namespace CrowdControl.Games.Packs
                                                 else
                                                 {
                                                     Connector.Write8(ADDR_ConsumeSlot7, 0xFF);
-                                                    Connector.SendMessage($"{request.DisplayViewer} took Fruit of Lime");
+                                                    Connector.SendMessage($"{request.DisplayViewer} took Fruit of Lime.");
                                                 }
                                             }
                                             else if (!Connector.SetBits(ADDR_ConsumeSlot6, 0xFF, out _))
@@ -3688,7 +3682,7 @@ namespace CrowdControl.Games.Packs
                                             else
                                             {
                                                 Connector.Write8(ADDR_ConsumeSlot6, 0xFF);
-                                                Connector.SendMessage($"{request.DisplayViewer} took Fruit of Lime");
+                                                Connector.SendMessage($"{request.DisplayViewer} took Fruit of Lime.");
                                             }
                                         }
                                         else if (!Connector.SetBits(ADDR_ConsumeSlot5, 0xFF, out _))
@@ -3698,7 +3692,7 @@ namespace CrowdControl.Games.Packs
                                         else
                                         {
                                             Connector.Write8(ADDR_ConsumeSlot5, 0xFF);
-                                            Connector.SendMessage($"{request.DisplayViewer} took Fruit of Lime");
+                                            Connector.SendMessage($"{request.DisplayViewer} took Fruit of Lime.");
                                         }
                                     }
                                     else if (!Connector.SetBits(ADDR_ConsumeSlot4, 0xFF, out _))
@@ -3708,7 +3702,7 @@ namespace CrowdControl.Games.Packs
                                     else
                                     {
                                         Connector.Write8(ADDR_ConsumeSlot4, 0xFF);
-                                        Connector.SendMessage($"{request.DisplayViewer} took Fruit of Lime");
+                                        Connector.SendMessage($"{request.DisplayViewer} took Fruit of Lime.");
                                     }
                                 }
                                 else if (!Connector.SetBits(ADDR_ConsumeSlot3, 0xFF, out _))
@@ -3718,7 +3712,7 @@ namespace CrowdControl.Games.Packs
                                 else
                                 {
                                     Connector.Write8(ADDR_ConsumeSlot3, 0xFF);
-                                    Connector.SendMessage($"{request.DisplayViewer} took Fruit of Lime");
+                                    Connector.SendMessage($"{request.DisplayViewer} took Fruit of Lime.");
                                 }
                             }
                             else if (!Connector.SetBits(ADDR_ConsumeSlot2, 0xFF, out _))
@@ -3728,7 +3722,7 @@ namespace CrowdControl.Games.Packs
                             else
                             {
                                 Connector.Write8(ADDR_ConsumeSlot2, 0xFF);
-                                Connector.SendMessage($"{request.DisplayViewer} took Fruit of Lime");
+                                Connector.SendMessage($"{request.DisplayViewer} took Fruit of Lime.");
                             }
                         }
                         else if (!Connector.SetBits(ADDR_ConsumeSlot1, 0xFF, out _))
@@ -3738,7 +3732,7 @@ namespace CrowdControl.Games.Packs
                         else
                         {
                             Connector.Write8(ADDR_ConsumeSlot1, 0xFF);
-                            Connector.SendMessage($"{request.DisplayViewer} took Fruit of Lime");
+                            Connector.SendMessage($"{request.DisplayViewer} took Fruit of Lime.");
                         }
                         return;
                     }
@@ -3795,7 +3789,7 @@ namespace CrowdControl.Games.Packs
                                                     }
                                                     else if ((con8) != 0xFF)
                                                     {
-                                                        Respond(request, EffectStatus.FailPermanent, "No Slot open in inventory");
+                                                        Respond(request, EffectStatus.FailPermanent, "No Slot open in inventory.");
                                                     }
                                                     else if (!Connector.SetBits(ADDR_ConsumeSlot8, item, out _))
                                                     {
@@ -3804,7 +3798,7 @@ namespace CrowdControl.Games.Packs
                                                     else
                                                     {
                                                         Connector.Write8(ADDR_ConsumeSlot8, item);
-                                                        Connector.SendMessage($"{request.DisplayViewer} sent Fruit of Power");
+                                                        Connector.SendMessage($"{request.DisplayViewer} sent Fruit of Power.");
                                                     }
                                                 }
                                                 else if (!Connector.SetBits(ADDR_ConsumeSlot7, item, out _))
@@ -3814,7 +3808,7 @@ namespace CrowdControl.Games.Packs
                                                 else
                                                 {
                                                     Connector.Write8(ADDR_ConsumeSlot7, item);
-                                                    Connector.SendMessage($"{request.DisplayViewer} sent Fruit of Power");
+                                                    Connector.SendMessage($"{request.DisplayViewer} sent Fruit of Power.");
                                                 }
                                             }
                                             else if (!Connector.SetBits(ADDR_ConsumeSlot6, item, out _))
@@ -3824,7 +3818,7 @@ namespace CrowdControl.Games.Packs
                                             else
                                             {
                                                 Connector.Write8(ADDR_ConsumeSlot6, item);
-                                                Connector.SendMessage($"{request.DisplayViewer} sent Fruit of Power");
+                                                Connector.SendMessage($"{request.DisplayViewer} sent Fruit of Power.");
                                             }
                                         }
                                         else if (!Connector.SetBits(ADDR_ConsumeSlot5, item, out _))
@@ -3834,7 +3828,7 @@ namespace CrowdControl.Games.Packs
                                         else
                                         {
                                             Connector.Write8(ADDR_ConsumeSlot5, item);
-                                            Connector.SendMessage($"{request.DisplayViewer} sent Fruit of Power");
+                                            Connector.SendMessage($"{request.DisplayViewer} sent Fruit of Power.");
                                         }
                                     }
                                     else if (!Connector.SetBits(ADDR_ConsumeSlot4, item, out _))
@@ -3844,7 +3838,7 @@ namespace CrowdControl.Games.Packs
                                     else
                                     {
                                         Connector.Write8(ADDR_ConsumeSlot4, item);
-                                        Connector.SendMessage($"{request.DisplayViewer} sent Fruit of Power");
+                                        Connector.SendMessage($"{request.DisplayViewer} sent Fruit of Power.");
                                     }
                                 }
                                 else if (!Connector.SetBits(ADDR_ConsumeSlot3, item, out _))
@@ -3854,7 +3848,7 @@ namespace CrowdControl.Games.Packs
                                 else
                                 {
                                     Connector.Write8(ADDR_ConsumeSlot3, item);
-                                    Connector.SendMessage($"{request.DisplayViewer} sent Fruit of Power");
+                                    Connector.SendMessage($"{request.DisplayViewer} sent Fruit of Power.");
                                 }
                             }
                             else if (!Connector.SetBits(ADDR_ConsumeSlot2, item, out _))
@@ -3864,7 +3858,7 @@ namespace CrowdControl.Games.Packs
                             else
                             {
                                 Connector.Write8(ADDR_ConsumeSlot2, item);
-                                Connector.SendMessage($"{request.DisplayViewer} sent Fruit of Power");
+                                Connector.SendMessage($"{request.DisplayViewer} sent Fruit of Power.");
                             }
                         }
                         else if (!Connector.SetBits(ADDR_ConsumeSlot1, item, out _))
@@ -3874,7 +3868,7 @@ namespace CrowdControl.Games.Packs
                         else
                         {
                             Connector.Write8(ADDR_ConsumeSlot1, item);
-                            Connector.SendMessage($"{request.DisplayViewer} sent Fruit of Power");
+                            Connector.SendMessage($"{request.DisplayViewer} sent Fruit of Power.");
                         }
                         return;
                     }
@@ -3930,7 +3924,7 @@ namespace CrowdControl.Games.Packs
                                                     }
                                                     else if ((con8) != fop)
                                                     {
-                                                        Respond(request, EffectStatus.FailPermanent, "No Fruit of Power in inventory");
+                                                        Respond(request, EffectStatus.FailPermanent, "No Fruit of Power in inventory.");
                                                     }
                                                     else if (!Connector.SetBits(ADDR_ConsumeSlot8, 0xFF, out _))
                                                     {
@@ -3939,7 +3933,7 @@ namespace CrowdControl.Games.Packs
                                                     else
                                                     {
                                                         Connector.Write8(ADDR_ConsumeSlot8, 0xFF);
-                                                        Connector.SendMessage($"{request.DisplayViewer} took Fruit of Power");
+                                                        Connector.SendMessage($"{request.DisplayViewer} took Fruit of Power.");
                                                     }
                                                 }
                                                 else if (!Connector.SetBits(ADDR_ConsumeSlot7, 0xFF, out _))
@@ -3949,7 +3943,7 @@ namespace CrowdControl.Games.Packs
                                                 else
                                                 {
                                                     Connector.Write8(ADDR_ConsumeSlot7, 0xFF);
-                                                    Connector.SendMessage($"{request.DisplayViewer} took Fruit of Power");
+                                                    Connector.SendMessage($"{request.DisplayViewer} took Fruit of Power.");
                                                 }
                                             }
                                             else if (!Connector.SetBits(ADDR_ConsumeSlot6, 0xFF, out _))
@@ -3959,7 +3953,7 @@ namespace CrowdControl.Games.Packs
                                             else
                                             {
                                                 Connector.Write8(ADDR_ConsumeSlot6, 0xFF);
-                                                Connector.SendMessage($"{request.DisplayViewer} took Fruit of Power");
+                                                Connector.SendMessage($"{request.DisplayViewer} took Fruit of Power.");
                                             }
                                         }
                                         else if (!Connector.SetBits(ADDR_ConsumeSlot5, 0xFF, out _))
@@ -3969,7 +3963,7 @@ namespace CrowdControl.Games.Packs
                                         else
                                         {
                                             Connector.Write8(ADDR_ConsumeSlot5, 0xFF);
-                                            Connector.SendMessage($"{request.DisplayViewer} took Fruit of Power");
+                                            Connector.SendMessage($"{request.DisplayViewer} took Fruit of Power.");
                                         }
                                     }
                                     else if (!Connector.SetBits(ADDR_ConsumeSlot4, 0xFF, out _))
@@ -3979,7 +3973,7 @@ namespace CrowdControl.Games.Packs
                                     else
                                     {
                                         Connector.Write8(ADDR_ConsumeSlot4, 0xFF);
-                                        Connector.SendMessage($"{request.DisplayViewer} took Fruit of Power");
+                                        Connector.SendMessage($"{request.DisplayViewer} took Fruit of Power.");
                                     }
                                 }
                                 else if (!Connector.SetBits(ADDR_ConsumeSlot3, 0xFF, out _))
@@ -3989,7 +3983,7 @@ namespace CrowdControl.Games.Packs
                                 else
                                 {
                                     Connector.Write8(ADDR_ConsumeSlot3, 0xFF);
-                                    Connector.SendMessage($"{request.DisplayViewer} took Fruit of Power");
+                                    Connector.SendMessage($"{request.DisplayViewer} took Fruit of Power.");
                                 }
                             }
                             else if (!Connector.SetBits(ADDR_ConsumeSlot2, 0xFF, out _))
@@ -3999,7 +3993,7 @@ namespace CrowdControl.Games.Packs
                             else
                             {
                                 Connector.Write8(ADDR_ConsumeSlot2, 0xFF);
-                                Connector.SendMessage($"{request.DisplayViewer} took Fruit of Power");
+                                Connector.SendMessage($"{request.DisplayViewer} took Fruit of Power.");
                             }
                         }
                         else if (!Connector.SetBits(ADDR_ConsumeSlot1, 0xFF, out _))
@@ -4009,7 +4003,7 @@ namespace CrowdControl.Games.Packs
                         else
                         {
                             Connector.Write8(ADDR_ConsumeSlot1, 0xFF);
-                            Connector.SendMessage($"{request.DisplayViewer} took Fruit of Power");
+                            Connector.SendMessage($"{request.DisplayViewer} took Fruit of Power.");
                         }
                         return;
                     }
@@ -4066,7 +4060,7 @@ namespace CrowdControl.Games.Packs
                                                     }
                                                     else if ((con8) != 0xFF)
                                                     {
-                                                        Respond(request, EffectStatus.FailPermanent, "No Slot open in inventory");
+                                                        Respond(request, EffectStatus.FailPermanent, "No Slot open in inventory.");
                                                     }
                                                     else if (!Connector.SetBits(ADDR_ConsumeSlot8, item, out _))
                                                     {
@@ -4075,7 +4069,7 @@ namespace CrowdControl.Games.Packs
                                                     else
                                                     {
                                                         Connector.Write8(ADDR_ConsumeSlot8, item);
-                                                        Connector.SendMessage($"{request.DisplayViewer} sent Magic Ring");
+                                                        Connector.SendMessage($"{request.DisplayViewer} sent Magic Ring.");
                                                     }
                                                 }
                                                 else if (!Connector.SetBits(ADDR_ConsumeSlot7, item, out _))
@@ -4085,7 +4079,7 @@ namespace CrowdControl.Games.Packs
                                                 else
                                                 {
                                                     Connector.Write8(ADDR_ConsumeSlot7, item);
-                                                    Connector.SendMessage($"{request.DisplayViewer} sent Magic Ring");
+                                                    Connector.SendMessage($"{request.DisplayViewer} sent Magic Ring.");
                                                 }
                                             }
                                             else if (!Connector.SetBits(ADDR_ConsumeSlot6, item, out _))
@@ -4095,7 +4089,7 @@ namespace CrowdControl.Games.Packs
                                             else
                                             {
                                                 Connector.Write8(ADDR_ConsumeSlot6, item);
-                                                Connector.SendMessage($"{request.DisplayViewer} sent Magic Ring");
+                                                Connector.SendMessage($"{request.DisplayViewer} sent Magic Ring.");
                                             }
                                         }
                                         else if (!Connector.SetBits(ADDR_ConsumeSlot5, item, out _))
@@ -4105,7 +4099,7 @@ namespace CrowdControl.Games.Packs
                                         else
                                         {
                                             Connector.Write8(ADDR_ConsumeSlot5, item);
-                                            Connector.SendMessage($"{request.DisplayViewer} sent Magic Ring");
+                                            Connector.SendMessage($"{request.DisplayViewer} sent Magic Ring.");
                                         }
                                     }
                                     else if (!Connector.SetBits(ADDR_ConsumeSlot4, item, out _))
@@ -4115,7 +4109,7 @@ namespace CrowdControl.Games.Packs
                                     else
                                     {
                                         Connector.Write8(ADDR_ConsumeSlot4, item);
-                                        Connector.SendMessage($"{request.DisplayViewer} sent Magic Ring");
+                                        Connector.SendMessage($"{request.DisplayViewer} sent Magic Ring.");
                                     }
                                 }
                                 else if (!Connector.SetBits(ADDR_ConsumeSlot3, item, out _))
@@ -4125,7 +4119,7 @@ namespace CrowdControl.Games.Packs
                                 else
                                 {
                                     Connector.Write8(ADDR_ConsumeSlot3, item);
-                                    Connector.SendMessage($"{request.DisplayViewer} sent Magic Ring");
+                                    Connector.SendMessage($"{request.DisplayViewer} sent Magic Ring.");
                                 }
                             }
                             else if (!Connector.SetBits(ADDR_ConsumeSlot2, item, out _))
@@ -4135,7 +4129,7 @@ namespace CrowdControl.Games.Packs
                             else
                             {
                                 Connector.Write8(ADDR_ConsumeSlot2, item);
-                                Connector.SendMessage($"{request.DisplayViewer} sent Magic Ring");
+                                Connector.SendMessage($"{request.DisplayViewer} sent Magic Ring.");
                             }
                         }
                         else if (!Connector.SetBits(ADDR_ConsumeSlot1, item, out _))
@@ -4145,7 +4139,7 @@ namespace CrowdControl.Games.Packs
                         else
                         {
                             Connector.Write8(ADDR_ConsumeSlot1, item);
-                            Connector.SendMessage($"{request.DisplayViewer} sent Magic Ring");
+                            Connector.SendMessage($"{request.DisplayViewer} sent Magic Ring.");
                         }
                         return;
                     }
@@ -4201,7 +4195,7 @@ namespace CrowdControl.Games.Packs
                                                     }
                                                     else if ((con8) != mr)
                                                     {
-                                                        Respond(request, EffectStatus.FailPermanent, "No Magic Ring in inventory");
+                                                        Respond(request, EffectStatus.FailPermanent, "No Magic Ring in inventory.");
                                                     }
                                                     else if (!Connector.SetBits(ADDR_ConsumeSlot8, 0xFF, out _))
                                                     {
@@ -4210,7 +4204,7 @@ namespace CrowdControl.Games.Packs
                                                     else
                                                     {
                                                         Connector.Write8(ADDR_ConsumeSlot8, 0xFF);
-                                                        Connector.SendMessage($"{request.DisplayViewer} took Magic Ring");
+                                                        Connector.SendMessage($"{request.DisplayViewer} took Magic Ring.");
                                                     }
                                                 }
                                                 else if (!Connector.SetBits(ADDR_ConsumeSlot7, 0xFF, out _))
@@ -4220,7 +4214,7 @@ namespace CrowdControl.Games.Packs
                                                 else
                                                 {
                                                     Connector.Write8(ADDR_ConsumeSlot7, 0xFF);
-                                                    Connector.SendMessage($"{request.DisplayViewer} took Magic Ring");
+                                                    Connector.SendMessage($"{request.DisplayViewer} took Magic Ring.");
                                                 }
                                             }
                                             else if (!Connector.SetBits(ADDR_ConsumeSlot6, 0xFF, out _))
@@ -4230,7 +4224,7 @@ namespace CrowdControl.Games.Packs
                                             else
                                             {
                                                 Connector.Write8(ADDR_ConsumeSlot6, 0xFF);
-                                                Connector.SendMessage($"{request.DisplayViewer} took Magic Ring");
+                                                Connector.SendMessage($"{request.DisplayViewer} took Magic Ring.");
                                             }
                                         }
                                         else if (!Connector.SetBits(ADDR_ConsumeSlot5, 0xFF, out _))
@@ -4240,7 +4234,7 @@ namespace CrowdControl.Games.Packs
                                         else
                                         {
                                             Connector.Write8(ADDR_ConsumeSlot5, 0xFF);
-                                            Connector.SendMessage($"{request.DisplayViewer} took Magic Ring");
+                                            Connector.SendMessage($"{request.DisplayViewer} took Magic Ring.");
                                         }
                                     }
                                     else if (!Connector.SetBits(ADDR_ConsumeSlot4, 0xFF, out _))
@@ -4250,7 +4244,7 @@ namespace CrowdControl.Games.Packs
                                     else
                                     {
                                         Connector.Write8(ADDR_ConsumeSlot4, 0xFF);
-                                        Connector.SendMessage($"{request.DisplayViewer} took Magic Ring");
+                                        Connector.SendMessage($"{request.DisplayViewer} took Magic Ring.");
                                     }
                                 }
                                 else if (!Connector.SetBits(ADDR_ConsumeSlot3, 0xFF, out _))
@@ -4260,7 +4254,7 @@ namespace CrowdControl.Games.Packs
                                 else
                                 {
                                     Connector.Write8(ADDR_ConsumeSlot3, 0xFF);
-                                    Connector.SendMessage($"{request.DisplayViewer} took Magic Ring");
+                                    Connector.SendMessage($"{request.DisplayViewer} took Magic Ring.");
                                 }
                             }
                             else if (!Connector.SetBits(ADDR_ConsumeSlot2, 0xFF, out _))
@@ -4270,7 +4264,7 @@ namespace CrowdControl.Games.Packs
                             else
                             {
                                 Connector.Write8(ADDR_ConsumeSlot2, 0xFF);
-                                Connector.SendMessage($"{request.DisplayViewer} took Magic Ring");
+                                Connector.SendMessage($"{request.DisplayViewer} took Magic Ring.");
                             }
                         }
                         else if (!Connector.SetBits(ADDR_ConsumeSlot1, 0xFF, out _))
@@ -4280,7 +4274,7 @@ namespace CrowdControl.Games.Packs
                         else
                         {
                             Connector.Write8(ADDR_ConsumeSlot1, 0xFF);
-                            Connector.SendMessage($"{request.DisplayViewer} took Magic Ring");
+                            Connector.SendMessage($"{request.DisplayViewer} took Magic Ring.");
                         }
                         return;
                     }
@@ -4337,7 +4331,7 @@ namespace CrowdControl.Games.Packs
                                                     }
                                                     else if ((con8) != 0xFF)
                                                     {
-                                                        Respond(request, EffectStatus.FailPermanent, "No Slot open in inventory");
+                                                        Respond(request, EffectStatus.FailPermanent, "No Slot open in inventory.");
                                                     }
                                                     else if (!Connector.SetBits(ADDR_ConsumeSlot8, item, out _))
                                                     {
@@ -4346,7 +4340,7 @@ namespace CrowdControl.Games.Packs
                                                     else
                                                     {
                                                         Connector.Write8(ADDR_ConsumeSlot8, item);
-                                                        Connector.SendMessage($"{request.DisplayViewer} sent Fruit of Repun");
+                                                        Connector.SendMessage($"{request.DisplayViewer} sent Fruit of Repun.");
                                                     }
                                                 }
                                                 else if (!Connector.SetBits(ADDR_ConsumeSlot7, item, out _))
@@ -4356,7 +4350,7 @@ namespace CrowdControl.Games.Packs
                                                 else
                                                 {
                                                     Connector.Write8(ADDR_ConsumeSlot7, item);
-                                                    Connector.SendMessage($"{request.DisplayViewer} sent Fruit of Repun");
+                                                    Connector.SendMessage($"{request.DisplayViewer} sent Fruit of Repun.");
                                                 }
                                             }
                                             else if (!Connector.SetBits(ADDR_ConsumeSlot6, item, out _))
@@ -4366,7 +4360,7 @@ namespace CrowdControl.Games.Packs
                                             else
                                             {
                                                 Connector.Write8(ADDR_ConsumeSlot6, item);
-                                                Connector.SendMessage($"{request.DisplayViewer} sent Fruit of Repun");
+                                                Connector.SendMessage($"{request.DisplayViewer} sent Fruit of Repun.");
                                             }
                                         }
                                         else if (!Connector.SetBits(ADDR_ConsumeSlot5, item, out _))
@@ -4376,7 +4370,7 @@ namespace CrowdControl.Games.Packs
                                         else
                                         {
                                             Connector.Write8(ADDR_ConsumeSlot5, item);
-                                            Connector.SendMessage($"{request.DisplayViewer} sent Fruit of Repun");
+                                            Connector.SendMessage($"{request.DisplayViewer} sent Fruit of Repun.");
                                         }
                                     }
                                     else if (!Connector.SetBits(ADDR_ConsumeSlot4, item, out _))
@@ -4386,7 +4380,7 @@ namespace CrowdControl.Games.Packs
                                     else
                                     {
                                         Connector.Write8(ADDR_ConsumeSlot4, item);
-                                        Connector.SendMessage($"{request.DisplayViewer} sent Fruit of Repun");
+                                        Connector.SendMessage($"{request.DisplayViewer} sent Fruit of Repun.");
                                     }
                                 }
                                 else if (!Connector.SetBits(ADDR_ConsumeSlot3, item, out _))
@@ -4396,7 +4390,7 @@ namespace CrowdControl.Games.Packs
                                 else
                                 {
                                     Connector.Write8(ADDR_ConsumeSlot3, item);
-                                    Connector.SendMessage($"{request.DisplayViewer} sent Fruit of Repun");
+                                    Connector.SendMessage($"{request.DisplayViewer} sent Fruit of Repun.");
                                 }
                             }
                             else if (!Connector.SetBits(ADDR_ConsumeSlot2, item, out _))
@@ -4406,7 +4400,7 @@ namespace CrowdControl.Games.Packs
                             else
                             {
                                 Connector.Write8(ADDR_ConsumeSlot2, item);
-                                Connector.SendMessage($"{request.DisplayViewer} sent Fruit of Repun");
+                                Connector.SendMessage($"{request.DisplayViewer} sent Fruit of Repun.");
                             }
                         }
                         else if (!Connector.SetBits(ADDR_ConsumeSlot1, item, out _))
@@ -4416,7 +4410,7 @@ namespace CrowdControl.Games.Packs
                         else
                         {
                             Connector.Write8(ADDR_ConsumeSlot1, item);
-                            Connector.SendMessage($"{request.DisplayViewer} sent Fruit of Repun");
+                            Connector.SendMessage($"{request.DisplayViewer} sent Fruit of Repun.");
                         }
                         return;
                     }
@@ -4472,7 +4466,7 @@ namespace CrowdControl.Games.Packs
                                                     }
                                                     else if ((con8) != fruitr)
                                                     {
-                                                        Respond(request, EffectStatus.FailPermanent, "No Fruit of Repun in inventory");
+                                                        Respond(request, EffectStatus.FailPermanent, "No Fruit of Repun in inventory.");
                                                     }
                                                     else if (!Connector.SetBits(ADDR_ConsumeSlot8, 0xFF, out _))
                                                     {
@@ -4481,7 +4475,7 @@ namespace CrowdControl.Games.Packs
                                                     else
                                                     {
                                                         Connector.Write8(ADDR_ConsumeSlot8, 0xFF);
-                                                        Connector.SendMessage($"{request.DisplayViewer} took Fruit of Repun");
+                                                        Connector.SendMessage($"{request.DisplayViewer} took Fruit of Repun.");
                                                     }
                                                 }
                                                 else if (!Connector.SetBits(ADDR_ConsumeSlot7, 0xFF, out _))
@@ -4491,7 +4485,7 @@ namespace CrowdControl.Games.Packs
                                                 else
                                                 {
                                                     Connector.Write8(ADDR_ConsumeSlot7, 0xFF);
-                                                    Connector.SendMessage($"{request.DisplayViewer} took Fruit of Repun");
+                                                    Connector.SendMessage($"{request.DisplayViewer} took Fruit of Repun.");
                                                 }
                                             }
                                             else if (!Connector.SetBits(ADDR_ConsumeSlot6, 0xFF, out _))
@@ -4501,7 +4495,7 @@ namespace CrowdControl.Games.Packs
                                             else
                                             {
                                                 Connector.Write8(ADDR_ConsumeSlot6, 0xFF);
-                                                Connector.SendMessage($"{request.DisplayViewer} took Fruit of Repun");
+                                                Connector.SendMessage($"{request.DisplayViewer} took Fruit of Repun.");
                                             }
                                         }
                                         else if (!Connector.SetBits(ADDR_ConsumeSlot5, 0xFF, out _))
@@ -4511,7 +4505,7 @@ namespace CrowdControl.Games.Packs
                                         else
                                         {
                                             Connector.Write8(ADDR_ConsumeSlot5, 0xFF);
-                                            Connector.SendMessage($"{request.DisplayViewer} took Fruit of Repun");
+                                            Connector.SendMessage($"{request.DisplayViewer} took Fruit of Repun.");
                                         }
                                     }
                                     else if (!Connector.SetBits(ADDR_ConsumeSlot4, 0xFF, out _))
@@ -4521,7 +4515,7 @@ namespace CrowdControl.Games.Packs
                                     else
                                     {
                                         Connector.Write8(ADDR_ConsumeSlot4, 0xFF);
-                                        Connector.SendMessage($"{request.DisplayViewer} took Fruit of Repun");
+                                        Connector.SendMessage($"{request.DisplayViewer} took Fruit of Repun.");
                                     }
                                 }
                                 else if (!Connector.SetBits(ADDR_ConsumeSlot3, 0xFF, out _))
@@ -4531,7 +4525,7 @@ namespace CrowdControl.Games.Packs
                                 else
                                 {
                                     Connector.Write8(ADDR_ConsumeSlot3, 0xFF);
-                                    Connector.SendMessage($"{request.DisplayViewer} took Fruit of Repun");
+                                    Connector.SendMessage($"{request.DisplayViewer} took Fruit of Repun.");
                                 }
                             }
                             else if (!Connector.SetBits(ADDR_ConsumeSlot2, 0xFF, out _))
@@ -4541,7 +4535,7 @@ namespace CrowdControl.Games.Packs
                             else
                             {
                                 Connector.Write8(ADDR_ConsumeSlot2, 0xFF);
-                                Connector.SendMessage($"{request.DisplayViewer} took Fruit of Repun");
+                                Connector.SendMessage($"{request.DisplayViewer} took Fruit of Repun.");
                             }
                         }
                         else if (!Connector.SetBits(ADDR_ConsumeSlot1, 0xFF, out _))
@@ -4551,7 +4545,7 @@ namespace CrowdControl.Games.Packs
                         else
                         {
                             Connector.Write8(ADDR_ConsumeSlot1, 0xFF);
-                            Connector.SendMessage($"{request.DisplayViewer} took Fruit of Repun");
+                            Connector.SendMessage($"{request.DisplayViewer} took Fruit of Repun.");
                         }
                         return;
                     }
@@ -4608,7 +4602,7 @@ namespace CrowdControl.Games.Packs
                                                     }
                                                     else if ((con8) != 0xFF)
                                                     {
-                                                        Respond(request, EffectStatus.FailPermanent, "No Slot open in inventory");
+                                                        Respond(request, EffectStatus.FailPermanent, "No Slot open in inventory.");
                                                     }
                                                     else if (!Connector.SetBits(ADDR_ConsumeSlot8, item, out _))
                                                     {
@@ -4617,7 +4611,7 @@ namespace CrowdControl.Games.Packs
                                                     else
                                                     {
                                                         Connector.Write8(ADDR_ConsumeSlot8, item);
-                                                        Connector.SendMessage($"{request.DisplayViewer} sent Warp Boots");
+                                                        Connector.SendMessage($"{request.DisplayViewer} sent Warp Boots.");
                                                     }
                                                 }
                                                 else if (!Connector.SetBits(ADDR_ConsumeSlot7, item, out _))
@@ -4627,7 +4621,7 @@ namespace CrowdControl.Games.Packs
                                                 else
                                                 {
                                                     Connector.Write8(ADDR_ConsumeSlot7, item);
-                                                    Connector.SendMessage($"{request.DisplayViewer} sent Warp Boots");
+                                                    Connector.SendMessage($"{request.DisplayViewer} sent Warp Boots.");
                                                 }
                                             }
                                             else if (!Connector.SetBits(ADDR_ConsumeSlot6, item, out _))
@@ -4637,7 +4631,7 @@ namespace CrowdControl.Games.Packs
                                             else
                                             {
                                                 Connector.Write8(ADDR_ConsumeSlot6, item);
-                                                Connector.SendMessage($"{request.DisplayViewer} sent Warp Boots");
+                                                Connector.SendMessage($"{request.DisplayViewer} sent Warp Boots.");
                                             }
                                         }
                                         else if (!Connector.SetBits(ADDR_ConsumeSlot5, item, out _))
@@ -4647,7 +4641,7 @@ namespace CrowdControl.Games.Packs
                                         else
                                         {
                                             Connector.Write8(ADDR_ConsumeSlot5, item);
-                                            Connector.SendMessage($"{request.DisplayViewer} sent Warp Boots");
+                                            Connector.SendMessage($"{request.DisplayViewer} sent Warp Boots.");
                                         }
                                     }
                                     else if (!Connector.SetBits(ADDR_ConsumeSlot4, item, out _))
@@ -4657,7 +4651,7 @@ namespace CrowdControl.Games.Packs
                                     else
                                     {
                                         Connector.Write8(ADDR_ConsumeSlot4, item);
-                                        Connector.SendMessage($"{request.DisplayViewer} sent Warp Boots");
+                                        Connector.SendMessage($"{request.DisplayViewer} sent Warp Boots.");
                                     }
                                 }
                                 else if (!Connector.SetBits(ADDR_ConsumeSlot3, item, out _))
@@ -4667,7 +4661,7 @@ namespace CrowdControl.Games.Packs
                                 else
                                 {
                                     Connector.Write8(ADDR_ConsumeSlot3, item);
-                                    Connector.SendMessage($"{request.DisplayViewer} sent Warp Boots");
+                                    Connector.SendMessage($"{request.DisplayViewer} sent Warp Boots.");
                                 }
                             }
                             else if (!Connector.SetBits(ADDR_ConsumeSlot2, item, out _))
@@ -4677,7 +4671,7 @@ namespace CrowdControl.Games.Packs
                             else
                             {
                                 Connector.Write8(ADDR_ConsumeSlot2, item);
-                                Connector.SendMessage($"{request.DisplayViewer} sent Warp Boots");
+                                Connector.SendMessage($"{request.DisplayViewer} sent Warp Boots.");
                             }
                         }
                         else if (!Connector.SetBits(ADDR_ConsumeSlot1, item, out _))
@@ -4687,7 +4681,7 @@ namespace CrowdControl.Games.Packs
                         else
                         {
                             Connector.Write8(ADDR_ConsumeSlot1, item);
-                            Connector.SendMessage($"{request.DisplayViewer} sent Warp Boots");
+                            Connector.SendMessage($"{request.DisplayViewer} sent Warp Boots.");
                         }
                         return;
                     }
@@ -4744,7 +4738,7 @@ namespace CrowdControl.Games.Packs
                                                     }
                                                     else if ((con8) != wp)
                                                     {
-                                                        Respond(request, EffectStatus.FailPermanent, "No Warp Boots in inventory");
+                                                        Respond(request, EffectStatus.FailPermanent, "No Warp Boots in inventory.");
                                                     }
                                                     else if (!Connector.SetBits(ADDR_ConsumeSlot8, 0xFF, out _))
                                                     {
@@ -4753,7 +4747,7 @@ namespace CrowdControl.Games.Packs
                                                     else
                                                     {
                                                         Connector.Write8(ADDR_ConsumeSlot8, 0xFF);
-                                                        Connector.SendMessage($"{request.DisplayViewer} took Warp Boots");
+                                                        Connector.SendMessage($"{request.DisplayViewer} took Warp Boots.");
                                                     }
                                                 }
                                                 else if (!Connector.SetBits(ADDR_ConsumeSlot7, 0xFF, out _))
@@ -4763,7 +4757,7 @@ namespace CrowdControl.Games.Packs
                                                 else
                                                 {
                                                     Connector.Write8(ADDR_ConsumeSlot7, 0xFF);
-                                                    Connector.SendMessage($"{request.DisplayViewer} took Warp Boots");
+                                                    Connector.SendMessage($"{request.DisplayViewer} took Warp Boots.");
                                                 }
                                             }
                                             else if (!Connector.SetBits(ADDR_ConsumeSlot6, 0xFF, out _))
@@ -4773,7 +4767,7 @@ namespace CrowdControl.Games.Packs
                                             else
                                             {
                                                 Connector.Write8(ADDR_ConsumeSlot6, 0xFF);
-                                                Connector.SendMessage($"{request.DisplayViewer} took Warp Boots");
+                                                Connector.SendMessage($"{request.DisplayViewer} took Warp Boots.");
                                             }
                                         }
                                         else if (!Connector.SetBits(ADDR_ConsumeSlot5, 0xFF, out _))
@@ -4783,7 +4777,7 @@ namespace CrowdControl.Games.Packs
                                         else
                                         {
                                             Connector.Write8(ADDR_ConsumeSlot5, 0xFF);
-                                            Connector.SendMessage($"{request.DisplayViewer} took Warp Boots");
+                                            Connector.SendMessage($"{request.DisplayViewer} took Warp Boots.");
                                         }
                                     }
                                     else if (!Connector.SetBits(ADDR_ConsumeSlot4, 0xFF, out _))
@@ -4793,7 +4787,7 @@ namespace CrowdControl.Games.Packs
                                     else
                                     {
                                         Connector.Write8(ADDR_ConsumeSlot4, 0xFF);
-                                        Connector.SendMessage($"{request.DisplayViewer} took Warp Boots");
+                                        Connector.SendMessage($"{request.DisplayViewer} took Warp Boots.");
                                     }
                                 }
                                 else if (!Connector.SetBits(ADDR_ConsumeSlot3, 0xFF, out _))
@@ -4803,7 +4797,7 @@ namespace CrowdControl.Games.Packs
                                 else
                                 {
                                     Connector.Write8(ADDR_ConsumeSlot3, 0xFF);
-                                    Connector.SendMessage($"{request.DisplayViewer} took Warp Boots");
+                                    Connector.SendMessage($"{request.DisplayViewer} took Warp Boots.");
                                 }
                             }
                             else if (!Connector.SetBits(ADDR_ConsumeSlot2, 0xFF, out _))
@@ -4813,7 +4807,7 @@ namespace CrowdControl.Games.Packs
                             else
                             {
                                 Connector.Write8(ADDR_ConsumeSlot2, 0xFF);
-                                Connector.SendMessage($"{request.DisplayViewer} took Warp Boots");
+                                Connector.SendMessage($"{request.DisplayViewer} took Warp Boots.");
                             }
                         }
                         else if (!Connector.SetBits(ADDR_ConsumeSlot1, 0xFF, out _))
@@ -4823,7 +4817,7 @@ namespace CrowdControl.Games.Packs
                         else
                         {
                             Connector.Write8(ADDR_ConsumeSlot1, 0xFF);
-                            Connector.SendMessage($"{request.DisplayViewer} took Warp Boots");
+                            Connector.SendMessage($"{request.DisplayViewer} took Warp Boots.");
                         }
                         return;
                     }
@@ -5015,7 +5009,7 @@ namespace CrowdControl.Games.Packs
                                                     }
                                                     else if ((con8) != opel)
                                                     {
-                                                        Respond(request, EffectStatus.FailPermanent, "No Opel Statue in inventory");
+                                                        Respond(request, EffectStatus.FailPermanent, "No Opel Statue in inventory.");
                                                     }
                                                     else if (!Connector.SetBits(ADDR_ConsumeSlot8, 0xFF, out _))
                                                     {
@@ -5024,7 +5018,7 @@ namespace CrowdControl.Games.Packs
                                                     else
                                                     {
                                                         Connector.Write8(ADDR_ConsumeSlot8, 0xFF);
-                                                        Connector.SendMessage($"{request.DisplayViewer} took Opel Statue");
+                                                        Connector.SendMessage($"{request.DisplayViewer} took Opel Statue.");
                                                     }
                                                 }
                                                 else if (!Connector.SetBits(ADDR_ConsumeSlot7, 0xFF, out _))
@@ -5034,7 +5028,7 @@ namespace CrowdControl.Games.Packs
                                                 else
                                                 {
                                                     Connector.Write8(ADDR_ConsumeSlot7, 0xFF);
-                                                    Connector.SendMessage($"{request.DisplayViewer} took Opel Statue");
+                                                    Connector.SendMessage($"{request.DisplayViewer} took Opel Statue.");
                                                 }
                                             }
                                             else if (!Connector.SetBits(ADDR_ConsumeSlot6, 0xFF, out _))
@@ -5044,7 +5038,7 @@ namespace CrowdControl.Games.Packs
                                             else
                                             {
                                                 Connector.Write8(ADDR_ConsumeSlot6, 0xFF);
-                                                Connector.SendMessage($"{request.DisplayViewer} took Opel Statue");
+                                                Connector.SendMessage($"{request.DisplayViewer} took Opel Statue.");
                                             }
                                         }
                                         else if (!Connector.SetBits(ADDR_ConsumeSlot5, 0xFF, out _))
@@ -5054,7 +5048,7 @@ namespace CrowdControl.Games.Packs
                                         else
                                         {
                                             Connector.Write8(ADDR_ConsumeSlot5, 0xFF);
-                                            Connector.SendMessage($"{request.DisplayViewer} took Opel Statue");
+                                            Connector.SendMessage($"{request.DisplayViewer} took Opel Statue.");
                                         }
                                     }
                                     else if (!Connector.SetBits(ADDR_ConsumeSlot4, 0xFF, out _))
@@ -5064,7 +5058,7 @@ namespace CrowdControl.Games.Packs
                                     else
                                     {
                                         Connector.Write8(ADDR_ConsumeSlot4, 0xFF);
-                                        Connector.SendMessage($"{request.DisplayViewer} took Opel Statue");
+                                        Connector.SendMessage($"{request.DisplayViewer} took Opel Statue.");
                                     }
                                 }
                                 else if (!Connector.SetBits(ADDR_ConsumeSlot3, 0xFF, out _))
@@ -5074,7 +5068,7 @@ namespace CrowdControl.Games.Packs
                                 else
                                 {
                                     Connector.Write8(ADDR_ConsumeSlot3, 0xFF);
-                                    Connector.SendMessage($"{request.DisplayViewer} took Opel Statue");
+                                    Connector.SendMessage($"{request.DisplayViewer} took Opel Statue.");
                                 }
                             }
                             else if (!Connector.SetBits(ADDR_ConsumeSlot2, 0xFF, out _))
@@ -5084,7 +5078,7 @@ namespace CrowdControl.Games.Packs
                             else
                             {
                                 Connector.Write8(ADDR_ConsumeSlot2, 0xFF);
-                                Connector.SendMessage($"{request.DisplayViewer} took Opel Statue");
+                                Connector.SendMessage($"{request.DisplayViewer} took Opel Statue.");
                             }
                         }
                         else if (!Connector.SetBits(ADDR_ConsumeSlot1, 0xFF, out _))
@@ -5094,7 +5088,7 @@ namespace CrowdControl.Games.Packs
                         else
                         {
                             Connector.Write8(ADDR_ConsumeSlot1, 0xFF);
-                            Connector.SendMessage($"{request.DisplayViewer} took Opel Statue");
+                            Connector.SendMessage($"{request.DisplayViewer} took Opel Statue.");
                         }
                         return;
                     }
@@ -5104,13 +5098,13 @@ namespace CrowdControl.Games.Packs
                         byte windsword = 01;
                         var f = RepeatAction(request, TimeSpan.FromSeconds(15),
                             () => Connector.Read8(ADDR_Equip_Sword, out windsword) && (windsword <= 05),
-                            () => Connector.SendMessage($"{request.DisplayViewer} equipped Wind Sword."), TimeSpan.FromSeconds(1),
+                            () => Connector.SendMessage($"{request.DisplayViewer} forced you to use only use Wind Sword."), TimeSpan.FromSeconds(1),
                             () => Connector.IsNonZero8(ADDR_Equip_Sword), TimeSpan.FromSeconds(1),
                             () => Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.Write8(ADDR_Equip_Sword, 0x01), TimeSpan.FromSeconds(1), true, "windsword");
                         f.WhenCompleted.Then(t =>
                         {
                             Connector.Write8(ADDR_Equip_Sword, 0x01);
-                            Connector.SendMessage("Locked Sword Removed.");
+                            Connector.SendMessage("Locked Sword Removed. Reequip Sword");
                         });
                         return;
                     }
@@ -5120,13 +5114,13 @@ namespace CrowdControl.Games.Packs
                         byte firesword = 02;
                         var g = RepeatAction(request, TimeSpan.FromSeconds(15),
                             () => Connector.Read8(ADDR_Equip_Sword, out firesword) && (firesword <= 05),
-                            () => Connector.SendMessage($"{request.DisplayViewer} equipped Fire Sword."), TimeSpan.FromSeconds(1),
+                            () => Connector.SendMessage($"{request.DisplayViewer} forced you to use only use Fire Sword."), TimeSpan.FromSeconds(1),
                             () => Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.IsNonZero8(ADDR_Equip_Sword), TimeSpan.FromSeconds(1),
                             () => Connector.Write8(ADDR_Equip_Sword, 0x02), TimeSpan.FromSeconds(1), true, "firesword");
                         g.WhenCompleted.Then(t =>
                         {
                             Connector.Write8(ADDR_Equip_Sword, 0x02);
-                            Connector.SendMessage("Locked Sword Removed.");
+                            Connector.SendMessage("Locked Sword Removed. Reequip Sword");
                         });
                         return;
                     }
@@ -5136,13 +5130,13 @@ namespace CrowdControl.Games.Packs
                         byte watersword = 03;
                         var h = RepeatAction(request, TimeSpan.FromSeconds(15),
                             () => Connector.Read8(ADDR_Equip_Sword, out watersword) && (watersword <= 05),
-                            () => Connector.SendMessage($"{request.DisplayViewer} equipped Water Sword."), TimeSpan.FromSeconds(1),
+                            () => Connector.SendMessage($"{request.DisplayViewer} forced you to use only use Water Sword."), TimeSpan.FromSeconds(1),
                             () => Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.IsNonZero8(ADDR_Equip_Sword), TimeSpan.FromSeconds(1),
                             () => Connector.Write8(ADDR_Equip_Sword, 0x03), TimeSpan.FromSeconds(1), true, "watersword");
                         h.WhenCompleted.Then(t =>
                         {
                             Connector.Write8(ADDR_Equip_Sword, watersword);
-                            Connector.SendMessage("Locked Sword Removed.");
+                            Connector.SendMessage("Locked Sword Removed. Reequip Sword");
                         });
                         return;
                     }
@@ -5152,13 +5146,13 @@ namespace CrowdControl.Games.Packs
                         byte thundersword = 04;
                         var j = RepeatAction(request, TimeSpan.FromSeconds(15),
                             () => Connector.Read8(ADDR_Equip_Sword, out thundersword) && (thundersword <= 05),
-                            () => Connector.SendMessage($"{request.DisplayViewer} equipped Thunder Sword."), TimeSpan.FromSeconds(1),
+                            () => Connector.SendMessage($"{request.DisplayViewer} forced you to use only use Thunder Sword."), TimeSpan.FromSeconds(1),
                             () => Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.IsNonZero8(ADDR_Equip_Sword), TimeSpan.FromSeconds(1),
                             () => Connector.Write8(ADDR_Equip_Sword, 0x04), TimeSpan.FromSeconds(1), true, "thundersword");
                         j.WhenCompleted.Then(t =>
                         {
                             Connector.Write8(ADDR_Equip_Sword, thundersword);
-                            Connector.SendMessage("Thunder Sword removed.");
+                            Connector.SendMessage("Locked Sword removed. Reequip Sword");
                         });
                         return;
                     }
@@ -5169,13 +5163,13 @@ namespace CrowdControl.Games.Packs
                         byte cysword = 05;
                         var k = RepeatAction(request, TimeSpan.FromSeconds(15),
                             () => Connector.Read8(ADDR_Equip_Sword, out cysword) && (cysword <= 5),
-                            () => Connector.SendMessage($"{request.DisplayViewer} equipped Crystalis Sword."), TimeSpan.FromSeconds(1),
+                            () => Connector.SendMessage($"{request.DisplayViewer} forced you to use only use Crystalis Sword."), TimeSpan.FromSeconds(1),
                             () => Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.IsNonZero8(ADDR_Equip_Sword), TimeSpan.FromSeconds(1),
                             () => Connector.Write8(ADDR_Equip_Sword, 0x05), TimeSpan.FromSeconds(1), true, "cysword");
                         k.WhenCompleted.Then(t =>
                         {
                             Connector.Write8(ADDR_Equip_Sword, 0x00);
-                            Connector.SendMessage("Crystalis Removed. Reequip Sword");
+                            Connector.SendMessage("Locked Sword Removed. Reequip Sword");
                         });
                         return;
                     }
