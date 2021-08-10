@@ -75,7 +75,7 @@ namespace CrowdControl.Games.Packs
         private const ushort ADDR_SHOP_ITEM3_PRICE2 = 0x647D;
         private const ushort ADDR_SHOP_ITEM4_PRICE1 = 0x647E;
         private const ushort ADDR_SHOP_ITEM4_PRICE2 = 0x647F;
-        private const ushort ADDR_SCALING = 0x648F;
+        private const ushort ADDR_SCALING = 0x64A2;
         private const ushort ADDR_LEVEL = 0x0421;
         private const ushort ADDR_U1HOOK = 0x6220;
         private const ushort ADDR_U2HOOK = 0x6221;
