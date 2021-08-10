@@ -44,6 +44,7 @@ namespace CrowdControl.Games.Packs
         private const ushort ADDR_Blackout1 = 0x07E0;
         private const ushort ADDR_Blackout2 = 0x07E1;
         private const ushort ADDR_Blackout3 = 0x07E2;
+        private const ushort ADDR_INVIS = 0x07E4;
 
         //Sprites
         private const ushort ADDR_SPRITE_RAM = 0x0200;
@@ -1062,11 +1063,11 @@ namespace CrowdControl.Games.Packs
                     {
                         var invs = RepeatAction(request,
                         TimeSpan.FromSeconds(45),
-                        () => Connector.IsZero8(0x07E4), /*Effect Start Condition*/
-                        () => Connector.Freeze8(0x07E4, 0xFA), /*Start Action*/
+                        () => Connector.IsZero8(ADDR_INVIS), /*Effect Start Condition*/
+                        () => Connector.Freeze8(ADDR_INVIS, 0xFA), /*Start Action*/
                         TimeSpan.FromSeconds(1), /*Retry Timer*/
-                        () => Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.Freeze8(0x07E4, 0xFA), /*Refresh Condtion*/
-                        TimeSpan.FromMilliseconds(500), /*Refresh Retry Timer*/
+                        () => Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.Freeze8(ADDR_INVIS, 0xFA), /*Refresh Condtion*/
+                        TimeSpan.FromMilliseconds(50), /*Refresh Retry Timer*/
                         () => true, /*Action*/
                         TimeSpan.FromSeconds(0.5),
                         true);
@@ -1343,7 +1344,8 @@ namespace CrowdControl.Games.Packs
                         }
                         else if ((con) >= 0x01)
                         {
-                            Respond(request, EffectStatus.FailPermanent, "Condition affected already");
+                            DelayEffect(request);
+                            Respond(request, EffectStatus.FailTemporary, "Condition affected already");
                         }
                         else if (!Connector.SetBits(ADDR_Condition, 01, out _))
                         {
@@ -1403,7 +1405,8 @@ namespace CrowdControl.Games.Packs
                         }
                         else if ((con) >= 0x01)
                         {
-                            Respond(request, EffectStatus.FailPermanent, "Condition affected already");
+                            DelayEffect(request);
+                            Respond(request, EffectStatus.FailTemporary, "Condition affected already");
                         }
                         else if (!Connector.SetBits(ADDR_Condition, 03, out _))
                         {
@@ -1435,13 +1438,97 @@ namespace CrowdControl.Games.Packs
 
                 case "slime":   //Note will need to fail at boss area since it would lock you there or death.
                     {
+                        if (!Connector.Read8(ADDR_CURRENT_AREA, out byte areas))
+                        {
+                            DelayEffect(request);
+                        }
+                        //Boss area excluded because it is too troll.
+                        if ((areas) == 0x0A)
+                        {
+                            Respond(request, EffectStatus.FailPermanent, "Vampire Area Not Allowed");
+                            return;
+                        }
+                        
+                        if ((areas) == 0x1A)
+                        {
+                            Respond(request, EffectStatus.FailPermanent, "Bug Area Not Allowed");
+                            return;
+                        }
+
+                        if ((areas) == 0x28)
+                        {
+                            Respond(request, EffectStatus.FailPermanent, "Kelby Area Not Allowed");
+                            return;
+                        }
+
+                        if ((areas) == 0x6c)
+                        {
+                            Respond(request, EffectStatus.FailPermanent, "Vampire2 Area Not Allowed");
+                            return;
+                        }
+                        
+                        if ((areas) == 0x6e)
+                        {
+                            Respond(request, EffectStatus.FailPermanent, "Sabera Area Not Allowed");
+                            return;
+                        }
+                        
+                        if ((areas) == 0xf2)
+                        {
+                            Respond(request, EffectStatus.FailPermanent, "Mado Area Not Allowed");
+                            return;
+                        }
+
+                        if ((areas) == 0xa9)
+                        {
+                            Respond(request, EffectStatus.FailPermanent, "Kelby2 Area Not Allowed");
+                            return;
+                        }
+
+                        if ((areas) == 0xac)
+                        {
+                            Respond(request, EffectStatus.FailPermanent, "Sabera2 Area Not Allowed");
+                            return;
+                        }
+
+                        if ((areas) == 0xb9)
+                        {
+                            Respond(request, EffectStatus.FailPermanent, "Mado2 Area Not Allowed");
+                            return;
+                        }
+
+                        if ((areas) == 0xb6)
+                        {
+                            Respond(request, EffectStatus.FailPermanent, "Karmine Area Not Allowed");
+                            return;
+                        }
+
+                        if ((areas) == 0x9f)
+                        {
+                            Respond(request, EffectStatus.FailPermanent, "Draygon Area Not Allowed");
+                            return;
+                        }
+
+                        if ((areas) == 0xa6)
+                        {
+                            Respond(request, EffectStatus.FailPermanent, "Draygon2 Area Not Allowed");
+                            return;
+                        }
+
+                        if ((areas >= 0x58) && (areas <= 0x5f))                         
+                        {
+                            Respond(request, EffectStatus.FailPermanent, "Tower Area Not Allowed");
+                            return;
+                        }
+                        //End Boss areas
                         if (!Connector.Read8(ADDR_Condition, out byte con))
                         {
                             DelayEffect(request);
                         }
                         else if ((con) >= 0x01)
                         {
-                            Respond(request, EffectStatus.FailPermanent, "Condition affected already");
+                            DelayEffect(request); 
+                            Respond(request, EffectStatus.FailTemporary, "Condition affected already");
                         }
                         else if (!Connector.SetBits(ADDR_Condition, 04, out _))
                         {
@@ -5350,7 +5437,10 @@ namespace CrowdControl.Games.Packs
                     {
                         if (TryGiveMP(request))
                         {
+                            //Connector.Write8(ADDR_U3HOOK, 0x02);
+                            //Connector.Write8(ADDR_U2HOOK, 1);
                             Connector.SendMessage($"{request.DisplayViewer} restored your magic to full.");
+                            //Connector.Write8(ADDR_U1HOOK, 1);
                         }
                         return;
                     }
@@ -5359,7 +5449,10 @@ namespace CrowdControl.Games.Packs
                     {
                         if (TryTakeMP(request, 6))
                         {
+                            //Connector.Write8(ADDR_U3HOOK, 0x02);
+                            //Connector.Write8(ADDR_U2HOOK, 1);
                             Connector.SendMessage($"{request.DisplayViewer} took some magic.");
+                            //Connector.Write8(ADDR_U1HOOK, 1);
                         }
                         return;
                     }
@@ -5368,7 +5461,10 @@ namespace CrowdControl.Games.Packs
                     {
                         if (TryHealPlayerHealth(request))
                         {
+                            //Connector.Write8(ADDR_U3HOOK, 0x02);
+                            //Connector.Write8(ADDR_U2HOOK, 1);
                             Connector.SendMessage($"{request.DisplayViewer} heal you to full.");
+                            //Connector.Write8(ADDR_U1HOOK, 1);
                         }
                         return;
                     }
@@ -5377,7 +5473,10 @@ namespace CrowdControl.Games.Packs
                     {
                         if (TryHurtPlayerHealth(request, 4))
                         {
+                            //Connector.Write8(ADDR_U3HOOK, 0x02);
+                            //Connector.Write8(ADDR_U2HOOK, 1);
                             Connector.SendMessage($"{request.DisplayViewer} hurt you.");
+                            //Connector.Write8(ADDR_U1HOOK, 1);
                         }
                         return;
                     }
