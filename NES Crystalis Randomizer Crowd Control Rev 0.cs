@@ -311,7 +311,7 @@ namespace CrowdControl.Games.Packs
             {
 
                 var blackout = RepeatAction(request,
-                TimeSpan.FromSeconds(10),
+                TimeSpan.FromSeconds(45),
                 () => Connector.IsNonZero8(ADDR_CURRENT_AREA), /*Effect Start Condition*/
                 () => Connector.Freeze8(ADDR_Blackout1, 0x9A), /*Start Action*/
                 TimeSpan.FromSeconds(1), /*Retry Timer*/
@@ -1122,7 +1122,7 @@ namespace CrowdControl.Games.Packs
                         byte origHP = 01;
                         var w = RepeatAction(request, TimeSpan.FromSeconds(30),
                             () => Connector.Read8(ADDR_HP, out origHP) && (origHP > 1),
-                            () => Connector.SendMessage($"{request.DisplayViewer} sent One Hit KO Mode."), TimeSpan.FromSeconds(1),
+                            () => Connector.SendMessage($"{request.DisplayViewer} sent One Hit KO Mode (30s)."), TimeSpan.FromSeconds(1),
                             () => Connector.Read8(ADDR_INGAMEMENU, out byte gamemenu) && (gamemenu != 0x20) && (gamemenu != 0x10) && Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.IsNonZero8(ADDR_HP), TimeSpan.FromSeconds(1),
                             () => Connector.Write8(ADDR_HP, 0x02), TimeSpan.FromSeconds(1), true, "health");
                         w.WhenCompleted.Then(t =>
@@ -1154,7 +1154,7 @@ namespace CrowdControl.Games.Packs
                     {
                         RepeatAction(request, TimeSpan.FromSeconds(15),
                       () => Connector.IsZero8(ADDR_Jump),
-                      () => Connector.Write8(ADDR_Jump, 32) && Connector.SendMessage($"{request.DisplayViewer} has granted you jump mode."), TimeSpan.FromSeconds(0.5),
+                      () => Connector.Write8(ADDR_Jump, 32) && Connector.SendMessage($"{request.DisplayViewer} has granted you jump mode (15s)."), TimeSpan.FromSeconds(0.5),
                       () => true, TimeSpan.FromSeconds(5),
                       () => Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.Write8(ADDR_Jump, 32), TimeSpan.FromSeconds(0.5), true)
                       .WhenCompleted.ContinueWith(t => Connector.SendMessage($"{request.DisplayViewer} has removed your jump mode."));
@@ -1164,7 +1164,7 @@ namespace CrowdControl.Games.Packs
                 case "flightmode":  //Note Screen scroll weird in x only direction but up and down and diagronally work great.
                     {
                         var flight = RepeatAction(request,
-                        TimeSpan.FromSeconds(45),
+                        TimeSpan.FromSeconds(15),
                         () => Connector.IsZero8(ADDR_Jump), /*Effect Start Condition*/
                         () => Connector.Freeze8(ADDR_Jump, 0x20), /*Start Action*/
                         TimeSpan.FromSeconds(1), /*Retry Timer*/
@@ -1173,7 +1173,7 @@ namespace CrowdControl.Games.Packs
                         () => true, /*Action*/
                         TimeSpan.FromSeconds(0.5),
                         true);
-                        flight.WhenStarted.Then(t => Connector.SendMessage($"{request.DisplayViewer} started flight mode."));
+                        flight.WhenStarted.Then(t => Connector.SendMessage($"{request.DisplayViewer} started flight mode (15s)."));
                         flight.WhenCompleted.Then(t => Connector.SendMessage($"{request.DisplayViewer}'s removed flight mode."));
                         return;
                     }
@@ -1190,7 +1190,7 @@ namespace CrowdControl.Games.Packs
                         () => true, /*Action*/
                         TimeSpan.FromSeconds(0.1),
                         true);
-                        shake.WhenStarted.Then(t => Connector.SendMessage($"{request.DisplayViewer} started shaking mode."));
+                        shake.WhenStarted.Then(t => Connector.SendMessage($"{request.DisplayViewer} started shaking mode (15s)."));
                         shake.WhenCompleted.Then(t => Connector.SendMessage($"{request.DisplayViewer}'s removed shaking mode."));
                         return;
                     }
@@ -1207,7 +1207,7 @@ namespace CrowdControl.Games.Packs
                         () => true, /*Action*/
                         TimeSpan.FromSeconds(0.1),
                         true);
-                        heavy.WhenStarted.Then(t => Connector.SendMessage($"{request.DisplayViewer} lowered your speed (45s)."));
+                        heavy.WhenStarted.Then(t => Connector.SendMessage($"{request.DisplayViewer} lowered your speed (15s)."));
                         return;
                     }
 
@@ -1357,7 +1357,7 @@ namespace CrowdControl.Games.Packs
                         }
                         else if ((con) == 0x00)
                         {
-                            Respond(request, EffectStatus.FailPermanent, "Normal Condition Already");
+                            Respond(request, EffectStatus.FailPermanent, "Normal Condition Already.");
                         }
                         else if (!Connector.SetBits(ADDR_Condition, 00, out _))
                         {
@@ -1366,7 +1366,7 @@ namespace CrowdControl.Games.Packs
                         else
                         {
                             Connector.Write8(ADDR_Condition, 0);
-                            Connector.SendMessage($"{request.DisplayViewer} cured you");
+                            Connector.SendMessage($"{request.DisplayViewer} cured you.");
                         }
                         return;
                     }
@@ -1380,7 +1380,7 @@ namespace CrowdControl.Games.Packs
                         else if ((con) >= 0x01)
                         {
                             DelayEffect(request);
-                            Respond(request, EffectStatus.FailTemporary, "Condition affected already");
+                            Respond(request, EffectStatus.FailTemporary, "Condition affected already.");
                         }
                         else if (!Connector.SetBits(ADDR_Condition, 01, out _))
                         {
@@ -1419,7 +1419,7 @@ namespace CrowdControl.Games.Packs
                         else if ((stone) >= 0x01)
                         {
                             DelayEffect(request); 
-                            Respond(request, EffectStatus.FailTemporary, "Condition affected already");
+                            Respond(request, EffectStatus.FailTemporary, "Condition affected already.");
                             return;
                         }
                         else if (!Connector.SetBits(ADDR_Stone, 255, out _))
@@ -1429,7 +1429,7 @@ namespace CrowdControl.Games.Packs
                         else
                         {
                             Connector.Write8(ADDR_Stone, 255);
-                            Connector.SendMessage($"{request.DisplayViewer} stoned you for 4 seconds");
+                            Connector.SendMessage($"{request.DisplayViewer} stoned you for 4 seconds.");
                         }
                         return;
                     }
@@ -1443,7 +1443,7 @@ namespace CrowdControl.Games.Packs
                         else if ((con) >= 0x01)
                         {
                             DelayEffect(request);
-                            Respond(request, EffectStatus.FailTemporary, "Condition affected already");
+                            Respond(request, EffectStatus.FailTemporary, "Condition affected already.");
                         }
                         else if (!Connector.SetBits(ADDR_Condition, 03, out _))
                         {
@@ -1452,7 +1452,7 @@ namespace CrowdControl.Games.Packs
                         else
                         {
                             Connector.Write8(ADDR_Condition, 03);
-                            Connector.SendMessage($"{request.DisplayViewer} poisoned you");
+                            Connector.SendMessage($"{request.DisplayViewer} poisoned you.");
                         }
                         return;
                     }
@@ -1482,79 +1482,79 @@ namespace CrowdControl.Games.Packs
                         //Boss area excluded because it is too troll.
                         if ((areas) == 0x0A)
                         {
-                            Respond(request, EffectStatus.FailPermanent, "Vampire Area Not Allowed");
+                            Respond(request, EffectStatus.FailPermanent, "Vampire Area Not Allowed.");
                             return;
                         }
                         
                         if ((areas) == 0x1A)
                         {
-                            Respond(request, EffectStatus.FailPermanent, "Bug Area Not Allowed");
+                            Respond(request, EffectStatus.FailPermanent, "Bug Area Not Allowed.");
                             return;
                         }
 
                         if ((areas) == 0x28)
                         {
-                            Respond(request, EffectStatus.FailPermanent, "Kelby Area Not Allowed");
+                            Respond(request, EffectStatus.FailPermanent, "Kelby Area Not Allowed.");
                             return;
                         }
 
                         if ((areas) == 0x6c)
                         {
-                            Respond(request, EffectStatus.FailPermanent, "Vampire2 Area Not Allowed");
+                            Respond(request, EffectStatus.FailPermanent, "Vampire2 Area Not Allowed.");
                             return;
                         }
                         
                         if ((areas) == 0x6e)
                         {
-                            Respond(request, EffectStatus.FailPermanent, "Sabera Area Not Allowed");
+                            Respond(request, EffectStatus.FailPermanent, "Sabera Area Not Allowed.");
                             return;
                         }
                         
                         if ((areas) == 0xf2)
                         {
-                            Respond(request, EffectStatus.FailPermanent, "Mado Area Not Allowed");
+                            Respond(request, EffectStatus.FailPermanent, "Mado Area Not Allowed.");
                             return;
                         }
 
                         if ((areas) == 0xa9)
                         {
-                            Respond(request, EffectStatus.FailPermanent, "Kelby2 Area Not Allowed");
+                            Respond(request, EffectStatus.FailPermanent, "Kelby2 Area Not Allowed.");
                             return;
                         }
 
                         if ((areas) == 0xac)
                         {
-                            Respond(request, EffectStatus.FailPermanent, "Sabera2 Area Not Allowed");
+                            Respond(request, EffectStatus.FailPermanent, "Sabera2 Area Not Allowed.");
                             return;
                         }
 
                         if ((areas) == 0xb9)
                         {
-                            Respond(request, EffectStatus.FailPermanent, "Mado2 Area Not Allowed");
+                            Respond(request, EffectStatus.FailPermanent, "Mado2 Area Not Allowed.");
                             return;
                         }
 
                         if ((areas) == 0xb6)
                         {
-                            Respond(request, EffectStatus.FailPermanent, "Karmine Area Not Allowed");
+                            Respond(request, EffectStatus.FailPermanent, "Karmine Area Not Allowed.");
                             return;
                         }
 
                         if ((areas) == 0x9f)
                         {
-                            Respond(request, EffectStatus.FailPermanent, "Draygon Area Not Allowed");
+                            Respond(request, EffectStatus.FailPermanent, "Draygon Area Not Allowed.");
                             return;
                         }
 
                         if ((areas) == 0xa6)
                         {
-                            Respond(request, EffectStatus.FailPermanent, "Draygon2 Area Not Allowed");
+                            Respond(request, EffectStatus.FailPermanent, "Draygon2 Area Not Allowed.");
                             return;
                         }
 
                         if ((areas >= 0x58) && (areas <= 0x5f))                         
                         {
-                            Respond(request, EffectStatus.FailPermanent, "Tower Area Not Allowed");
+                            Respond(request, EffectStatus.FailPermanent, "Tower Area Not Allowed.");
                             return;
                         }
                         //End Boss areas
@@ -1565,7 +1565,7 @@ namespace CrowdControl.Games.Packs
                         else if ((con) >= 0x01)
                         {
                             DelayEffect(request); 
-                            Respond(request, EffectStatus.FailTemporary, "Condition affected already");
+                            Respond(request, EffectStatus.FailTemporary, "Condition affected already.");
                         }
                         else if (!Connector.SetBits(ADDR_Condition, 04, out _))
                         {
@@ -1574,7 +1574,7 @@ namespace CrowdControl.Games.Packs
                         else
                         {
                             Connector.Write8(ADDR_Condition, 04);
-                            Connector.SendMessage($"{request.DisplayViewer} slimed you");
+                            Connector.SendMessage($"{request.DisplayViewer} slimed you.");
                         }
                         return;
                     }
@@ -1591,7 +1591,7 @@ namespace CrowdControl.Games.Packs
                         () => true, /*Action*/
                         TimeSpan.FromSeconds(0.5),
                         true);
-                        slime.WhenStarted.Then(t => Connector.SendMessage($"{request.DisplayViewer} deployed slimed Effect."));
+                        slime.WhenStarted.Then(t => Connector.SendMessage($"{request.DisplayViewer} deployed slimed Effect (15s)."));
                         slime.WhenCompleted.Then(t => Connector.SendMessage($"{request.DisplayViewer}'s slimed Effect has dispered."));
                         return;
                     }
@@ -1604,7 +1604,7 @@ namespace CrowdControl.Games.Packs
                         }
                         else if ((bwind) == 0x05)
                         {
-                            Respond(request, EffectStatus.FailPermanent, "Ball of Wind already acqurired");
+                            Respond(request, EffectStatus.FailPermanent, "Ball of Wind already acqurired.");
                         }
                         else if (!Connector.SetBits(ADDR_PowerSlot1, 05, out _))
                         {
@@ -1613,7 +1613,7 @@ namespace CrowdControl.Games.Packs
                         else
                         {
                             Connector.Write8(ADDR_PowerSlot1, 05);
-                            Connector.SendMessage($"{request.DisplayViewer} sent Ball of Wind");
+                            Connector.SendMessage($"{request.DisplayViewer} sent Ball of Wind.");
                         }
                         return;
                     }
@@ -1626,7 +1626,7 @@ namespace CrowdControl.Games.Packs
                         }
                         else if ((bfire) == 0x07)
                         {
-                            Respond(request, EffectStatus.FailPermanent, "Ball of Fire already acqurired");
+                            Respond(request, EffectStatus.FailPermanent, "Ball of Fire already acqurired.");
                         }
                         else if (!Connector.SetBits(ADDR_PowerSlot2, 07, out _))
                         {
@@ -1635,7 +1635,7 @@ namespace CrowdControl.Games.Packs
                         else
                         {
                             Connector.Write8(ADDR_PowerSlot2, 07);
-                            Connector.SendMessage($"{request.DisplayViewer} sent Ball of Fire");
+                            Connector.SendMessage($"{request.DisplayViewer} sent Ball of Fire.");
                         }
                         return;
                     }
@@ -1648,7 +1648,7 @@ namespace CrowdControl.Games.Packs
                         }
                         else if ((bwater) == 0x09)
                         {
-                            Respond(request, EffectStatus.FailPermanent, "Ball of Water already acqurired");
+                            Respond(request, EffectStatus.FailPermanent, "Ball of Water already acqurired.");
                         }
                         else if (!Connector.SetBits(ADDR_PowerSlot3, 09, out _))
                         {
@@ -1657,7 +1657,7 @@ namespace CrowdControl.Games.Packs
                         else
                         {
                             Connector.Write8(ADDR_PowerSlot3, 09);
-                            Connector.SendMessage($"{request.DisplayViewer} sent Ball of Water");
+                            Connector.SendMessage($"{request.DisplayViewer} sent Ball of Water.");
                         }
                         return;
                     }
@@ -1670,7 +1670,7 @@ namespace CrowdControl.Games.Packs
                         }
                         else if ((bthunder) == 0x0B)
                         {
-                            Respond(request, EffectStatus.FailPermanent, "Ball of Thunder already acqurired");
+                            Respond(request, EffectStatus.FailPermanent, "Ball of Thunder already acqurired.");
                         }
                         else if (!Connector.SetBits(ADDR_PowerSlot4, 0x0B, out _))
                         {
@@ -1679,7 +1679,7 @@ namespace CrowdControl.Games.Packs
                         else
                         {
                             Connector.Write8(ADDR_PowerSlot4, 0x0B);
-                            Connector.SendMessage($"{request.DisplayViewer} sent Ball of Thunder");
+                            Connector.SendMessage($"{request.DisplayViewer} sent Ball of Thunder.");
                         }
                         return;
                     }
@@ -1696,7 +1696,7 @@ namespace CrowdControl.Games.Packs
                         }
                         else if ((brwind) == 0x06)
                         {
-                            Respond(request, EffectStatus.FailPermanent, "Tornado Bracelet already acqurired");
+                            Respond(request, EffectStatus.FailPermanent, "Tornado Bracelet already acqurired.");
                         }
                         else if (!Connector.SetBits(ADDR_PowerSlot1, 0x06, out _))
                         {
@@ -1722,7 +1722,7 @@ namespace CrowdControl.Games.Packs
                         }
                         else if ((brfire) == 0x08)
                         {
-                            Respond(request, EffectStatus.FailPermanent, "Flame Bracelet  already acqurired");
+                            Respond(request, EffectStatus.FailPermanent, "Flame Bracelet already acqurired.");
                         }
                         else if (!Connector.SetBits(ADDR_PowerSlot2, 0x08, out _))
                         {
@@ -1744,11 +1744,11 @@ namespace CrowdControl.Games.Packs
                         }
                         else if ((brwater) == 0xFF)
                         {
-                            Respond(request, EffectStatus.FailPermanent, "Send Ball of Water First");
+                            Respond(request, EffectStatus.FailPermanent, "Send Ball of Water First.");
                         }
                         else if ((brwater) == 0x0A)
                         {
-                            Respond(request, EffectStatus.FailPermanent, "Blizzard Bracelet already acqurired");
+                            Respond(request, EffectStatus.FailPermanent, "Blizzard Bracelet already acqurired.");
                         }
                         else if (!Connector.SetBits(ADDR_PowerSlot3, 0x0A, out _))
                         {
@@ -1757,7 +1757,7 @@ namespace CrowdControl.Games.Packs
                         else
                         {
                             Connector.Write8(ADDR_PowerSlot3, 0x0A);
-                            Connector.SendMessage($"{request.DisplayViewer} sent Blizzard Bracelet");
+                            Connector.SendMessage($"{request.DisplayViewer} sent Blizzard Bracelet.");
                         }
                         return;
                     }
@@ -1770,11 +1770,11 @@ namespace CrowdControl.Games.Packs
                         }
                         else if ((brthunder) == 0xFF)
                         {
-                            Respond(request, EffectStatus.FailPermanent, "Send Ball of Thunder First");
+                            Respond(request, EffectStatus.FailPermanent, "Send Ball of Thunder First.");
                         }
                         else if ((brthunder) == 0x0C)
                         {
-                            Respond(request, EffectStatus.FailPermanent, "Storm Bracelet already acqurired");
+                            Respond(request, EffectStatus.FailPermanent, "Storm Bracelet already acqurired.");
                         }
                         else if (!Connector.SetBits(ADDR_PowerSlot4, 0x0C, out _))
                         {
@@ -1783,7 +1783,7 @@ namespace CrowdControl.Games.Packs
                         else
                         {
                             Connector.Write8(ADDR_PowerSlot4, 0x0C);
-                            Connector.SendMessage($"{request.DisplayViewer} sent Storm Bracelet");
+                            Connector.SendMessage($"{request.DisplayViewer} sent Storm Bracelet.");
                         }
                         return;
                     }
@@ -1796,11 +1796,11 @@ namespace CrowdControl.Games.Packs
                         }
                         else if ((bwind) == 0x06)
                         {
-                            Respond(request, EffectStatus.FailPermanent, "Steal Tornado Bracelet First");
+                            Respond(request, EffectStatus.FailPermanent, "Steal Tornado Bracelet First.");
                         }
                         else if ((bwind) == 0xFF)
                         {
-                            Respond(request, EffectStatus.FailPermanent, "Ball of Wind not acqurired");
+                            Respond(request, EffectStatus.FailPermanent, "Ball of Wind not acqurired.");
                         }
                         else if (!Connector.SetBits(ADDR_PowerSlot1, 0xFF, out _))
                         {
@@ -1809,7 +1809,7 @@ namespace CrowdControl.Games.Packs
                         else
                         {
                             Connector.Write8(ADDR_PowerSlot1, 0xFF);
-                            Connector.SendMessage($"{request.DisplayViewer} stole Ball of Wind");
+                            Connector.SendMessage($"{request.DisplayViewer} stole Ball of Wind.");
                         }
                         return;
                     }
@@ -1822,11 +1822,11 @@ namespace CrowdControl.Games.Packs
                         }
                         else if ((bfire) == 0x08)
                         {
-                            Respond(request, EffectStatus.FailPermanent, "Steal Flame Bracelet First");
+                            Respond(request, EffectStatus.FailPermanent, "Steal Flame Bracelet First.");
                         }
                         else if ((bfire) == 0xFF)
                         {
-                            Respond(request, EffectStatus.FailPermanent, "Ball of Fire not acqurired");
+                            Respond(request, EffectStatus.FailPermanent, "Ball of Fire not acqurired.");
                         }
                         else if (!Connector.SetBits(ADDR_PowerSlot2, 0xFF, out _))
                         {
@@ -1835,7 +1835,7 @@ namespace CrowdControl.Games.Packs
                         else
                         {
                             Connector.Write8(ADDR_PowerSlot2, 0xFF);
-                            Connector.SendMessage($"{request.DisplayViewer} stole Ball of Fire");
+                            Connector.SendMessage($"{request.DisplayViewer} stole Ball of Fire.");
                         }
                         return;
                     }
@@ -1848,11 +1848,11 @@ namespace CrowdControl.Games.Packs
                         }
                         else if ((bwater) == 0x0A)
                         {
-                            Respond(request, EffectStatus.FailPermanent, "Steal Blizzard Bracelet First");
+                            Respond(request, EffectStatus.FailPermanent, "Steal Blizzard Bracelet First.");
                         }
                         else if ((bwater) == 0xFF)
                         {
-                            Respond(request, EffectStatus.FailPermanent, "Ball of Water not acqurired");
+                            Respond(request, EffectStatus.FailPermanent, "Ball of Water not acqurired.");
                         }
                         else if (!Connector.SetBits(ADDR_PowerSlot3, 0xFF, out _))
                         {
@@ -1861,7 +1861,7 @@ namespace CrowdControl.Games.Packs
                         else
                         {
                             Connector.Write8(ADDR_PowerSlot3, 0xFF);
-                            Connector.SendMessage($"{request.DisplayViewer} stole Ball of Water");
+                            Connector.SendMessage($"{request.DisplayViewer} stole Ball of Water.");
                         }
                         return;
                     }
@@ -1874,11 +1874,11 @@ namespace CrowdControl.Games.Packs
                         }
                         else if ((bthunder) == 0x0C)
                         {
-                            Respond(request, EffectStatus.FailPermanent, "Steal Storm Bracelet First");
+                            Respond(request, EffectStatus.FailPermanent, "Steal Storm Bracelet First.");
                         }
                         else if ((bthunder) == 0xFF)
                         {
-                            Respond(request, EffectStatus.FailPermanent, "Ball of Thunder not acqurired");
+                            Respond(request, EffectStatus.FailPermanent, "Ball of Thunder not acqurired.");
                         }
                         else if (!Connector.SetBits(ADDR_PowerSlot4, 0xFF, out _))
                         {
@@ -1887,7 +1887,7 @@ namespace CrowdControl.Games.Packs
                         else
                         {
                             Connector.Write8(ADDR_PowerSlot4, 0xFF);
-                            Connector.SendMessage($"{request.DisplayViewer} stole Ball of Thunder");
+                            Connector.SendMessage($"{request.DisplayViewer} stole Ball of Thunder.");
                         }
                         return;
                     }
@@ -1900,11 +1900,11 @@ namespace CrowdControl.Games.Packs
                         }
                         else if ((bwind) == 0xFF)
                         {
-                            Respond(request, EffectStatus.FailPermanent, "No Wind Upgrade not acqurired");
+                            Respond(request, EffectStatus.FailPermanent, "No Wind Upgrade not acqurired.");
                         }
                         else if ((bwind) == 0x05)
                         {
-                            Respond(request, EffectStatus.FailPermanent, "Tornado Bracelet not acqurired");
+                            Respond(request, EffectStatus.FailPermanent, "Tornado Bracelet not acqurired.");
                         }
                         else if (!Connector.SetBits(ADDR_PowerSlot1, 0x05, out _))
                         {
@@ -1913,7 +1913,7 @@ namespace CrowdControl.Games.Packs
                         else
                         {
                             Connector.Write8(ADDR_PowerSlot1, 0x05);
-                            Connector.SendMessage($"{request.DisplayViewer} stole Tornado Bracelet");
+                            Connector.SendMessage($"{request.DisplayViewer} stole Tornado Bracelet.");
                         }
                         return;
                     }
@@ -1926,11 +1926,11 @@ namespace CrowdControl.Games.Packs
                         }
                         else if ((bfire) == 0xFF)
                         {
-                            Respond(request, EffectStatus.FailPermanent, "No Fire Upgrade not acqurired");
+                            Respond(request, EffectStatus.FailPermanent, "No Fire Upgrade not acqurired.");
                         }
                         else if ((bfire) == 0x07)
                         {
-                            Respond(request, EffectStatus.FailPermanent, "Flame Bracelet not acqurired");
+                            Respond(request, EffectStatus.FailPermanent, "Flame Bracelet not acqurired..");
                         }
                         else if (!Connector.SetBits(ADDR_PowerSlot2, 0x07, out _))
                         {
@@ -1952,11 +1952,11 @@ namespace CrowdControl.Games.Packs
                         }
                         else if ((bwater) == 0xFF)
                         {
-                            Respond(request, EffectStatus.FailPermanent, "No Water Upgrade not acqurired");
+                            Respond(request, EffectStatus.FailPermanent, "No Water Upgrade not acqurired.");
                         }
                         else if ((bwater) == 0x09)
                         {
-                            Respond(request, EffectStatus.FailPermanent, "Blizzard Bracelet not acqurired");
+                            Respond(request, EffectStatus.FailPermanent, "Blizzard Bracelet not acqurired.");
                         }
                         else if (!Connector.SetBits(ADDR_PowerSlot3, 0x09, out _))
                         {
@@ -1978,11 +1978,11 @@ namespace CrowdControl.Games.Packs
                         }
                         else if ((bthunder) == 0xFF)
                         {
-                            Respond(request, EffectStatus.FailPermanent, "No Thunder Upgrade not acqurired");
+                            Respond(request, EffectStatus.FailPermanent, "No Thunder Upgrade not acqurired.");
                         }
                         else if ((bthunder) == 0x0B)
                         {
-                            Respond(request, EffectStatus.FailPermanent, "Storm Bracelet not acqurired");
+                            Respond(request, EffectStatus.FailPermanent, "Storm Bracelet not acqurired.");
                         }
                         else if (!Connector.SetBits(ADDR_PowerSlot4, 0x0B, out _))
                         {
@@ -2013,11 +2013,11 @@ namespace CrowdControl.Games.Packs
                             //Battle Armor Sent Already Check
                             else if ((barmor1) == 0x1B)
                             {
-                                Respond(request, EffectStatus.FailPermanent, "Battle Armor aquired already slot 1");
+                                Respond(request, EffectStatus.FailPermanent, "Battle Armor aquired already slot 1.");
                             }
                             else if ((barmor2) == 0x1B)
                             {
-                                Respond(request, EffectStatus.FailPermanent, "Battle Armor aquired already slot 2");
+                                Respond(request, EffectStatus.FailPermanent, "Battle Armor aquired already slot 2.");
                             }
 
                             else if ((barmor2) < 0xFF)
@@ -2030,7 +2030,7 @@ namespace CrowdControl.Games.Packs
                                 //Battle Armor Sent Already Check
                                 else if ((barmor3) == 0x1B)
                                 {
-                                    Respond(request, EffectStatus.FailPermanent, "Battle Armor aquired already slot 3");
+                                    Respond(request, EffectStatus.FailPermanent, "Battle Armor aquired already slot 3.");
                                 }
                                 else if ((barmor3) < 0xFF)
                                 {
@@ -2042,11 +2042,11 @@ namespace CrowdControl.Games.Packs
                                     //Battle Armor Sent Already Check
                                     else if ((barmor4) == 0x1B)
                                     {
-                                        Respond(request, EffectStatus.FailPermanent, "Battle Armor aquired already slot 4");
+                                        Respond(request, EffectStatus.FailPermanent, "Battle Armor aquired already slot 4.");
                                     }
                                     else if ((barmor4) < 0xFF)
                                     {
-                                        Respond(request, EffectStatus.FailPermanent, "Slot 4 not open");
+                                        Respond(request, EffectStatus.FailPermanent, "Slot 4 not open.");
                                     }
                                     //Slot 4 Write
                                     else if (!Connector.SetBits(ADDR_ArmorSlot4, 0x1B, out _))
@@ -2056,7 +2056,7 @@ namespace CrowdControl.Games.Packs
                                     else
                                     {
                                         Connector.Write8(ADDR_ArmorSlot4, 0x1B);
-                                        Connector.SendMessage($"{request.DisplayViewer} gave you Battle Armor");
+                                        Connector.SendMessage($"{request.DisplayViewer} gave you Battle Armor.");
                                     }
                                     return;
                                 }
@@ -2068,7 +2068,8 @@ namespace CrowdControl.Games.Packs
                                 else
                                 {
                                     Connector.Write8(ADDR_ArmorSlot3, 0x1B);
-                                    Connector.SendMessage($"{request.DisplayViewer} gave you Battle Armor");
+                                    Connector.SendMessage($"{request.DisplayViewer} gave you Battle Armor" +
+                                        $"");
                                 }
                                 return;
                             }
@@ -2080,7 +2081,8 @@ namespace CrowdControl.Games.Packs
                             else
                             {
                                 Connector.Write8(ADDR_ArmorSlot2, 0x1B);
-                                Connector.SendMessage($"{request.DisplayViewer} gave you Battle Armor");
+                                Connector.SendMessage($"{request.DisplayViewer} gave you Battle Armor" +
+                                    $"");
                             }
                             return;
                         }
@@ -2092,7 +2094,7 @@ namespace CrowdControl.Games.Packs
                         else
                         {
                             Connector.Write8(ADDR_ArmorSlot1, 0x1B);
-                            Connector.SendMessage($"{request.DisplayViewer} gave you Battle Armor");
+                            Connector.SendMessage($"{request.DisplayViewer} gave you Battle Armor.");
                         }
                         return;
                     }
@@ -2114,11 +2116,11 @@ namespace CrowdControl.Games.Packs
                             //Psycho Armor Sent Already Check
                             else if ((parmor1) == 0x1C)
                             {
-                                Respond(request, EffectStatus.FailPermanent, "Psycho Armor aquired already slot 1");
+                                Respond(request, EffectStatus.FailPermanent, "Psycho Armor aquired already slot 1.");
                             }
                             else if ((parmor2) == 0x1C)
                             {
-                                Respond(request, EffectStatus.FailPermanent, "Psycho Armor aquired already slot 2");
+                                Respond(request, EffectStatus.FailPermanent, "Psycho Armor aquired already slot 2.");
                             }
 
                             else if ((parmor2) < 0xFF)
@@ -2131,7 +2133,7 @@ namespace CrowdControl.Games.Packs
                                 //Psycho Armor Sent Already Check
                                 else if ((parmor3) == 0x1C)
                                 {
-                                    Respond(request, EffectStatus.FailPermanent, "Psycho Armor aquired already slot 3");
+                                    Respond(request, EffectStatus.FailPermanent, "Psycho Armor aquired already slot 3.");
                                 }
                                 else if ((parmor3) < 0xFF)
                                 {
@@ -2143,11 +2145,11 @@ namespace CrowdControl.Games.Packs
                                     //Psycho Armor Sent Already Check
                                     else if ((parmor4) == 0x1C)
                                     {
-                                        Respond(request, EffectStatus.FailPermanent, "Psycho Armor aquired already slot 4");
+                                        Respond(request, EffectStatus.FailPermanent, "Psycho Armor aquired already slot 4.");
                                     }
                                     else if ((parmor4) < 0xFF)
                                     {
-                                        Respond(request, EffectStatus.FailPermanent, "Slot 4 not open");
+                                        Respond(request, EffectStatus.FailPermanent, "Slot 4 not open.");
                                     }
                                     //Slot 4 Write
                                     else if (!Connector.SetBits(ADDR_ArmorSlot4, 0x1C, out _))
@@ -2157,7 +2159,7 @@ namespace CrowdControl.Games.Packs
                                     else
                                     {
                                         Connector.Write8(ADDR_ArmorSlot4, 0x1C);
-                                        Connector.SendMessage($"{request.DisplayViewer} gave you Psycho Armor");
+                                        Connector.SendMessage($"{request.DisplayViewer} gave you Psycho Armor.");
                                     }
                                     return;
                                 }
@@ -2169,7 +2171,7 @@ namespace CrowdControl.Games.Packs
                                 else
                                 {
                                     Connector.Write8(ADDR_ArmorSlot3, 0x1C);
-                                    Connector.SendMessage($"{request.DisplayViewer} gave you Psycho Armor");
+                                    Connector.SendMessage($"{request.DisplayViewer} gave you Psycho Armor.");
                                 }
                                 return;
                             }
@@ -2181,7 +2183,7 @@ namespace CrowdControl.Games.Packs
                             else
                             {
                                 Connector.Write8(ADDR_ArmorSlot2, 0x1C);
-                                Connector.SendMessage($"{request.DisplayViewer} gave you Psycho Armor");
+                                Connector.SendMessage($"{request.DisplayViewer} gave you Psycho Armor.");
                             }
                             return;
                         }
@@ -2193,7 +2195,7 @@ namespace CrowdControl.Games.Packs
                         else
                         {
                             Connector.Write8(ADDR_ArmorSlot1, 0x1C);
-                            Connector.SendMessage($"{request.DisplayViewer} gave you Psycho Armor");
+                            Connector.SendMessage($"{request.DisplayViewer} gave you Psycho Armor.");
                         }
                         return;
                     }
@@ -2215,11 +2217,11 @@ namespace CrowdControl.Games.Packs
                             //Psycho Shield Sent Already Check
                             else if ((pshield1) == 0x14)
                             {
-                                Respond(request, EffectStatus.FailPermanent, "Psycho Shield aquired already slot 1");
+                                Respond(request, EffectStatus.FailPermanent, "Psycho Shield aquired already slot 1.");
                             }
                             else if ((pshield2) == 0x14)
                             {
-                                Respond(request, EffectStatus.FailPermanent, "Psycho Shield aquired already slot 2");
+                                Respond(request, EffectStatus.FailPermanent, "Psycho Shield aquired already slot 2.");
                             }
 
                             else if ((pshield2) < 0xFF)
@@ -2232,7 +2234,7 @@ namespace CrowdControl.Games.Packs
                                 //Psycho Shield Sent Already Check
                                 else if ((pshield3) == 0x14)
                                 {
-                                    Respond(request, EffectStatus.FailPermanent, "Psycho Shield aquired already slot 3");
+                                    Respond(request, EffectStatus.FailPermanent, "Psycho Shield aquired already slot 3.");
                                 }
                                 else if ((pshield3) < 0xFF)
                                 {
@@ -2244,11 +2246,11 @@ namespace CrowdControl.Games.Packs
                                     //Psycho Shield Sent Already Check
                                     else if ((pshield4) == 0x14)
                                     {
-                                        Respond(request, EffectStatus.FailPermanent, "Psycho Shield aquired already slot 4");
+                                        Respond(request, EffectStatus.FailPermanent, "Psycho Shield aquired already slot 4.");
                                     }
                                     else if ((pshield4) < 0xFF)
                                     {
-                                        Respond(request, EffectStatus.FailPermanent, "Slot 4 not open");
+                                        Respond(request, EffectStatus.FailPermanent, "Slot 4 not open.");
                                     }
                                     //Slot 4 Write
                                     else if (!Connector.SetBits(ADDR_ShieldSlot4, 0x14, out _))
@@ -2258,7 +2260,7 @@ namespace CrowdControl.Games.Packs
                                     else
                                     {
                                         Connector.Write8(ADDR_ShieldSlot4, 0x14);
-                                        Connector.SendMessage($"{request.DisplayViewer} gave you Psycho Shield");
+                                        Connector.SendMessage($"{request.DisplayViewer} gave you Psycho Shield.");
                                     }
                                     return;
                                 }
@@ -2270,7 +2272,7 @@ namespace CrowdControl.Games.Packs
                                 else
                                 {
                                     Connector.Write8(ADDR_ShieldSlot3, 0x14);
-                                    Connector.SendMessage($"{request.DisplayViewer} gave you Psycho Shield");
+                                    Connector.SendMessage($"{request.DisplayViewer} gave you Psycho Shield.");
                                 }
                                 return;
                             }
@@ -2282,7 +2284,7 @@ namespace CrowdControl.Games.Packs
                             else
                             {
                                 Connector.Write8(ADDR_ShieldSlot2, 0x14);
-                                Connector.SendMessage($"{request.DisplayViewer} gave you Psycho Shield");
+                                Connector.SendMessage($"{request.DisplayViewer} gave you Psycho Shield.");
                             }
                             return;
                         }
@@ -2294,7 +2296,7 @@ namespace CrowdControl.Games.Packs
                         else
                         {
                             Connector.Write8(ADDR_ShieldSlot1, 0x14);
-                            Connector.SendMessage($"{request.DisplayViewer} gave you Psycho Shield");
+                            Connector.SendMessage($"{request.DisplayViewer} gave you Psycho Shield.");
                         }
                         return;
                     }
@@ -2316,11 +2318,11 @@ namespace CrowdControl.Games.Packs
                             //Sacred Shield Sent Already Check
                             else if ((sshield1) == 0x12)
                             {
-                                Respond(request, EffectStatus.FailPermanent, "Sacred Shield aquired already slot 1");
+                                Respond(request, EffectStatus.FailPermanent, "Sacred Shield aquired already slot 1.");
                             }
                             else if ((sshield2) == 0x12)
                             {
-                                Respond(request, EffectStatus.FailPermanent, "Sacred Shield aquired already slot 2");
+                                Respond(request, EffectStatus.FailPermanent, "Sacred Shield aquired already slot 2.");
                             }
 
                             else if ((sshield2) < 0xFF)
@@ -2333,7 +2335,7 @@ namespace CrowdControl.Games.Packs
                                 //Sacred Shield Sent Already Check
                                 else if ((sshield3) == 0x12)
                                 {
-                                    Respond(request, EffectStatus.FailPermanent, "Sacred Shield aquired already slot 3");
+                                    Respond(request, EffectStatus.FailPermanent, "Sacred Shield aquired already slot 3.");
                                 }
                                 else if ((sshield3) < 0xFF)
                                 {
@@ -2345,11 +2347,11 @@ namespace CrowdControl.Games.Packs
                                     //Sacred Shield Sent Already Check
                                     else if ((sshield4) == 0x12)
                                     {
-                                        Respond(request, EffectStatus.FailPermanent, "Sacred Shield aquired already slot 4");
+                                        Respond(request, EffectStatus.FailPermanent, "Sacred Shield aquired already slot 4.");
                                     }
                                     else if ((sshield4) < 0xFF)
                                     {
-                                        Respond(request, EffectStatus.FailPermanent, "Slot 4 not open");
+                                        Respond(request, EffectStatus.FailPermanent, "Slot 4 not open.");
                                     }
                                     //Slot 4 Write
                                     else if (!Connector.SetBits(ADDR_ShieldSlot4, 0x12, out _))
@@ -2359,7 +2361,7 @@ namespace CrowdControl.Games.Packs
                                     else
                                     {
                                         Connector.Write8(ADDR_ShieldSlot4, 0x12);
-                                        Connector.SendMessage($"{request.DisplayViewer} gave you Sacred Shield");
+                                        Connector.SendMessage($"{request.DisplayViewer} gave you Sacred Shield.");
                                     }
                                     return;
                                 }
@@ -2371,7 +2373,7 @@ namespace CrowdControl.Games.Packs
                                 else
                                 {
                                     Connector.Write8(ADDR_ShieldSlot3, 0x12);
-                                    Connector.SendMessage($"{request.DisplayViewer} gave you Sacred Shield");
+                                    Connector.SendMessage($"{request.DisplayViewer} gave you Sacred Shield.");
                                 }
                                 return;
                             }
@@ -2383,7 +2385,7 @@ namespace CrowdControl.Games.Packs
                             else
                             {
                                 Connector.Write8(ADDR_ShieldSlot2, 0x12);
-                                Connector.SendMessage($"{request.DisplayViewer} gave you Sacred Shield");
+                                Connector.SendMessage($"{request.DisplayViewer} gave you Sacred Shield.");
                             }
                             return;
                         }
@@ -2395,7 +2397,7 @@ namespace CrowdControl.Games.Packs
                         else
                         {
                             Connector.Write8(ADDR_ShieldSlot1, 0x12);
-                            Connector.SendMessage($"{request.DisplayViewer} gave you Sacred Shield");
+                            Connector.SendMessage($"{request.DisplayViewer} gave you Sacred Shield.");
                         }
                         return;
                     }
@@ -2458,7 +2460,7 @@ namespace CrowdControl.Games.Packs
                                                         else
                                                         {
                                                             Connector.Write8(ADDR_ConsumeSlot8, 0xFF);
-                                                            Connector.SendMessage($"{request.DisplayViewer} stole your inventory SLOT 8");
+                                                            Connector.SendMessage($"{request.DisplayViewer} stole your inventory SLOT 8.");
                                                         }
 
                         if (!Connector.SetBits(ADDR_ConsumeSlot7, 0xFF, out _))
@@ -2467,7 +2469,7 @@ namespace CrowdControl.Games.Packs
                         else
                         {
                             Connector.Write8(ADDR_ConsumeSlot7, 0xFF);
-                            Connector.SendMessage($"{request.DisplayViewer} stole your inventory SLOT 7");
+                            Connector.SendMessage($"{request.DisplayViewer} stole your inventory SLOT 7.");
                         }
 
 
@@ -2477,7 +2479,7 @@ namespace CrowdControl.Games.Packs
                         else
                         {
                             Connector.Write8(ADDR_ConsumeSlot6, 0xFF);
-                            Connector.SendMessage($"{request.DisplayViewer} stole your inventory SLOT 6");
+                            Connector.SendMessage($"{request.DisplayViewer} stole your inventory SLOT 6.");
                         }
 
                         if (!Connector.SetBits(ADDR_ConsumeSlot5, 0xFF, out _))
@@ -2486,7 +2488,7 @@ namespace CrowdControl.Games.Packs
                         else
                         {
                             Connector.Write8(ADDR_ConsumeSlot5, 0xFF);
-                            Connector.SendMessage($"{request.DisplayViewer} stole your inventory SLOT 5");
+                            Connector.SendMessage($"{request.DisplayViewer} stole your inventory SLOT 5.");
                         }
 
                         if (!Connector.SetBits(ADDR_ConsumeSlot4, 0xFF, out _))
@@ -2495,7 +2497,7 @@ namespace CrowdControl.Games.Packs
                         else
                         {
                             Connector.Write8(ADDR_ConsumeSlot4, 0xFF);
-                            Connector.SendMessage($"{request.DisplayViewer} stole your inventory SLOT 4");
+                            Connector.SendMessage($"{request.DisplayViewer} stole your inventory SLOT 4.");
                         }
 
 
@@ -2505,7 +2507,7 @@ namespace CrowdControl.Games.Packs
                         else
                         {
                             Connector.Write8(ADDR_ConsumeSlot3, 0xFF);
-                            Connector.SendMessage($"{request.DisplayViewer} stole your inventory SLOT 3");
+                            Connector.SendMessage($"{request.DisplayViewer} stole your inventory SLOT 3.");
                         }
 
 
@@ -2516,7 +2518,7 @@ namespace CrowdControl.Games.Packs
                         else
                         {
                             Connector.Write8(ADDR_ConsumeSlot2, 0xFF);
-                            Connector.SendMessage($"{request.DisplayViewer} stole your inventory SLOT 2");
+                            Connector.SendMessage($"{request.DisplayViewer} stole your inventory SLOT 2.");
                         }
                         if (!Connector.SetBits(ADDR_ConsumeSlot1, 0xFF, out _))
                             DelayEffect(request);
@@ -2524,7 +2526,7 @@ namespace CrowdControl.Games.Packs
                         else
                         {
                             Connector.Write8(ADDR_ConsumeSlot1, 0xFF);
-                            Connector.SendMessage($"{request.DisplayViewer} stole your inventory SLOT 1");
+                            Connector.SendMessage($"{request.DisplayViewer} stole your inventory SLOT 1.");
                         }
                         return;
 
@@ -2647,8 +2649,8 @@ namespace CrowdControl.Games.Packs
                         else
                         {
                             Connector.Write8(ADDR_ConsumeSlot1, 0x20);
-                            Connector.SendMessage($"{request.DisplayViewer} loves you so much"); 
-                            Connector.SendMessage($"{request.DisplayViewer} sent you a care package of 8 Fruit of Limes. Get Stomping");
+                            Connector.SendMessage($"{request.DisplayViewer} loves you so much."); 
+                            Connector.SendMessage($"{request.DisplayViewer} sent you a care package of 8 Fruit of Limes. Get Stomping.");
                                                     }
                         return;
 
@@ -4879,7 +4881,7 @@ namespace CrowdControl.Games.Packs
                                                     }
                                                     else if ((con8) != 0xFF)
                                                     {
-                                                        Respond(request, EffectStatus.FailPermanent, "No Slot open in inventory");
+                                                        Respond(request, EffectStatus.FailPermanent, "No Slot open in inventory.");
                                                     }
                                                     else if (!Connector.SetBits(ADDR_ConsumeSlot8, item, out _))
                                                     {
@@ -5103,9 +5105,9 @@ namespace CrowdControl.Games.Packs
                         byte windsword = 01;
                         var f = RepeatAction(request, TimeSpan.FromSeconds(15),
                             () => Connector.Read8(ADDR_Equip_Sword, out windsword) && (windsword <= 05),
-                            () => Connector.SendMessage($"{request.DisplayViewer} forced you to use only use Wind Sword."), TimeSpan.FromSeconds(1),
+                            () => Connector.SendMessage($"{request.DisplayViewer} forced you to use only use Wind Sword (15s)."), TimeSpan.FromSeconds(1),
                             () => Connector.IsNonZero8(ADDR_Equip_Sword), TimeSpan.FromSeconds(1),
-                            () => Connector.Read8(ADDR_INGAMEMENU, out byte gamemenu) && (gamemenu != 0x20) && (gamemenu != 0x10) && Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.Write8(ADDR_Equip_Sword, 0x01), TimeSpan.FromSeconds(1), true, "windsword");
+                            () => Connector.Read8(ADDR_INGAMEMENU, out byte gamemenu) && (gamemenu != 0x20) && (gamemenu != 0x10) && Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.Write8(ADDR_Equip_Sword, 0x01), TimeSpan.FromSeconds(1), true, "sword");
                         f.WhenCompleted.Then(t =>
                         {
                             Connector.Write8(ADDR_Equip_Sword, 0x01);
@@ -5119,9 +5121,9 @@ namespace CrowdControl.Games.Packs
                         byte firesword = 02;
                         var g = RepeatAction(request, TimeSpan.FromSeconds(15),
                             () => Connector.Read8(ADDR_Equip_Sword, out firesword) && (firesword <= 05),
-                            () => Connector.SendMessage($"{request.DisplayViewer} forced you to use only use Fire Sword."), TimeSpan.FromSeconds(1),
+                            () => Connector.SendMessage($"{request.DisplayViewer} forced you to use only use Fire Sword (15s)."), TimeSpan.FromSeconds(1),
                             () => Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.IsNonZero8(ADDR_Equip_Sword), TimeSpan.FromSeconds(1),
-                            () => Connector.Read8(ADDR_INGAMEMENU, out byte gamemenu) && (gamemenu != 0x20) && (gamemenu != 0x10) && Connector.Write8(ADDR_Equip_Sword, 0x02), TimeSpan.FromSeconds(1), true, "firesword");
+                            () => Connector.Read8(ADDR_INGAMEMENU, out byte gamemenu) && (gamemenu != 0x20) && (gamemenu != 0x10) && Connector.Write8(ADDR_Equip_Sword, 0x02), TimeSpan.FromSeconds(1), true, "sword");
                         g.WhenCompleted.Then(t =>
                         {
                             Connector.Write8(ADDR_Equip_Sword, 0x02);
@@ -5135,9 +5137,9 @@ namespace CrowdControl.Games.Packs
                         byte watersword = 03;
                         var h = RepeatAction(request, TimeSpan.FromSeconds(15),
                             () => Connector.Read8(ADDR_Equip_Sword, out watersword) && (watersword <= 05),
-                            () => Connector.SendMessage($"{request.DisplayViewer} forced you to use only use Water Sword."), TimeSpan.FromSeconds(1),
+                            () => Connector.SendMessage($"{request.DisplayViewer} forced you to use only use Water Sword (15s)."), TimeSpan.FromSeconds(1),
                             () => Connector.Read8(ADDR_INGAMEMENU, out byte gamemenu) && (gamemenu != 0x20) && (gamemenu != 0x10) && Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.IsNonZero8(ADDR_Equip_Sword), TimeSpan.FromSeconds(1),
-                            () => Connector.Write8(ADDR_Equip_Sword, 0x03), TimeSpan.FromSeconds(1), true, "watersword");
+                            () => Connector.Write8(ADDR_Equip_Sword, 0x03), TimeSpan.FromSeconds(1), true, "sword");
                         h.WhenCompleted.Then(t =>
                         {
                             Connector.Write8(ADDR_Equip_Sword, watersword);
@@ -5151,9 +5153,9 @@ namespace CrowdControl.Games.Packs
                         byte thundersword = 04;
                         var j = RepeatAction(request, TimeSpan.FromSeconds(15),
                             () => Connector.Read8(ADDR_Equip_Sword, out thundersword) && (thundersword <= 05),
-                            () => Connector.SendMessage($"{request.DisplayViewer} forced you to use only use Thunder Sword."), TimeSpan.FromSeconds(1),
+                            () => Connector.SendMessage($"{request.DisplayViewer} forced you to use only use Thunder Sword (15s)."), TimeSpan.FromSeconds(1),
                             () => Connector.Read8(ADDR_INGAMEMENU, out byte gamemenu) && (gamemenu != 0x20) && (gamemenu != 0x10) && Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.IsNonZero8(ADDR_Equip_Sword), TimeSpan.FromSeconds(1),
-                            () => Connector.Write8(ADDR_Equip_Sword, 0x04), TimeSpan.FromSeconds(1), true, "thundersword");
+                            () => Connector.Write8(ADDR_Equip_Sword, 0x04), TimeSpan.FromSeconds(1), true, "sword");
                         j.WhenCompleted.Then(t =>
                         {
                             Connector.Write8(ADDR_Equip_Sword, thundersword);
@@ -5168,9 +5170,9 @@ namespace CrowdControl.Games.Packs
                         byte cysword = 05;
                         var k = RepeatAction(request, TimeSpan.FromSeconds(15),
                             () => Connector.Read8(ADDR_Equip_Sword, out cysword) && (cysword <= 5),
-                            () => Connector.SendMessage($"{request.DisplayViewer} forced you to use only use Crystalis Sword."), TimeSpan.FromSeconds(1),
+                            () => Connector.SendMessage($"{request.DisplayViewer} forced you to use only use Crystalis Sword (15s)."), TimeSpan.FromSeconds(1),
                             () => Connector.Read8(ADDR_INGAMEMENU, out byte gamemenu) && (gamemenu != 0x20) && (gamemenu != 0x10) && Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.IsNonZero8(ADDR_Equip_Sword), TimeSpan.FromSeconds(1),
-                            () => Connector.Write8(ADDR_Equip_Sword, 0x05), TimeSpan.FromSeconds(1), true, "cysword");
+                            () => Connector.Write8(ADDR_Equip_Sword, 0x05), TimeSpan.FromSeconds(1), true, "sword");
                         k.WhenCompleted.Then(t =>
                         {
                             Connector.Write8(ADDR_Equip_Sword, 0x00);
@@ -5190,7 +5192,7 @@ namespace CrowdControl.Games.Packs
                         TimeSpan.FromMilliseconds(50), /*Refresh Retry Timer*/
                         () => true, /*Action*/
                         TimeSpan.FromSeconds(0.1),
-                        true);
+                        true, "sword");
                         rwsword.WhenStarted.Then(t => Connector.SendMessage($"{request.DisplayViewer} stole your Sword of Wind (15s)."));
                         return;                                               
                     }
@@ -5206,7 +5208,7 @@ namespace CrowdControl.Games.Packs
                         TimeSpan.FromMilliseconds(50), /*Refresh Retry Timer*/
                         () => true, /*Action*/
                         TimeSpan.FromSeconds(0.1),
-                        true);
+                        true, "sword");
                         rfsword.WhenStarted.Then(t => Connector.SendMessage($"{request.DisplayViewer} stole your Sword of Fire (15s)."));
                         return;                                                
                     }
@@ -5222,7 +5224,7 @@ namespace CrowdControl.Games.Packs
                         TimeSpan.FromMilliseconds(50), /*Refresh Retry Timer*/
                         () => true, /*Action*/
                         TimeSpan.FromSeconds(0.1),
-                        true);
+                        true, "sword");
                         rwwsword.WhenStarted.Then(t => Connector.SendMessage($"{request.DisplayViewer} stole your Sword of Water (15s)."));
                         return;                                             
                     }
@@ -5238,7 +5240,7 @@ namespace CrowdControl.Games.Packs
                         TimeSpan.FromMilliseconds(50), /*Refresh Retry Timer*/
                         () => true, /*Action*/
                         TimeSpan.FromSeconds(0.1),
-                        true);
+                        true, "sword");
                         rtsword.WhenStarted.Then(t => Connector.SendMessage($"{request.DisplayViewer} stole your Sword of Thunder (15s)."));
                         return;                           
                     }
@@ -5645,7 +5647,7 @@ namespace CrowdControl.Games.Packs
                         () => true, /*Action*/
                         TimeSpan.FromSeconds(0.5),
                         true);
-                        shop.WhenStarted.Then(t => Connector.SendMessage($"{request.DisplayViewer} made item and sheild shops free!!!"));
+                        shop.WhenStarted.Then(t => Connector.SendMessage($"{request.DisplayViewer} made item and sheild shops free (30s)."));
                         shop.WhenCompleted.Then(t => Connector.SendMessage($"{request.DisplayViewer}'s restored back to normal prices."));
                         return;
                     }
