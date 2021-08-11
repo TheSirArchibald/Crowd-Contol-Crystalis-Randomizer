@@ -1412,13 +1412,15 @@ namespace CrowdControl.Games.Packs
 
                 case "stone":
                     {
-                        if (!Connector.Read8(ADDR_Condition, out byte con))
+                        if (!Connector.Read8(ADDR_Stone, out byte stone))
                         {
                             DelayEffect(request);
                         }
-                        else if ((con) >= 0x01)
+                        else if ((stone) >= 0x01)
                         {
-                            Respond(request, EffectStatus.FailPermanent, "Condition affected already");
+                            DelayEffect(request); 
+                            Respond(request, EffectStatus.FailTemporary, "Condition affected already");
+                            return;
                         }
                         else if (!Connector.SetBits(ADDR_Stone, 255, out _))
                         {
