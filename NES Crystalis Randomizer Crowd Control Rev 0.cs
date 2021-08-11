@@ -5500,7 +5500,7 @@ namespace CrowdControl.Games.Packs
                         if (TryHurtPlayerHealth(request, 4))
                         {
                             Connector.Write8(ADDR_U2HOOK, 0x01);
-                            Connector.SendMessage($"{request.DisplayViewer} hurt you.");
+                            Connector.SendMessage($"{request.DisplayViewer} hurt you (Note UI is being worked on).");
                             Connector.Write8(ADDR_U1HOOK, 0x01);
                         }
                         return;
@@ -5559,12 +5559,12 @@ namespace CrowdControl.Games.Packs
                     
                         else if ((playerlevel) >= 0x10)
                         {
-                            Respond(request, EffectStatus.FailPermanent, "Player at Max Level");
+                            Respond(request, EffectStatus.FailPermanent, "Player at Max Level.");
                         }
                         else
                         {
                             Connector.Write8(ADDR_U2HOOK, 0x04);
-                            Connector.SendMessage($"{request.DisplayViewer} sent a level.");
+                            Connector.SendMessage($"{request.DisplayViewer} sent a level (Note this is a ASM update fix and hasn't been push to website yet).");
                             Connector.Write8(ADDR_U1HOOK, 0x01);
                         }
                         return;
@@ -5579,13 +5579,13 @@ namespace CrowdControl.Games.Packs
                 }
                 else if ((playerlevel) <= 0x01)
                 {
-                    Respond(request, EffectStatus.FailPermanent, "Player at Min Level");
+                    Respond(request, EffectStatus.FailPermanent, "Player at Min Level.");
                 }
                 
                 else
                 {
                     Connector.Write8(ADDR_U2HOOK, 0x08);
-                    Connector.SendMessage($"{request.DisplayViewer} removed a level.");
+                    Connector.SendMessage($"{request.DisplayViewer} removed a level (Note this is a ASM update fix and hasn't been push to website yet).");
                     Connector.Write8(ADDR_U1HOOK, 0x01);
                 }
                 return;
@@ -5598,7 +5598,7 @@ namespace CrowdControl.Games.Packs
                         if (TryAlterScale(request, 1))
                         {
                             Connector.Write8(ADDR_U2HOOK, 0x01);
-                            Connector.SendMessage($"{request.DisplayViewer} increased the difficulty.");
+                            Connector.SendMessage($"{request.DisplayViewer} increased the difficulty (Note this is a UI update fix and hasn't been push to website yet).");
                             Connector.Write8(ADDR_U1HOOK, 0x01);
                         }
                         return;
@@ -5609,7 +5609,7 @@ namespace CrowdControl.Games.Packs
                         if (TryAlterScale(request, -1))
                         {
                             Connector.Write8(ADDR_U2HOOK, 0x01);
-                            Connector.SendMessage($"{request.DisplayViewer} decreased the difficulty.");
+                            Connector.SendMessage($"{request.DisplayViewer} decreased the difficulty (Note this is a UI update fix and hasn't been push to website yet).");
                             Connector.Write8(ADDR_U1HOOK, 0x01);
                         }
                         return;
