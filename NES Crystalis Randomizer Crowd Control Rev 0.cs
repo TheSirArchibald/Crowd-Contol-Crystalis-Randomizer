@@ -901,7 +901,7 @@ namespace CrowdControl.Games.Packs
                     new Effect("Mado Screen Shake Mode", "screenshakemode"),
                     new Effect("Blackout Mode", "blackout"),
                     new Effect("Camouflage Mode", "invis"),
-                    new Effect("Wild Warp", "wild"),   /*Note pending UI update push to main website but testing worked*/
+                    new Effect("Wild Warp", "wild"),   
                     //new Effect("Reset", "reset"),   
 
                     //Scaling and Leveling
@@ -1115,28 +1115,33 @@ namespace CrowdControl.Games.Packs
                         return;                          
                     }
 
-                case "ohko":
+                case "ohko":  //Need to fix how I do a constant update the HUD
                     {
-                        //Requires UI refresh at start and end
 
                         byte origHP = 01;
                         var w = RepeatAction(request, TimeSpan.FromSeconds(30),
                             () => Connector.Read8(ADDR_HP, out origHP) && (origHP > 1),
-                            () => Connector.SendMessage($"{request.DisplayViewer} sent One Hit KO Mode (30s)."), TimeSpan.FromSeconds(1),
-                            () => Connector.Read8(ADDR_INGAMEMENU, out byte gamemenu) && (gamemenu != 0x20) && (gamemenu != 0x10) && Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.IsNonZero8(ADDR_HP), TimeSpan.FromSeconds(1),
-                            () => Connector.Write8(ADDR_HP, 0x02), TimeSpan.FromSeconds(1), true, "health");
+                            () => Connector.Write8(ADDR_HP, 0x01),
+                            TimeSpan.FromSeconds(1),
+                            () => Connector.Write8(ADDR_U2HOOK, 0x01) && Connector.Write8(ADDR_U1HOOK, 0x01) && Connector.Read8(ADDR_INGAMEMENU, out byte gamemenu) && (gamemenu != 0x20) && (gamemenu != 0x10) && Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.IsNonZero8(ADDR_HP), TimeSpan.FromSeconds(1),
+                            () => Connector.Write8(ADDR_HP, 0x01), TimeSpan.FromSeconds(2), true, "health");
+                        w.WhenStarted.Then(t => Connector.SendMessage($"{request.DisplayViewer} sent One Hit KO Mode (30s)."));
                         w.WhenCompleted.Then(t =>
                         {
                             Connector.Write8(ADDR_HP, origHP);
+                            Connector.Write8(ADDR_U2HOOK, 0x01);
                             Connector.SendMessage("One Hit KO Removed.");
+                            Connector.Write8(ADDR_U1HOOK, 0x01);
                         });
                         return;
+
+
                     }
 
-                case "wild":  //Pending UI to be pushed
+                case "wild":  
                     {
                         Connector.Write8(ADDR_U2HOOK, 0x03);
-                        Connector.SendMessage($"{request.DisplayViewer} wild warped you (Note pending UI update push).");
+                        Connector.SendMessage($"{request.DisplayViewer} wild warped you.");
                         Connector.Write8(ADDR_U1HOOK, 0x01);
                         return;
                     }                    
@@ -5504,7 +5509,7 @@ namespace CrowdControl.Games.Packs
                         if (TryHurtPlayerHealth(request, 4))
                         {
                             Connector.Write8(ADDR_U2HOOK, 0x01);
-                            Connector.SendMessage($"{request.DisplayViewer} hurt you (Note UI is being worked on).");
+                            Connector.SendMessage($"{request.DisplayViewer} hurt you.");
                             Connector.Write8(ADDR_U1HOOK, 0x01);
                         }
                         return;
@@ -5568,7 +5573,7 @@ namespace CrowdControl.Games.Packs
                         else
                         {
                             Connector.Write8(ADDR_U2HOOK, 0x04);
-                            Connector.SendMessage($"{request.DisplayViewer} sent a level (Note this is a ASM update fix and hasn't been push to website yet).");
+                            Connector.SendMessage($"{request.DisplayViewer} sent a level.");
                             Connector.Write8(ADDR_U1HOOK, 0x01);
                         }
                         return;
@@ -5589,7 +5594,7 @@ namespace CrowdControl.Games.Packs
                 else
                 {
                     Connector.Write8(ADDR_U2HOOK, 0x08);
-                    Connector.SendMessage($"{request.DisplayViewer} removed a level (Note this is a ASM update fix and hasn't been push to website yet).");
+                    Connector.SendMessage($"{request.DisplayViewer} removed a level.");
                     Connector.Write8(ADDR_U1HOOK, 0x01);
                 }
                 return;
@@ -5602,7 +5607,7 @@ namespace CrowdControl.Games.Packs
                         if (TryAlterScale(request, 1))
                         {
                             Connector.Write8(ADDR_U2HOOK, 0x01);
-                            Connector.SendMessage($"{request.DisplayViewer} increased the difficulty (Note this is a UI update fix and hasn't been push to website yet).");
+                            Connector.SendMessage($"{request.DisplayViewer} increased the difficulty.");
                             Connector.Write8(ADDR_U1HOOK, 0x01);
                         }
                         return;
@@ -5613,7 +5618,7 @@ namespace CrowdControl.Games.Packs
                         if (TryAlterScale(request, -1))
                         {
                             Connector.Write8(ADDR_U2HOOK, 0x01);
-                            Connector.SendMessage($"{request.DisplayViewer} decreased the difficulty (Note this is a UI update fix and hasn't been push to website yet).");
+                            Connector.SendMessage($"{request.DisplayViewer} decreased the difficulty.");
                             Connector.Write8(ADDR_U1HOOK, 0x01);
                         }
                         return;
