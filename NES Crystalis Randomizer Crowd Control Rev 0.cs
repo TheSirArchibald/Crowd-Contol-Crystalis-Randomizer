@@ -1204,7 +1204,7 @@ namespace CrowdControl.Games.Packs
                     {                        
                         var heavy = RepeatAction(request,
                         TimeSpan.FromSeconds(15),
-                        () => Connector.Read8(ADDR_Speed, out byte b) && (b == 0x06), /*Effect Start Condition*/
+                        () => Connector.Read8(ADDR_Speed, out byte b) && (b >= 0x06), /*Effect Start Condition*/
                         () => Connector.Write8(ADDR_Speed, 0x03), /*Start Action*/
                         TimeSpan.FromSeconds(1), /*Retry Timer*/
                         () => Connector.Read8(ADDR_INGAMEMENU, out byte gamemenu) && (gamemenu != 0x20) && (gamemenu != 0x10) && Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.Write8(ADDR_Speed, 0x03), /*Refresh Condtion*/
