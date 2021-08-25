@@ -1239,6 +1239,8 @@ namespace CrowdControl.Games.Packs
                 {
                  
                     // General
+                    new Effect("Heal Player to Full", "healplayer"),
+                    new Effect("Hurt Player (Scaled %)", "hurtplayer"),
                     new Effect("Fix Power Upgrade", "fixpower"),
                     new Effect("Kill Player", "kill"),
                     new Effect("Free Shopping", "freeshops"),
@@ -1255,13 +1257,7 @@ namespace CrowdControl.Games.Packs
                     new Effect("Scaling Decrease", "scaledown", "sandl"),
                     new Effect("Level Increase", "levelup", "sandl"),
                     new Effect("Level Decrease", "leveldown", "sandl"),
-                    
-                    //Player
-                    new Effect("Player Effects", "player", ItemKind.Folder),
-                    new Effect("Heal Player to Full", "healplayer", "player"),
-                    new Effect("Hurt Player (Scaled %)", "hurtplayer", "player"),
-                    new Effect("Cure Player", "recover", "player"),
-
+                                        
                     //Magic
                     new Effect("Magic", "magic", ItemKind.Folder),
                     new Effect("Refill Magic to Full", "magicup", "magic"),
@@ -1319,7 +1315,8 @@ namespace CrowdControl.Games.Packs
                     new Effect("Heavy Mode", "heavy", "moveeffect"),
                     
                     // Status Conditions
-                    new Effect("Change Condition", "changecondition", ItemKind.Folder),                    
+                    new Effect("Change Condition", "changecondition", ItemKind.Folder),
+                    new Effect("Cure Player", "recover", "changecondition"),
                     new Effect("UnTimed Posion", "poison", "changecondition"),
                     new Effect("UnTimed Paralysis", "paralysis", "changecondition"),
                     new Effect("UnTimed Slime", "slime", "changecondition"),
@@ -1337,7 +1334,7 @@ namespace CrowdControl.Games.Packs
 
                     new Effect("Power Downgrade","takepower", ItemKind.Folder),
                     new Effect("Wind Downgrade", "stealwind", "takepower"),
-                    new Effect("Fire Downgradee", "stealfire",  "takepower"),
+                    new Effect("Fire Downgrade", "stealfire",  "takepower"),
                     new Effect("Water Downgrade", "stealwater", "takepower"),
                     new Effect("Thunder Downgrade", "stealthunder",   "takepower"),
 
@@ -1445,7 +1442,7 @@ namespace CrowdControl.Games.Packs
         {
             if (!IsReady(request))
             {         
-                DelayEffect(request);  //Note add current location = FF to fail for restart screen
+                DelayEffect(request);
                 return;
             }
             string[] effectT = request.FinalCode.Split('_');
@@ -1752,7 +1749,6 @@ namespace CrowdControl.Games.Packs
                         else if ((con) >= 0x01)
                         {
                             DelayEffect(request);
-                            Respond(request, EffectStatus.FailTemporary, "Condition affected already.");
                         }
                         else if (!Connector.SetBits(ADDR_Condition, 01, out _))
                         {
@@ -1792,7 +1788,6 @@ namespace CrowdControl.Games.Packs
                         else if ((stone) >= 0x01)
                         {
                             DelayEffect(request); 
-                            Respond(request, EffectStatus.FailTemporary, "Condition affected already.");
                             return;
                         }
                         else if (!Connector.SetBits(ADDR_Stone, 255, out _))
@@ -1817,7 +1812,6 @@ namespace CrowdControl.Games.Packs
                         else if ((con) >= 0x01)
                         {
                             DelayEffect(request);
-                            Respond(request, EffectStatus.FailTemporary, "Condition affected already.");
                         }
                         else if (!Connector.SetBits(ADDR_Condition, 03, out _))
                         {
@@ -1940,7 +1934,6 @@ namespace CrowdControl.Games.Packs
                         else if ((con) >= 0x01)
                         {
                             DelayEffect(request); 
-                            Respond(request, EffectStatus.FailTemporary, "Condition affected already.");
                         }
                         else if (!Connector.SetBits(ADDR_Condition, 04, out _))
                         {
