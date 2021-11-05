@@ -824,54 +824,13 @@ namespace CrowdControl.Games.Packs
                     return false;
                 }
 
-                if (windpower == 0xFF)
-                {
-                DelayEffect(request);
-                return false;
-                }
-                if (firepower == 0xFF)
-                {
-                DelayEffect(request);
-                return false;
-                }
-                if (waterpower == 0xFF)
-                {
-                DelayEffect(request);
-                return false;
-                }
-                if (thunderpower == 0xFF)
-                {
-                DelayEffect(request);
-                return false;
-                }
-
-                if (windpower == 0x05)
-                {
-                DelayEffect(request);
-                return false;
-                }
-                if (firepower == 0x07)
-                {
-                DelayEffect(request);
-                return false;
-                }
-                if (waterpower == 0x09)
-                {
-                DelayEffect(request);
-                return false;
-                }
-                if (thunderpower == 0x0B)
-                {
-                DelayEffect(request);
-                return false;
-                }
-                
+                            
                 if (windpower == 0x07)
                 {
                     Connector.Write8(ADDR_PowerSlot1, 06);
                     Respond(request, EffectStatus.Success);
                     Connector.SendMessage($"{request.DisplayViewer} fixed Tornado Bracelet.");
-                    return false;
+                    return true;
                 }
 
                 if (firepower == 0x09)
@@ -879,7 +838,7 @@ namespace CrowdControl.Games.Packs
                     Connector.Write8(ADDR_PowerSlot2, 08);
                     Respond(request, EffectStatus.Success);
                     Connector.SendMessage($"{request.DisplayViewer} fixed Flame Bracelet.");
-                    return false;
+                    return true;
                 }
 
                 if (waterpower == 0x0B)
@@ -899,7 +858,7 @@ namespace CrowdControl.Games.Packs
                 }
 
                 DelayEffect(request);
-                return true;
+                return false;
             }
 
 
