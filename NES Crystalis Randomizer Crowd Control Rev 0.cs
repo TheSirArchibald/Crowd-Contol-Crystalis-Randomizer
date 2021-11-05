@@ -269,7 +269,7 @@ namespace CrowdControl.Games.Packs
         {
             if (!Connector.Read8(ADDR_CURRENT_AREA, out byte cavelocation))
             {
-                DelayEffect(request); 
+                DelayEffect(request);
                 return false;
             }
             if (!Connector.Read8(ADDR_Blackout1, out byte blackoutmode1))
@@ -319,10 +319,10 @@ namespace CrowdControl.Games.Packs
                 TimeSpan.FromMilliseconds(100), /*Refresh Retry Timer*/
                 () => true, /*Action*/
                 TimeSpan.FromSeconds(0.5),
-                true);               
+                true);
                 return true;
             }
-            
+
             if ((cavelocation >= 0x20) && (cavelocation <= 0x3e))
             {
 
@@ -353,7 +353,7 @@ namespace CrowdControl.Games.Packs
                 true);
                 return true;
             }
-            
+
             if ((cavelocation >= 0x6c) && (cavelocation <= 0x6e))
             {
 
@@ -369,7 +369,7 @@ namespace CrowdControl.Games.Packs
                 true);
                 return true;
             }
-            
+
             if ((cavelocation >= 0x70) && (cavelocation <= 0x78))
             {
 
@@ -467,7 +467,7 @@ namespace CrowdControl.Games.Packs
             }
 
             DelayEffect(request);
-                return false;
+            return false;
         }
 
         private bool TryAlterScale([NotNull] EffectRequest request, sbyte scale)  //Note Scaling max requested on ROM side
@@ -477,7 +477,7 @@ namespace CrowdControl.Games.Packs
                 DelayEffect(request);
                 return false;
             }
-            
+
             if ((cscale + scale) == 0x2F)
             {
                 DelayEffect(request);
@@ -688,9 +688,9 @@ namespace CrowdControl.Games.Packs
             if ((cmp == 0))
             {
                 DelayEffect(request);
-                return false;                
+                return false;
             }
-            
+
             if ((cmp - (playerlvl * mpfactor) < 0))
             {
                 if (Connector.Write8(ADDR_MPC, (byte)(0)))
@@ -790,80 +790,80 @@ namespace CrowdControl.Games.Packs
                     return true;
                 }
 
-                if (bosslocation != boss)
-                {
-                    DelayEffect(request); 
-                    //Respond(request, EffectStatus.FailTemporary, "Wrong location.");
-                    return false;
-                }
+            if (bosslocation != boss)
+            {
+                DelayEffect(request);
+                //Respond(request, EffectStatus.FailTemporary, "Wrong location.");
+                return false;
+            }
 
 
             return true;
         }
 
         private bool FixPower([NotNull] EffectRequest request)
-        {                     
-                if (!Connector.Read8(ADDR_PowerSlot1, out byte windpower))
-                {
-                    DelayEffect(request);
-                    return false;
-                }
-                if (!Connector.Read8(ADDR_PowerSlot2, out byte firepower))
-                {
-                    DelayEffect(request);
-                    return false;
-                }
-                if (!Connector.Read8(ADDR_PowerSlot3, out byte waterpower))
-                {
-                    DelayEffect(request);
-                    return false;
-                }
-                if (!Connector.Read8(ADDR_PowerSlot4, out byte thunderpower))
-                {
-                    DelayEffect(request);
-                    return false;
-                }
-
-                            
-                if (windpower == 0x07)
-                {
-                    Connector.Write8(ADDR_PowerSlot1, 06);
-                    Respond(request, EffectStatus.Success);
-                    Connector.SendMessage($"{request.DisplayViewer} fixed Tornado Bracelet.");
-                    return true;
-                }
-
-                if (firepower == 0x09)
-                {
-                    Connector.Write8(ADDR_PowerSlot2, 08);
-                    Respond(request, EffectStatus.Success);
-                    Connector.SendMessage($"{request.DisplayViewer} fixed Flame Bracelet.");
-                    return true;
-                }
-
-                if (waterpower == 0x0B)
-                {
-                    Connector.Write8(ADDR_PowerSlot3, 0x0A);
-                    Respond(request, EffectStatus.Success);
-                    Connector.SendMessage($"{request.DisplayViewer} fixed Blizzard Braclet.");
-                    return true;
-                }
-
-                if (thunderpower == 0x0D)
-                {
-                    Connector.Write8(ADDR_PowerSlot4, 0x0C);
-                    Respond(request, EffectStatus.Success);
-                    Connector.SendMessage($"{request.DisplayViewer} fixed Strorm Braclet.");
-                    return true;
-                }
-
+        {
+            if (!Connector.Read8(ADDR_PowerSlot1, out byte windpower))
+            {
+                DelayEffect(request);
+                return false;
+            }
+            if (!Connector.Read8(ADDR_PowerSlot2, out byte firepower))
+            {
+                DelayEffect(request);
+                return false;
+            }
+            if (!Connector.Read8(ADDR_PowerSlot3, out byte waterpower))
+            {
+                DelayEffect(request);
+                return false;
+            }
+            if (!Connector.Read8(ADDR_PowerSlot4, out byte thunderpower))
+            {
                 DelayEffect(request);
                 return false;
             }
 
 
+            if (windpower == 0x07)
+            {
+                Connector.Write8(ADDR_PowerSlot1, 06);
+                Respond(request, EffectStatus.Success);
+                Connector.SendMessage($"{request.DisplayViewer} fixed Tornado Bracelet.");
+                return true;
+            }
 
-            private bool TryGiveWindPower([NotNull] EffectRequest request)
+            if (firepower == 0x09)
+            {
+                Connector.Write8(ADDR_PowerSlot2, 08);
+                Respond(request, EffectStatus.Success);
+                Connector.SendMessage($"{request.DisplayViewer} fixed Flame Bracelet.");
+                return true;
+            }
+
+            if (waterpower == 0x0B)
+            {
+                Connector.Write8(ADDR_PowerSlot3, 0x0A);
+                Respond(request, EffectStatus.Success);
+                Connector.SendMessage($"{request.DisplayViewer} fixed Blizzard Braclet.");
+                return true;
+            }
+
+            if (thunderpower == 0x0D)
+            {
+                Connector.Write8(ADDR_PowerSlot4, 0x0C);
+                Respond(request, EffectStatus.Success);
+                Connector.SendMessage($"{request.DisplayViewer} fixed Strorm Braclet.");
+                return true;
+            }
+
+            DelayEffect(request);
+            return false;
+        }
+
+
+
+        private bool TryGiveWindPower([NotNull] EffectRequest request)
         {
 
             if (Connector.Read8(ADDR_PowerSlot1, out byte windpower))
@@ -876,22 +876,22 @@ namespace CrowdControl.Games.Packs
                     return true;
                 }
 
-                if (windpower == 0x05)
-                {
-                    Connector.Write8(ADDR_PowerSlot1, 06);
+            if (windpower == 0x05)
+            {
+                Connector.Write8(ADDR_PowerSlot1, 06);
                 Respond(request, EffectStatus.Success);
                 Connector.SendMessage($"{request.DisplayViewer} sent Tornado Bracelet.");
-                    return true;
-                }
+                return true;
+            }
 
-                if (windpower == 0x06)
-                {
-                    DelayEffect(request);
-                    return false;
-                }
+            if (windpower == 0x06)
+            {
+                DelayEffect(request);
+                return false;
+            }
 
-            DelayEffect(request); 
-            return true; 
+            DelayEffect(request);
+            return true;
         }
 
         private bool TryStealWindPower([NotNull] EffectRequest request)
@@ -905,21 +905,21 @@ namespace CrowdControl.Games.Packs
                     return false;
                 }
 
-                if (windpower == 0x05)
-                {
+            if (windpower == 0x05)
+            {
                 Connector.Write8(ADDR_PowerSlot1, 0xFF);
                 Respond(request, EffectStatus.Success);
                 Connector.SendMessage($"{request.DisplayViewer} stole Ball of Wind.");
                 return true;
-                }
+            }
 
-                if (windpower == 0x06)
-                {
+            if (windpower == 0x06)
+            {
                 Connector.Write8(ADDR_PowerSlot1, 0x05);
                 Respond(request, EffectStatus.Success);
                 Connector.SendMessage($"{request.DisplayViewer} stole Tornado Braclet.");
                 return true;
-                }
+            }
 
             DelayEffect(request);
             return true;
@@ -1103,7 +1103,7 @@ namespace CrowdControl.Games.Packs
                 Connector.SendMessage($"{request.DisplayViewer} stole Strorm Braclet.");
                 return true;
             }
-                        DelayEffect(request);
+            DelayEffect(request);
             return true;
         }
 
@@ -1133,7 +1133,7 @@ namespace CrowdControl.Games.Packs
 
             if ((bosschealth + ((bossscale * slope) / 2)) > 255)
             {
-                DelayEffect(request); 
+                DelayEffect(request);
                 //Respond(request, EffectStatus.FailTemporary, "Health already at maximum.");
                 return false;
             }
@@ -1175,7 +1175,7 @@ namespace CrowdControl.Games.Packs
 
             if ((bosschealth2 + ((bossscale2 * slope2) / 2)) > 255)
             {
-                DelayEffect(request);                
+                DelayEffect(request);
                 return false;
             }
 
@@ -1198,53 +1198,52 @@ namespace CrowdControl.Games.Packs
                 {
                  
                     // General
-                    new Effect("Heal Player to Full", "healplayer"),
-                    new Effect("Hurt Player (Scaled %)", "hurtplayer"),
-                    new Effect("Fix Power Upgrade", "fixpower"),
-                    new Effect("Kill Player", "kill"),
-                    new Effect("Free Shopping", "freeshops"),
-                    new Effect("Mado Screen Shake Mode", "screenshakemode"),
-                    new Effect("Blackout Mode", "blackout"),
-                    new Effect("Camouflage Mode", "invis"),
-                    new Effect("Wild Warp", "wild"),
-                    new Effect("One Hit KO", "ohko"),
+                    new Effect("Heal Player to Full", "healplayer") {Price = 5, Description = "Player will be healed to full health"},
+                    new Effect("Hurt Player (Scaled %)", "hurtplayer") {Price = 5, Description = "Player will be hurt"},
+                    new Effect("Fix Power Upgrade", "fixpower") {Price = 0, Description = "Temporary fix for power upgrade"},
+                    new Effect("Kill Player", "kill") {Price = 20, Description = "Instantly Kill the Player"},
+                    new Effect("Free Shopping", "freeshops") {Price = 5, Description = "Temporary make Item/Armor Shops free"},
+                    new Effect("Mado Screen Shake Mode", "screenshakemode") {Price = 5, Description = "Temporary make the screen shake"},
+                    new Effect("Blackout Mode", "blackout") {Price = 5, Description = "Temporary make the world dark"},
+                    new Effect("Camouflage Mode", "invis") {Price = 5, Description = "Temporary turn the player invisible"},
+                    new Effect("Wild Warp", "wild") {Price = 20, Description = "Warp the Player back to the start location of the game"},
+                    new Effect("One Hit KO", "ohko") {Price = 10, Description = "Temporary alter the players health to one.  Health will be restored after effect ends"},
                     //new Effect("Reset", "reset"),   
 
                     //Scaling and Leveling
                     new Effect("Scaling and Leveling", "sandl", ItemKind.Folder),
-                    new Effect("Scaling Increase", "scaleup", "sandl"),
-                    new Effect("Scaling Decrease", "scaledown", "sandl"),
-                    new Effect("Level Increase", "levelup", "sandl"),
-                    new Effect("Level Decrease", "leveldown", "sandl"),
+                    new Effect("Scaling Increase", "scaleup", "sandl") {Price = 5, Description = "Increase Player's Scaling by one"},
+                    new Effect("Scaling Decrease", "scaledown", "sandl") {Price = 5, Description = "Decrease Player's Scaling by one"},
+                    new Effect("Level Increase", "levelup", "sandl") {Price = 5, Description = "Increase Player's Level by one"},
+                    new Effect("Level Decrease", "leveldown", "sandl") {Price = 5, Description = "Decrease Player's Level by one"},
                                         
                     //Magic
                     new Effect("Magic", "magic", ItemKind.Folder),
-                    new Effect("Refill Magic to Full", "magicup", "magic"),
-                    new Effect("Take Magic (Scaled %)", "magicdown", "magic"),
-                    
+                    new Effect("Refill Magic to Full", "magicup", "magic") {Price = 5, Description = "Refill Player's Magic to Full"},
+                    new Effect("Take Magic (Scaled %)", "magicdown", "magic") {Price = 2, Description = "Steal some of Player's Magic" },
                     //Money
                     new Effect("Money", "money", ItemKind.Folder),
-                    new Effect("Give Money (50 Gold)", "givemoney50", "money"),
-                    new Effect("Give Money (100 Gold)", "givemoney100", "money"),
-                    new Effect("Steal Money (50 Gold)", "takemoney50", "money"),
-                    new Effect("Steal Money (100 Gold)", "takemoney100", "money"),
+                    new Effect("Give Money (50 Gold)", "givemoney50", "money") {Price = 1, Description = "Give 50 gold to the Player" },
+                    new Effect("Give Money (100 Gold)", "givemoney100", "money") {Price = 2, Description = "Give 100 gold to the Player" },
+                    new Effect("Steal Money (50 Gold)", "takemoney50", "money") {Price = 1, Description = "Steal 50 gold from the Player" },
+                    new Effect("Steal Money (100 Gold)", "takemoney100", "money") {Price = 2, Description = "Steal 100 gold from the Player" },
                                         
                     //Heal Boss
                     //Note all boss fights check for boss area map to see if Effect can trigger but you can despawn the effect.  Will need to add screen fight transmition animation RAM action for better trigger.
                     new Effect("Heal Boss (X% Scaled)", "healboss", ItemKind.Folder),
-                    new Effect("Vampire", "healvamp1", "healboss"),
-                    new Effect("Big Bug", "healbug", "healboss"),
-                    new Effect("Kelbesque", "healkelby", "healboss"),
-                    new Effect("Vampire2", "healvamp2", "healboss"),
-                    new Effect("Sabera", "healsabera", "healboss"),
-                    new Effect("Mado", "healmado", "healboss"),
-                    new Effect("Kelbesque2", "healkelby2", "healboss"),
-                    new Effect("Sabera2", "healsabera2", "healboss"),
-                    new Effect("Mado2", "healmado2", "healboss"),
-                    new Effect("Karmine", "healkarmine", "healboss"),
-                    new Effect("Draygon", "healdraygon", "healboss"),
-                    new Effect("Draygon2", "healdraygon2", "healboss"),
-                    new Effect("Dyna", "healdyna", "healboss"),
+                    new Effect("Vampire", "healvamp1", "healboss") {Price = 5, Description = "Heal Vampire" },
+                    new Effect("Big Bug", "healbug", "healboss") {Price = 5, Description = "Heal Big Bug" },
+                    new Effect("Kelbesque", "healkelby", "healboss") {Price = 5, Description = "Heal Kelbesque" },
+                    new Effect("Vampire2", "healvamp2", "healboss") {Price = 5, Description = "Heal Vampire2" },
+                    new Effect("Sabera", "healsabera", "healboss") {Price = 5, Description = "Heal Sabera" },
+                    new Effect("Mado", "healmado", "healboss") {Price = 5, Description = "Heal Mado" },
+                    new Effect("Kelbesque2", "healkelby2", "healboss") {Price = 5, Description = "Heal Kelbesque2" },
+                    new Effect("Sabera2", "healsabera2", "healboss") {Price = 5, Description = "Heal Sabera2" },
+                    new Effect("Mado2", "healmado2", "healboss") {Price = 5, Description = "Heal Mado2" },
+                    new Effect("Karmine", "healkarmine", "healboss") {Price = 5, Description = "Heal Karmine" },
+                    new Effect("Draygon", "healdraygon", "healboss") {Price = 5, Description = "Heal Draygon1" },
+                    new Effect("Draygon2", "healdraygon2", "healboss") {Price = 5, Description = "Heal Draygon2" },
+                    new Effect("Dyna", "healdyna", "healboss") {Price = 5, Description = "Heal Dyna" },
 
                     //Respawn Boss
                     //Note boss fights are linked to chest drop. Will need to update ASM to ensure Boss Chests are non key items in Crowd Control Flag Setup.
@@ -1260,77 +1259,77 @@ namespace CrowdControl.Games.Packs
 
                     // Projectile Effects
                     new Effect("Projectile Effects", "projectile", ItemKind.Folder),
-                    new Effect("Warrior Ring Mode", "lvl1shot", "projectile"),
-                    new Effect("LVL 2 Warrior Ring Mode", "lvl2shot", "projectile"),
-                    new Effect("TriShot Mode", "trishot", "projectile"),
-                    new Effect("Thunder Mode", "thundershot", "projectile"),
-                    new Effect("Lag Storm Mode", "lagshot", "projectile"),
+                    new Effect("Warrior Ring Mode", "lvl1shot", "projectile") {Price = 2, Description = "Temporary give player Lvl 1 projectile shots" },
+                    new Effect("LVL 2 Warrior Ring Mode", "lvl2shot", "projectile") {Price = 2, Description = "Temporarygive player Lvl 2 projectile shots" },
+                    new Effect("TriShot Mode", "trishot", "projectile") {Price = 2, Description = "Temporary give player Lightning Bolt projectile shots" },
+                    new Effect("Thunder Mode", "thundershot", "projectile") {Price = 2, Description = "Temporary give player Thunder projectile shots" },
+                    new Effect("Lag Storm Mode", "lagshot", "projectile") {Price = 2, Description = "Temporary give player Storm projectile shots" },
 
                    
                     // Movement Effects
                     new Effect("Movement Effects", "moveeffect", ItemKind.Folder),
-                    new Effect("Jump Mode", "jump", "moveeffect"),
-                    new Effect("Flight Mode", "flightmode", "moveeffect"),
-                    new Effect("Heavy Mode", "heavy", "moveeffect"),
+                    new Effect("Jump Mode", "jump", "moveeffect") {Price = 2, Description = "Temporary make the player jump" },
+                    new Effect("Flight Mode", "flightmode", "moveeffect") {Price = 2, Description = "Temporary make the player fly" },
+                    new Effect("Heavy Mode", "heavy", "moveeffect") {Price = 2, Description = "Temporary make the player walk slower" },
                     
                     // Status Conditions
                     new Effect("Change Condition", "changecondition", ItemKind.Folder),
-                    new Effect("Cure Player", "recover", "changecondition"),
-                    new Effect("UnTimed Posion", "poison", "changecondition"),
-                    new Effect("UnTimed Paralysis", "paralysis", "changecondition"),
-                    new Effect("UnTimed Slime", "slime", "changecondition"),
-                    new Effect("UnTimed Stone", "stone", "changecondition"),
-                    new Effect("Timed Posion", "timedpoison", "changecondition"),
-                    new Effect("Timed Paralysis", "timedparalysis", "changecondition"),
-                    new Effect("Timed Slime", "timedslime", "changecondition"),
+                    new Effect("Cure Player", "recover", "changecondition")  {Price = 2, Description = "Instantly cure all aliment affecting the player" },
+                    new Effect("UnTimed Posion", "poison", "changecondition")  {Price = 5, Description = "Instantly poison the player" },
+                    new Effect("UnTimed Paralysis", "paralysis", "changecondition")  {Price = 5, Description = "Instantly paralysis the player" },
+                    new Effect("UnTimed Slime", "slime", "changecondition")  {Price = 5, Description = "Instantly slime the player" },
+                    new Effect("UnTimed Stone", "stone", "changecondition")  {Price = 5, Description = "Instantly stone the player for a few seconds" },
+                    new Effect("Timed Posion", "timedpoison", "changecondition")  {Price = 5, Description = "Temporary poison the player" },
+                    new Effect("Timed Paralysis", "timedparalysis", "changecondition")  {Price = 5, Description = "Temporary paralysis the player" },
+                    new Effect("Timed Slime", "timedslime", "changecondition")  {Price = 5, Description = "Temporary slime the player" },
 
                     // Power Down/Upgrade     Note: Ro flag is required for Crowd Control Flags.
                     new Effect("Power Upgrade","givepower", ItemKind.Folder),
-                    new Effect("Wind Upgrade", "givewind", "givepower"),
-                    new Effect("Fire Upgrade", "givefire", "givepower"),
-                    new Effect("Water Upgrade", "givewater", "givepower"),
-                    new Effect("Thunder Upgrade", "givethunder", "givepower"),                   
+                    new Effect("Wind Upgrade", "givewind", "givepower")  {Price = 10, Description = "Give the player a Wind Power upgrade" },
+                    new Effect("Fire Upgrade", "givefire", "givepower")  {Price = 10, Description = "Give the player a Fire Power upgrade" },
+                    new Effect("Water Upgrade", "givewater", "givepower")  {Price = 10, Description = "Give the player a Water Power upgrade" },
+                    new Effect("Thunder Upgrade", "givethunder", "givepower")  {Price = 10, Description = "Give the player a Thunder Power upgrade" },
 
                     new Effect("Power Downgrade","takepower", ItemKind.Folder),
-                    new Effect("Wind Downgrade", "stealwind", "takepower"),
-                    new Effect("Fire Downgrade", "stealfire",  "takepower"),
-                    new Effect("Water Downgrade", "stealwater", "takepower"),
-                    new Effect("Thunder Downgrade", "stealthunder",   "takepower"),
+                    new Effect("Wind Downgrade", "stealwind", "takepower")  {Price = 10, Description = "Steal a Wind Power upgrade from the player" },
+                    new Effect("Fire Downgrade", "stealfire",  "takepower")  {Price = 10, Description = "Steal a Fire Power upgrade from the player" },
+                    new Effect("Water Downgrade", "stealwater", "takepower")  {Price = 10, Description = "Steal a Water Power upgrade from the player" },
+                    new Effect("Thunder Downgrade", "stealthunder",   "takepower")  {Price = 10, Description = "Steal a Thunder Power upgrade from the player" },
 
                     // Sword Effects Timed
                     new Effect("Sword Effects","sword", ItemKind.Folder),
-                    new Effect("Steal Wind Sword (Timed)", "removewindsword", "sword"),
-                    new Effect("Steal Fire Sword (Timed)", "removefiresword", "sword"),
-                    new Effect("Steal Water Sword (Timed)", "removewatersword", "sword"),
-                    new Effect("Steal Thunder Sword (Timed)", "removethundersword", "sword"),
-                    new Effect("Equip Wind Sword (Timed)", "windsword", "sword"),
-                    new Effect("Equip Fire Sword (Timed)", "firesword", "sword"),
-                    new Effect("Equip Water Sword (Timed)", "watersword", "sword"),
-                    new Effect("Equip Thunder Sword (Timed)", "thundersword", "sword"),
-                    new Effect("Equip Crystalis Sword (Timed)", "crystalissword", "sword"),
+                    new Effect("Steal Wind Sword (Timed)", "removewindsword", "sword")  {Price = 5, Description = "Temporary steal the Wind Sword from the player" },
+                    new Effect("Steal Fire Sword (Timed)", "removefiresword", "sword")  {Price = 5, Description = "Temporary steal the Fire Sword from the player" },
+                    new Effect("Steal Water Sword (Timed)", "removewatersword", "sword")  {Price = 5, Description = "Temporary steal the Water Sword from the player" },
+                    new Effect("Steal Thunder Sword (Timed)", "removethundersword", "sword")  {Price = 5, Description = "Temporary steal the Thunder Sword from the player" },
+                    new Effect("Equip Wind Sword (Timed)", "windsword", "sword")  {Price = 5, Description = "Temporary force equip the Wind Sword" },
+                    new Effect("Equip Fire Sword (Timed)", "firesword", "sword")  {Price = 5, Description = "Temporary force equip the Fire Sword" },
+                    new Effect("Equip Water Sword (Timed)", "watersword", "sword")  {Price = 5, Description = "Temporary force equip the Water Sword" },
+                    new Effect("Equip Thunder Sword (Timed)", "thundersword", "sword")  {Price = 5, Description = "Temporary force equip the Thunder Sword" },
+                    new Effect("Equip Crystalis Sword (Timed)", "crystalissword", "sword")  {Price = 5, Description = "Temporary force equip Crystalis" },
                     
                                         
                     //Shields
                     new Effect("Give Shield","giveshield", ItemKind.Folder),
-                    new Effect("Send Carapace Shield", "carpshield","giveshield"),
-                    new Effect("Send Bronze Shield", "broshield","giveshield"),
-                    new Effect("Send Platinum Shield", "platshield","giveshield"),
-                    new Effect("Send Mirror Shield", "mirrorshield","giveshield"),
-                    new Effect("Send Ceramic Shield", "cershield","giveshield"),
-                    new Effect("Send Sacred Shield", "sshield","giveshield"),
-                    new Effect("Send Battle Shield", "bshield","giveshield"),
-                    new Effect("Send Psycho Shield", "pshield","giveshield"),
-                    
+                    new Effect("Send Carapace Shield", "carpshield","giveshield") {Price = 2, Description = "Give the Carapace Shield to the player" },
+                    new Effect("Send Bronze Shield", "broshield","giveshield") {Price = 2, Description = "Give the Bronze Shield to the player" },
+                    new Effect("Send Platinum Shield", "platshield","giveshield") {Price = 2, Description = "Give the Platinum Shield to the player" },
+                    new Effect("Send Mirror Shield", "mirrorshield","giveshield") {Price = 2, Description = "Give the Mirror Shield to the player" },
+                    new Effect("Send Ceramic Shield", "cershield","giveshield") {Price = 2, Description = "Give the Ceramic Shield to the player" },
+                    new Effect("Send Sacred Shield", "sshield","giveshield") {Price = 2, Description = "Give the Sacred Shield to the player" },
+                    new Effect("Send Battle Shield", "bshield","giveshield") {Price = 5, Description = "Give the Battle Shield to the player" },
+                    new Effect("Send Psycho Shield", "pshield","giveshield") {Price = 10, Description = "Give the Psycho Shield to the player" },
+                   
                     //Armor
                     new Effect("Give Armor","givearmor", ItemKind.Folder),
-                    new Effect("Send Tanned Hide ", "tanhide","givearmor"),
-                    new Effect("Send Leather Armor ", "leaarmor","givearmor"),
-                    new Effect("Send Bronze Armor ", "broarmor","givearmor"),
-                    new Effect("Send Platinum Armor ", "platarmor","givearmor"),
-                    new Effect("Send Soldier Suit ", "soldiersuit","givearmor"),
-                    new Effect("Send Ceramic Suit ", "cerarmor","givearmor"),
-                    new Effect("Send Battle Armor ", "barmor","givearmor"),
-                    new Effect("Send Psycho Armor", "parmor", "givearmor"),
+                    new Effect("Send Tanned Hide ", "tanhide","givearmor") {Price = 10, Description = "Give the Tanned Hide to the player" },
+                    new Effect("Send Leather Armor ", "leaarmor","givearmor") {Price = 10, Description = "Give the Leather Armor to the player" },
+                    new Effect("Send Bronze Armor ", "broarmor","givearmor") {Price = 10, Description = "Give the Bronze Armor to the player" },
+                    new Effect("Send Platinum Armor ", "platarmor","givearmor") {Price = 10, Description = "Give the Platinum Armor to the player" },
+                    new Effect("Send Soldier Suit ", "soldiersuit","givearmor") {Price = 10, Description = "Give the Soldier Suit to the player" },
+                    new Effect("Send Ceramic Suit ", "cerarmor","givearmor") {Price = 10, Description = "Give the Ceramic Suit to the player" },
+                    new Effect("Send Battle Armor ", "barmor","givearmor") {Price = 10, Description = "Give the Battle Armor to the player" },
+                    new Effect("Send Psycho Armor", "parmor", "givearmor") {Price = 10, Description = "Give the Psycho Armor to the player" },
 
                     //Spells
                     // Note not sure if all are useful, but teleport and recover should be done. still lacking mapping of areas for telport and controller force inputs.
@@ -1347,28 +1346,28 @@ namespace CrowdControl.Games.Packs
                     //Consumables
                     
                     new Effect("Give Consumable","giveconsumable", ItemKind.Folder),
-                    new Effect("Give Medical Herb", "giveherb","giveconsumable"),
-                    new Effect("Give Antidote", "giveanti","giveconsumable"),
-                    new Effect("Give Magic Ring", "givemr","giveconsumable"),
-                    new Effect("Give Lysis Plant", "givelp","giveconsumable"),
-                    new Effect("Give Warp Boots", "givewb","giveconsumable"),
-                    new Effect("Give Fruit of Power", "givefop","giveconsumable"),
-                    new Effect("Give Fruit of Repun", "givefor","giveconsumable"),
-                    new Effect("Give Fruit of Lime", "givefol","giveconsumable"),
-                    new Effect("Give Opel Statue", "giveopel","giveconsumable"),
-                    new Effect("Give Fruit of Lime Care Package", "allfol","giveconsumable"),
+                    new Effect("Give Medical Herb", "giveherb","giveconsumable") {Price = 2, Description = "Give a Medical Herb to the player" },
+                    new Effect("Give Antidote", "giveanti","giveconsumable") {Price = 2, Description = "Give an Antidote to the player" },
+                    new Effect("Give Magic Ring", "givemr","giveconsumable") {Price = 2, Description = "Give a Magic Ring to the player" },
+                    new Effect("Give Lysis Plant", "givelp","giveconsumable") {Price = 2, Description = "Give a Lysis Plant to the player" },
+                    new Effect("Give Warp Boots", "givewb","giveconsumable") {Price = 2, Description = "Give Warp Boots to the player" },
+                    new Effect("Give Fruit of Power", "givefop","giveconsumable") {Price = 2, Description = "Give a Fruit of Power to the player" },
+                    new Effect("Give Fruit of Repun", "givefor","giveconsumable") {Price = 2, Description = "Give a Fruit of Repun to the player" },
+                    new Effect("Give Fruit of Lime", "givefol","giveconsumable") {Price = 2, Description = "Give a Fruit of Lime to the player" },
+                    new Effect("Give Opel Statue", "giveopel","giveconsumable") {Price = 10, Description = "Give an Opel Statue to the player" },
+                    new Effect("Give Fruit of Lime Care Package", "allfol","giveconsumable") {Price = 10, Description = "Give delightful care fruit of the Lime Care Package to the player" },
 
                     new Effect("Take Consumable","takeconsumable", ItemKind.Folder),
-                    new Effect("Clear Inventory", "clear","takeconsumable"),
-                    new Effect("Steal Herb", "stealherb","takeconsumable"),
-                    new Effect("Steal Antidote", "stealanti","takeconsumable"),
-                    new Effect("Steal Magic Ring", "stealmr","takeconsumable"),
-                    new Effect("Steal Lysis Plant", "steallysis","takeconsumable"),
-                    new Effect("Steal Warp Boots", "stealwp","takeconsumable"),
-                    new Effect("Steal Fruit of Power", "stealfop","takeconsumable"),
-                    new Effect("Steal Fruit of Repun", "stealfor","takeconsumable"),
-                    new Effect("Steal Fruit of Lime", "stealfol","takeconsumable"),
-                    new Effect("Steal Opel Statue", "stealopel","takeconsumable"),
+                    new Effect("Clear Inventory", "clear","takeconsumable") {Price = 10, Description = "Clear the player's consumable inventory" },
+                    new Effect("Steal Herb", "stealherb","takeconsumable") {Price = 2, Description = "Steal a Medical Herb from the player" },
+                    new Effect("Steal Antidote", "stealanti","takeconsumable") {Price = 2, Description = "Steal an Antidote from the player" },
+                    new Effect("Steal Magic Ring", "stealmr","takeconsumable") {Price = 2, Description = "Steal a Magic Ring from the player" },
+                    new Effect("Steal Lysis Plant", "steallysis","takeconsumable") {Price = 2, Description = "Steal a Lysis Plant from the player" },
+                    new Effect("Steal Warp Boots", "stealwp","takeconsumable") {Price = 2, Description = "Steal Warp Boots from the player" },
+                    new Effect("Steal Fruit of Power", "stealfop","takeconsumable") {Price = 2, Description = "Steal a Fruit of Power from the player" },
+                    new Effect("Steal Fruit of Repun", "stealfor","takeconsumable") {Price = 2, Description = "Steal a Fruit of Repun from the player" },
+                    new Effect("Steal Fruit of Lime", "stealfol","takeconsumable") {Price = 2, Description = "Steal a Fruit of Lime from the player" },
+                    new Effect("Steal Opel Statue", "stealopel","takeconsumable") {Price = 2, Description = "Steal a Opel Statue from the player" },
                    
 //  To Be Built Out (ASM)
                     //Spawn Enemy
@@ -1400,7 +1399,7 @@ namespace CrowdControl.Games.Packs
         protected override void StartEffect(EffectRequest request)
         {
             if (!IsReady(request))
-            {         
+            {
                 DelayEffect(request);
                 return;
             }
@@ -1420,7 +1419,7 @@ namespace CrowdControl.Games.Packs
                         TimeSpan.FromSeconds(0.5),
                         true);
                         invs.WhenStarted.Then(t => Connector.SendMessage($"{request.DisplayViewer} started invisible mode (45s)."));
-                        return;                          
+                        return;
                     }
 
                 case "ohko":  //Need to fix how I do a constant update the HUD
@@ -1456,12 +1455,12 @@ namespace CrowdControl.Games.Packs
                     }
 
 
-                    //{
-                    //    Connector.Write8(ADDR_U2HOOK, 0x03);
-                    //    Connector.SendMessage($"{request.DisplayViewer} wild warped you.");
-                    //    Connector.Write8(ADDR_U1HOOK, 0x01);
-                    //    return;
-                    //}                    
+                //{
+                //    Connector.Write8(ADDR_U2HOOK, 0x03);
+                //    Connector.SendMessage($"{request.DisplayViewer} wild warped you.");
+                //    Connector.Write8(ADDR_U1HOOK, 0x01);
+                //    return;
+                //}                    
 
                 case "kill":
                     {
@@ -1518,7 +1517,7 @@ namespace CrowdControl.Games.Packs
                     }
 
                 case "heavy":
-                    {                        
+                    {
                         var heavy = RepeatAction(request,
                         TimeSpan.FromSeconds(15),
                         () => Connector.Read8(ADDR_Speed, out byte b) && (b >= 0x06), /*Effect Start Condition*/
@@ -1545,7 +1544,7 @@ namespace CrowdControl.Games.Packs
                     }
                     else
                     {
-                        byte eqsword = 01; 
+                        byte eqsword = 01;
                         var war = RepeatAction(request,
                         TimeSpan.FromSeconds(15),
                         () => Connector.Read8(ADDR_Equip_Sword, out eqsword) && (eqsword > 00), /*Effect Start Condition*/
@@ -1575,7 +1574,7 @@ namespace CrowdControl.Games.Packs
                     }
                     else
                     {
-                        byte eqsword = 01; 
+                        byte eqsword = 01;
                         var war = RepeatAction(request,
                         TimeSpan.FromSeconds(15),
                         () => Connector.Read8(ADDR_Equip_Sword, out eqsword) && (eqsword > 00), /*Effect Start Condition*/
@@ -1587,8 +1586,8 @@ namespace CrowdControl.Games.Packs
                         TimeSpan.FromSeconds(0.1),
                         true);
                         war.WhenStarted.Then(t => Connector.SendMessage($"{request.DisplayViewer} deployed LVL2 Warrior Ring Effect (15s)."));
-                        return; 
-                        
+                        return;
+
                     }
                     return;
 
@@ -1603,7 +1602,7 @@ namespace CrowdControl.Games.Packs
                     }
                     else
                     {
-                        byte eqsword = 01; 
+                        byte eqsword = 01;
                         var war = RepeatAction(request,
                         TimeSpan.FromSeconds(15),
                         () => Connector.Read8(ADDR_Equip_Sword, out eqsword) && (eqsword > 00), /*Effect Start Condition*/
@@ -1631,7 +1630,7 @@ namespace CrowdControl.Games.Packs
                     }
                     else
                     {
-                        byte eqsword = 01; 
+                        byte eqsword = 01;
                         var war = RepeatAction(request,
                         TimeSpan.FromSeconds(15),
                         () => Connector.Read8(ADDR_Equip_Sword, out eqsword) && (eqsword > 00), /*Effect Start Condition*/
@@ -1643,7 +1642,7 @@ namespace CrowdControl.Games.Packs
                         TimeSpan.FromSeconds(0.1),
                         true);
                         war.WhenStarted.Then(t => Connector.SendMessage($"{request.DisplayViewer} deployed Thunder Shot Effect (15s)."));
-                        return;                         
+                        return;
                     }
                     return;
 
@@ -1659,7 +1658,7 @@ namespace CrowdControl.Games.Packs
                     }
                     else
                     {
-                        byte eqsword = 01; 
+                        byte eqsword = 01;
                         var war = RepeatAction(request,
                         TimeSpan.FromSeconds(15),
                         () => Connector.Read8(ADDR_Equip_Sword, out eqsword) && (eqsword > 00), /*Effect Start Condition*/
@@ -1671,7 +1670,7 @@ namespace CrowdControl.Games.Packs
                         TimeSpan.FromSeconds(0.1),
                         true);
                         war.WhenStarted.Then(t => Connector.SendMessage($"{request.DisplayViewer} deployed Thunder Shot Effect (15s)."));
-                        return;                                                
+                        return;
                     }
                     return;
 
@@ -1746,7 +1745,7 @@ namespace CrowdControl.Games.Packs
                         }
                         else if ((stone) >= 0x01)
                         {
-                            DelayEffect(request); 
+                            DelayEffect(request);
                             return;
                         }
                         else if (!Connector.SetBits(ADDR_Stone, 255, out _))
@@ -1798,7 +1797,7 @@ namespace CrowdControl.Games.Packs
                         TimeSpan.FromSeconds(0.1),
                         true);
                         cond.WhenStarted.Then(t => Connector.SendMessage($"{request.DisplayViewer} poisoned you (15s)."));
-                        return;                       
+                        return;
                     }
 
                 case "slime":   //Note will need to fail at boss area since it would lock you there or death.
@@ -1813,7 +1812,7 @@ namespace CrowdControl.Games.Packs
                             DelayEffect(request);
                             return;
                         }
-                        
+
                         if ((areas) == 0x1A)
                         {
                             DelayEffect(request);
@@ -1831,13 +1830,13 @@ namespace CrowdControl.Games.Packs
                             DelayEffect(request);
                             return;
                         }
-                        
+
                         if ((areas) == 0x6e)
                         {
                             DelayEffect(request);
                             return;
                         }
-                        
+
                         if ((areas) == 0xf2)
                         {
                             DelayEffect(request);
@@ -1880,7 +1879,7 @@ namespace CrowdControl.Games.Packs
                             return;
                         }
 
-                        if ((areas >= 0x58) && (areas <= 0x5f))                         
+                        if ((areas >= 0x58) && (areas <= 0x5f))
                         {
                             DelayEffect(request);
                             return;
@@ -1892,7 +1891,7 @@ namespace CrowdControl.Games.Packs
                         }
                         else if ((con) >= 0x01)
                         {
-                            DelayEffect(request); 
+                            DelayEffect(request);
                         }
                         else if (!Connector.SetBits(ADDR_Condition, 04, out _))
                         {
@@ -1929,7 +1928,7 @@ namespace CrowdControl.Games.Packs
                     return;
 
                 case "givewind":
-                    TryGiveWindPower(request);                    
+                    TryGiveWindPower(request);
                     return;
 
                 case "givefire":
@@ -1942,13 +1941,13 @@ namespace CrowdControl.Games.Packs
 
                 case "givethunder":
                     TryGiveThunderPower(request);
-                    return;                                                
+                    return;
 
                 case "stealwind":
 
                     TryStealWindPower(request);
                     return;
-               
+
 
                 case "stealfire":
                     TryStealFirePower(request);
@@ -1962,7 +1961,7 @@ namespace CrowdControl.Games.Packs
                     TryStealThunderPower(request);
                     return;
 
-                
+
 
                 case "barmor":
                     {
@@ -3895,9 +3894,9 @@ namespace CrowdControl.Games.Packs
                         {
                             Connector.Write8(ADDR_ConsumeSlot1, 0x20);
                             Respond(request, EffectStatus.Success);
-                            Connector.SendMessage($"{request.DisplayViewer} loves you so much."); 
+                            Connector.SendMessage($"{request.DisplayViewer} loves you so much.");
                             Connector.SendMessage($"{request.DisplayViewer} sent you a care package of 8 Fruit of Limes. Get Stomping.");
-                                                    }
+                        }
                         return;
 
                     }
@@ -6584,7 +6583,7 @@ namespace CrowdControl.Games.Packs
                         TimeSpan.FromSeconds(0.1),
                         true, "sword");
                         rwsword.WhenStarted.Then(t => Connector.SendMessage($"{request.DisplayViewer} stole your Sword of Wind (15s)."));
-                        return;                                               
+                        return;
                     }
 
                 case "removefiresword":
@@ -6600,7 +6599,7 @@ namespace CrowdControl.Games.Packs
                         TimeSpan.FromSeconds(0.1),
                         true, "sword");
                         rfsword.WhenStarted.Then(t => Connector.SendMessage($"{request.DisplayViewer} stole your Sword of Fire (15s)."));
-                        return;                                                
+                        return;
                     }
 
                 case "removewatersword":
@@ -6616,7 +6615,7 @@ namespace CrowdControl.Games.Packs
                         TimeSpan.FromSeconds(0.1),
                         true, "sword");
                         rwwsword.WhenStarted.Then(t => Connector.SendMessage($"{request.DisplayViewer} stole your Sword of Water (15s)."));
-                        return;                                             
+                        return;
                     }
 
                 case "removethundersword":
@@ -6632,7 +6631,7 @@ namespace CrowdControl.Games.Packs
                         TimeSpan.FromSeconds(0.1),
                         true, "sword");
                         rtsword.WhenStarted.Then(t => Connector.SendMessage($"{request.DisplayViewer} stole your Sword of Thunder (15s)."));
-                        return;                           
+                        return;
                     }
 
                 case "healvamp1":
@@ -6950,7 +6949,7 @@ namespace CrowdControl.Games.Packs
                         {
                             DelayEffect(request);
                         }
-                    
+
                         else if ((playerlevel) >= 0x10)
                         {
                             DelayEffect(request);
@@ -6963,29 +6962,29 @@ namespace CrowdControl.Games.Packs
                             Respond(request, EffectStatus.Success);
                         }
                         return;
-                    }                   
-                   
+                    }
+
 
                 case "leveldown":  //Note fixed for UI update to be pushed soon
                     {
-                    if (!Connector.Read8(ADDR_LEVEL, out byte playerlevel))
-                    {
-                    DelayEffect(request);
-                    }
-                    else if ((playerlevel) <= 0x01)
+                        if (!Connector.Read8(ADDR_LEVEL, out byte playerlevel))
                         {
                             DelayEffect(request);
                         }
-                
-                    else
+                        else if ((playerlevel) <= 0x01)
                         {
-                        Connector.Write8(ADDR_U2HOOK, 0x08);
-                        Connector.SendMessage($"{request.DisplayViewer} removed a level.");
-                        Connector.Write8(ADDR_U1HOOK, 0x01);
-                        Respond(request, EffectStatus.Success);
+                            DelayEffect(request);
                         }
-                    return;
-                    }            
+
+                        else
+                        {
+                            Connector.Write8(ADDR_U2HOOK, 0x08);
+                            Connector.SendMessage($"{request.DisplayViewer} removed a level.");
+                            Connector.Write8(ADDR_U1HOOK, 0x01);
+                            Respond(request, EffectStatus.Success);
+                        }
+                        return;
+                    }
 
                 case "scaleup":  //Note bug in UI fix currenlty not working right
                     {
@@ -7011,10 +7010,10 @@ namespace CrowdControl.Games.Packs
                         return;
                     }
 
-                case "blackout":   
+                case "blackout":
                     {
                         if (TryBlackoutMode(request))
-                        {                            
+                        {
                             Connector.SendMessage($"{request.DisplayViewer} made cave and forts dark.");
                         }
                         return;
@@ -7059,7 +7058,7 @@ namespace CrowdControl.Games.Packs
                         Connector.Write8(ADDR_INVIS, 0x00);
                         return result;
                     }
-                
+
                 case "lvl1shot":
                     {
                         result = Connector.Unfreeze(ADDR_Warrior);
