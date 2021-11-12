@@ -82,6 +82,7 @@ namespace CrowdControl.Games.Packs
         private const ushort ADDR_U2HOOK = 0x6221;
 
         // Powerup
+        private const ushort ADDR_ShotLvl = 0x0719; 
         private const ushort ADDR_SwordSlot1 = 0x6430;
         private const ushort ADDR_SwordSlot2 = 0x6431;
         private const ushort ADDR_SwordSlot3 = 0x6432;
@@ -869,249 +870,249 @@ namespace CrowdControl.Games.Packs
 
 
 
-        private bool TryGiveWindPower([NotNull] EffectRequest request)
-        {
+        //private bool TryGiveWindPower([NotNull] EffectRequest request)
+        //{
 
-            if (Connector.Read8(ADDR_PowerSlot1, out byte windpower))
+        //    if (Connector.Read8(ADDR_PowerSlot1, out byte windpower))
 
-                if (windpower == 0xFF)
-                {
-                    Connector.Write8(ADDR_PowerSlot1, 05);
-                    Respond(request, EffectStatus.Success);
-                    Connector.SendMessage($"{request.DisplayViewer} sent Ball of Wind.");
-                    return true;
-                }
+        //        if (windpower == 0xFF)
+        //        {
+        //            Connector.Write8(ADDR_PowerSlot1, 05);
+        //            Respond(request, EffectStatus.Success);
+        //            Connector.SendMessage($"{request.DisplayViewer} sent Ball of Wind.");
+        //            return true;
+        //        }
 
-            if (windpower == 0x05)
-            {
-                Connector.Write8(ADDR_PowerSlot1, 06);
-                Respond(request, EffectStatus.Success);
-                Connector.SendMessage($"{request.DisplayViewer} sent Tornado Bracelet.");
-                return true;
-            }
+        //    if (windpower == 0x05)
+        //    {
+        //        Connector.Write8(ADDR_PowerSlot1, 06);
+        //        Respond(request, EffectStatus.Success);
+        //        Connector.SendMessage($"{request.DisplayViewer} sent Tornado Bracelet.");
+        //        return true;
+        //    }
 
-            if (windpower == 0x06)
-            {
-                DelayEffect(request);
-                return false;
-            }
+        //    if (windpower == 0x06)
+        //    {
+        //        DelayEffect(request);
+        //        return false;
+        //    }
 
-            DelayEffect(request);
-            return true;
-        }
+        //    DelayEffect(request);
+        //    return true;
+        //}
 
-        private bool TryStealWindPower([NotNull] EffectRequest request)
-        {
+        //private bool TryStealWindPower([NotNull] EffectRequest request)
+        //{
 
-            if (Connector.Read8(ADDR_PowerSlot1, out byte windpower))
+        //    if (Connector.Read8(ADDR_PowerSlot1, out byte windpower))
 
-                if (windpower == 0xFF)
-                {
-                    DelayEffect(request);
-                    return false;
-                }
+        //        if (windpower == 0xFF)
+        //        {
+        //            DelayEffect(request);
+        //            return false;
+        //        }
 
-            if (windpower == 0x05)
-            {
-                Connector.Write8(ADDR_PowerSlot1, 0xFF);
-                Respond(request, EffectStatus.Success);
-                Connector.SendMessage($"{request.DisplayViewer} stole Ball of Wind.");
-                return true;
-            }
+        //    if (windpower == 0x05)
+        //    {
+        //        Connector.Write8(ADDR_PowerSlot1, 0xFF);
+        //        Respond(request, EffectStatus.Success);
+        //        Connector.SendMessage($"{request.DisplayViewer} stole Ball of Wind.");
+        //        return true;
+        //    }
 
-            if (windpower == 0x06)
-            {
-                Connector.Write8(ADDR_PowerSlot1, 0x05);
-                Respond(request, EffectStatus.Success);
-                Connector.SendMessage($"{request.DisplayViewer} stole Tornado Braclet.");
-                return true;
-            }
+        //    if (windpower == 0x06)
+        //    {
+        //        Connector.Write8(ADDR_PowerSlot1, 0x05);
+        //        Respond(request, EffectStatus.Success);
+        //        Connector.SendMessage($"{request.DisplayViewer} stole Tornado Braclet.");
+        //        return true;
+        //    }
 
-            DelayEffect(request);
-            return true;
-        }
+        //    DelayEffect(request);
+        //    return true;
+        //}
 
-        private bool TryGiveFirePower([NotNull] EffectRequest request)
-        {
+        //private bool TryGiveFirePower([NotNull] EffectRequest request)
+        //{
 
-            if (Connector.Read8(ADDR_PowerSlot2, out byte firepower))
+        //    if (Connector.Read8(ADDR_PowerSlot2, out byte firepower))
 
-                if (firepower == 0xFF)
-                {
-                    Connector.Write8(ADDR_PowerSlot2, 07);
-                    Respond(request, EffectStatus.Success);
-                    Connector.SendMessage($"{request.DisplayViewer} sent Ball of Fire.");
-                    return true;
-                }
+        //        if (firepower == 0xFF)
+        //        {
+        //            Connector.Write8(ADDR_PowerSlot2, 07);
+        //            Respond(request, EffectStatus.Success);
+        //            Connector.SendMessage($"{request.DisplayViewer} sent Ball of Fire.");
+        //            return true;
+        //        }
 
-            if (firepower == 0x07)
-            {
-                Connector.Write8(ADDR_PowerSlot2, 08);
-                Respond(request, EffectStatus.Success);
-                Connector.SendMessage($"{request.DisplayViewer} sent Flame Bracelet.");
-                return true;
-            }
+        //    if (firepower == 0x07)
+        //    {
+        //        Connector.Write8(ADDR_PowerSlot2, 08);
+        //        Respond(request, EffectStatus.Success);
+        //        Connector.SendMessage($"{request.DisplayViewer} sent Flame Bracelet.");
+        //        return true;
+        //    }
 
-            if (firepower == 0x08)
-            {
-                DelayEffect(request);
-                return false;
-            }
+        //    if (firepower == 0x08)
+        //    {
+        //        DelayEffect(request);
+        //        return false;
+        //    }
 
-            DelayEffect(request);
-            return true;
-        }
+        //    DelayEffect(request);
+        //    return true;
+        //}
 
-        private bool TryStealFirePower([NotNull] EffectRequest request)
-        {
+        //private bool TryStealFirePower([NotNull] EffectRequest request)
+        //{
 
-            if (Connector.Read8(ADDR_PowerSlot2, out byte firepower))
+        //    if (Connector.Read8(ADDR_PowerSlot2, out byte firepower))
 
-                if (firepower == 0xFF)
-                {
-                    DelayEffect(request);
-                    return false;
-                }
+        //        if (firepower == 0xFF)
+        //        {
+        //            DelayEffect(request);
+        //            return false;
+        //        }
 
-            if (firepower == 0x07)
-            {
-                Connector.Write8(ADDR_PowerSlot2, 0xFF);
-                Respond(request, EffectStatus.Success);
-                Connector.SendMessage($"{request.DisplayViewer} stole Ball of Fire.");
-                return true;
-            }
+        //    if (firepower == 0x07)
+        //    {
+        //        Connector.Write8(ADDR_PowerSlot2, 0xFF);
+        //        Respond(request, EffectStatus.Success);
+        //        Connector.SendMessage($"{request.DisplayViewer} stole Ball of Fire.");
+        //        return true;
+        //    }
 
-            if (firepower == 0x08)
-            {
-                Connector.Write8(ADDR_PowerSlot2, 0x07);
-                Respond(request, EffectStatus.Success);
-                Connector.SendMessage($"{request.DisplayViewer} stole Flame Braclet.");
-                return true;
-            }
+        //    if (firepower == 0x08)
+        //    {
+        //        Connector.Write8(ADDR_PowerSlot2, 0x07);
+        //        Respond(request, EffectStatus.Success);
+        //        Connector.SendMessage($"{request.DisplayViewer} stole Flame Braclet.");
+        //        return true;
+        //    }
 
-            DelayEffect(request);
-            return true;
-        }
+        //    DelayEffect(request);
+        //    return true;
+        //}
 
-        private bool TryGiveWaterPower([NotNull] EffectRequest request)
-        {
+        //private bool TryGiveWaterPower([NotNull] EffectRequest request)
+        //{
 
-            if (Connector.Read8(ADDR_PowerSlot3, out byte waterpower))
+        //    if (Connector.Read8(ADDR_PowerSlot3, out byte waterpower))
 
-                if (waterpower == 0xFF)
-                {
-                    Connector.Write8(ADDR_PowerSlot3, 09);
-                    Respond(request, EffectStatus.Success);
-                    Connector.SendMessage($"{request.DisplayViewer} sent Ball of Water.");
-                    return true;
-                }
+        //        if (waterpower == 0xFF)
+        //        {
+        //            Connector.Write8(ADDR_PowerSlot3, 09);
+        //            Respond(request, EffectStatus.Success);
+        //            Connector.SendMessage($"{request.DisplayViewer} sent Ball of Water.");
+        //            return true;
+        //        }
 
-            if (waterpower == 0x09)
-            {
-                Connector.Write8(ADDR_PowerSlot3, 0x0A);
-                Respond(request, EffectStatus.Success);
-                Connector.SendMessage($"{request.DisplayViewer} sent Blizzard Bracelet.");
-                return true;
-            }
+        //    if (waterpower == 0x09)
+        //    {
+        //        Connector.Write8(ADDR_PowerSlot3, 0x0A);
+        //        Respond(request, EffectStatus.Success);
+        //        Connector.SendMessage($"{request.DisplayViewer} sent Blizzard Bracelet.");
+        //        return true;
+        //    }
 
-            if (waterpower == 0x0A)
-            {
-                DelayEffect(request);
-                return false;
-            }
+        //    if (waterpower == 0x0A)
+        //    {
+        //        DelayEffect(request);
+        //        return false;
+        //    }
 
-            DelayEffect(request);
-            return true;
-        }
+        //    DelayEffect(request);
+        //    return true;
+        //}
 
-        private bool TryStealWaterPower([NotNull] EffectRequest request)
-        {
+        //private bool TryStealWaterPower([NotNull] EffectRequest request)
+        //{
 
-            if (Connector.Read8(ADDR_PowerSlot3, out byte waterpower))
+        //    if (Connector.Read8(ADDR_PowerSlot3, out byte waterpower))
 
-                if (waterpower == 0xFF)
-                {
-                    DelayEffect(request);
-                    return false;
-                }
+        //        if (waterpower == 0xFF)
+        //        {
+        //            DelayEffect(request);
+        //            return false;
+        //        }
 
-            if (waterpower == 0x09)
-            {
-                Connector.Write8(ADDR_PowerSlot3, 0xFF);
-                Respond(request, EffectStatus.Success);
-                Connector.SendMessage($"{request.DisplayViewer} stole Ball of Water.");
-                return true;
-            }
+        //    if (waterpower == 0x09)
+        //    {
+        //        Connector.Write8(ADDR_PowerSlot3, 0xFF);
+        //        Respond(request, EffectStatus.Success);
+        //        Connector.SendMessage($"{request.DisplayViewer} stole Ball of Water.");
+        //        return true;
+        //    }
 
-            if (waterpower == 0x0A)
-            {
-                Connector.Write8(ADDR_PowerSlot3, 0x09);
-                Respond(request, EffectStatus.Success);
-                Connector.SendMessage($"{request.DisplayViewer} stole Blizzard Braclet.");
-                return true;
-            }
+        //    if (waterpower == 0x0A)
+        //    {
+        //        Connector.Write8(ADDR_PowerSlot3, 0x09);
+        //        Respond(request, EffectStatus.Success);
+        //        Connector.SendMessage($"{request.DisplayViewer} stole Blizzard Braclet.");
+        //        return true;
+        //    }
 
-            DelayEffect(request);
-            return true;
-        }
+        //    DelayEffect(request);
+        //    return true;
+        //}
 
-        private bool TryGiveThunderPower([NotNull] EffectRequest request)
-        {
+        //private bool TryGiveThunderPower([NotNull] EffectRequest request)
+        //{
 
-            if (Connector.Read8(ADDR_PowerSlot4, out byte thunderpower))
+        //    if (Connector.Read8(ADDR_PowerSlot4, out byte thunderpower))
 
-                if (thunderpower == 0xFF)
-                {
-                    Connector.Write8(ADDR_PowerSlot4, 0x0B);
-                    Respond(request, EffectStatus.Success);
-                    Connector.SendMessage($"{request.DisplayViewer} sent Ball of Thunder.");
-                    return true;
-                }
-            if (thunderpower == 0x0B)
-            {
-                Connector.Write8(ADDR_PowerSlot4, 0x0C);
-                Respond(request, EffectStatus.Success);
-                Connector.SendMessage($"{request.DisplayViewer} sent Strorm Bracelet.");
-                return true;
-            }
-            if (thunderpower == 0x0A)
-            {
-                DelayEffect(request);
-                return false;
-            }
-            DelayEffect(request);
-            return true;
-        }
+        //        if (thunderpower == 0xFF)
+        //        {
+        //            Connector.Write8(ADDR_PowerSlot4, 0x0B);
+        //            Respond(request, EffectStatus.Success);
+        //            Connector.SendMessage($"{request.DisplayViewer} sent Ball of Thunder.");
+        //            return true;
+        //        }
+        //    if (thunderpower == 0x0B)
+        //    {
+        //        Connector.Write8(ADDR_PowerSlot4, 0x0C);
+        //        Respond(request, EffectStatus.Success);
+        //        Connector.SendMessage($"{request.DisplayViewer} sent Strorm Bracelet.");
+        //        return true;
+        //    }
+        //    if (thunderpower == 0x0A)
+        //    {
+        //        DelayEffect(request);
+        //        return false;
+        //    }
+        //    DelayEffect(request);
+        //    return true;
+        //}
 
-        private bool TryStealThunderPower([NotNull] EffectRequest request)
-        {
+        //private bool TryStealThunderPower([NotNull] EffectRequest request)
+        //{
 
-            if (Connector.Read8(ADDR_PowerSlot4, out byte thunderpower))
+        //    if (Connector.Read8(ADDR_PowerSlot4, out byte thunderpower))
 
-                if (thunderpower == 0xFF)
-                {
-                    DelayEffect(request);
-                    return false;
-                }
+        //        if (thunderpower == 0xFF)
+        //        {
+        //            DelayEffect(request);
+        //            return false;
+        //        }
 
-            if (thunderpower == 0x0B)
-            {
-                Connector.Write8(ADDR_PowerSlot4, 0xFF);
-                Respond(request, EffectStatus.Success);
-                Connector.SendMessage($"{request.DisplayViewer} stole Ball of Thunder.");
-                return true;
-            }
+        //    if (thunderpower == 0x0B)
+        //    {
+        //        Connector.Write8(ADDR_PowerSlot4, 0xFF);
+        //        Respond(request, EffectStatus.Success);
+        //        Connector.SendMessage($"{request.DisplayViewer} stole Ball of Thunder.");
+        //        return true;
+        //    }
 
-            if (thunderpower == 0x0C)
-            {
-                Connector.Write8(ADDR_PowerSlot4, 0x0B);
-                Respond(request, EffectStatus.Success);
-                Connector.SendMessage($"{request.DisplayViewer} stole Strorm Braclet.");
-                return true;
-            }
-            DelayEffect(request);
-            return true;
-        }
+        //    if (thunderpower == 0x0C)
+        //    {
+        //        Connector.Write8(ADDR_PowerSlot4, 0x0B);
+        //        Respond(request, EffectStatus.Success);
+        //        Connector.SendMessage($"{request.DisplayViewer} stole Strorm Braclet.");
+        //        return true;
+        //    }
+        //    DelayEffect(request);
+        //    return true;
+        //}
 
         private bool TryAlterBossHealth([NotNull] EffectRequest request, sbyte slope)
         {
@@ -1266,6 +1267,9 @@ namespace CrowdControl.Games.Packs
 
                     // Projectile Effects
                     new Effect("Projectile Effects", "projectile", ItemKind.Folder),
+                    new Effect("Base Charge Shots only", "lvl1shotcharged", "projectile") {Price = 20, Description = "Temporary give/limit player to Lvl 1 projectile shots" },
+                    new Effect("Ball Charge Shots only", "lvl2shotcharged", "projectile") {Price = 20, Description = "Temporary give/limit player to Lvl 2 projectile shots" },
+                    new Effect("Bracelet Charge Shots only", "lvl3shotcharged", "projectile") {Price = 20, Description = "Temporary give player to Lvl 3 projectile shots" },
                     new Effect("Warrior Ring Mode", "lvl1shot", "projectile") {Price = 4, Description = "Temporary give player Lvl 1 projectile shots" },
                     new Effect("LVL 2 Warrior Ring Mode", "lvl2shot", "projectile") {Price = 4, Description = "Temporarygive player Lvl 2 projectile shots" },
                     new Effect("TriShot Mode", "trishot", "projectile") {Price = 4, Description = "Temporary give player Lightning Bolt projectile shots" },
@@ -1290,18 +1294,18 @@ namespace CrowdControl.Games.Packs
                     new Effect("Timed Paralysis", "timedparalysis", "changecondition")  {Price = 10, Description = "Temporary paralysis the player" },
                     new Effect("Timed Slime", "timedslime", "changecondition")  {Price = 10, Description = "Temporary slime the player" },
 
-                    // Power Down/Upgrade     Note: Ro flag is required for Crowd Control Flags.
-                    new Effect("Power Upgrade","givepower", ItemKind.Folder),
-                    new Effect("Wind Upgrade", "givewind", "givepower")  {Price = 20, Description = "Give the player a Wind Power upgrade" },
-                    new Effect("Fire Upgrade", "givefire", "givepower")  {Price = 20, Description = "Give the player a Fire Power upgrade" },
-                    new Effect("Water Upgrade", "givewater", "givepower")  {Price = 20, Description = "Give the player a Water Power upgrade" },
-                    new Effect("Thunder Upgrade", "givethunder", "givepower")  {Price = 20, Description = "Give the player a Thunder Power upgrade" },
+                    //// Power Down/Upgrade     Note: Ro flag is required for Crowd Control Flags.
+                    //new Effect("Power Upgrade","givepower", ItemKind.Folder),
+                    //new Effect("Wind Upgrade", "givewind", "givepower")  {Price = 20, Description = "Give the player a Wind Power upgrade" },
+                    //new Effect("Fire Upgrade", "givefire", "givepower")  {Price = 20, Description = "Give the player a Fire Power upgrade" },
+                    //new Effect("Water Upgrade", "givewater", "givepower")  {Price = 20, Description = "Give the player a Water Power upgrade" },
+                    //new Effect("Thunder Upgrade", "givethunder", "givepower")  {Price = 20, Description = "Give the player a Thunder Power upgrade" },
 
-                    new Effect("Power Downgrade","takepower", ItemKind.Folder),
-                    new Effect("Wind Downgrade", "stealwind", "takepower")  {Price = 20, Description = "Steal a Wind Power upgrade from the player" },
-                    new Effect("Fire Downgrade", "stealfire",  "takepower")  {Price = 20, Description = "Steal a Fire Power upgrade from the player" },
-                    new Effect("Water Downgrade", "stealwater", "takepower")  {Price = 200, Description = "Steal a Water Power upgrade from the player" },
-                    new Effect("Thunder Downgrade", "stealthunder",   "takepower")  {Price = 20, Description = "Steal a Thunder Power upgrade from the player" },
+                    //new Effect("Power Downgrade","takepower", ItemKind.Folder),
+                    //new Effect("Wind Downgrade", "stealwind", "takepower")  {Price = 20, Description = "Steal a Wind Power upgrade from the player" },
+                    //new Effect("Fire Downgrade", "stealfire",  "takepower")  {Price = 20, Description = "Steal a Fire Power upgrade from the player" },
+                    //new Effect("Water Downgrade", "stealwater", "takepower")  {Price = 200, Description = "Steal a Water Power upgrade from the player" },
+                    //new Effect("Thunder Downgrade", "stealthunder",   "takepower")  {Price = 20, Description = "Steal a Thunder Power upgrade from the player" },
 
                     // Sword Effects Timed
                     new Effect("Sword Effects","sword", ItemKind.Folder),
@@ -1318,7 +1322,7 @@ namespace CrowdControl.Games.Packs
                                         
                     //Shields
                     new Effect("Shields","giveshield", ItemKind.Folder),
-                    new Effect("Steal Best Shield", "stealbestshield","giveshield") {Price = 5, Description = "Steal best shield from the player" },
+                    new Effect("Steal Best Shield", "stealbestshield","giveshield") {Price = 50, Description = "Steal best shield from the player" },
                     new Effect("Send Carapace Shield", "carpshield","giveshield") {Price = 5, Description = "Give the Carapace Shield to the player" },
                     new Effect("Send Bronze Shield", "broshield","giveshield") {Price = 5, Description = "Give the Bronze Shield to the player" },
                     new Effect("Send Platinum Shield", "platshield","giveshield") {Price = 5, Description = "Give the Platinum Shield to the player" },
@@ -1330,7 +1334,7 @@ namespace CrowdControl.Games.Packs
                    
                     //Armor
                     new Effect("Armors","givearmor", ItemKind.Folder),
-                    new Effect("Steal Best Armor", "stealbestarmor","givearmor") {Price = 5, Description = "Steal best armor from the player" },
+                    new Effect("Steal Best Armor", "stealbestarmor","givearmor") {Price = 50, Description = "Steal best armor from the player" },
                     new Effect("Send Tanned Hide ", "tanhide","givearmor") {Price = 5, Description = "Give the Tanned Hide to the player" },
                     new Effect("Send Leather Armor ", "leaarmor","givearmor") {Price = 5, Description = "Give the Leather Armor to the player" },
                     new Effect("Send Bronze Armor ", "broarmor","givearmor") {Price = 5, Description = "Give the Bronze Armor to the player" },
@@ -1540,6 +1544,94 @@ namespace CrowdControl.Games.Packs
                         heavy.WhenStarted.Then(t => Connector.SendMessage($"{request.DisplayViewer} lowered your speed (15s)."));
                         return;
                     }
+
+                case "lvl1shotcharged":
+
+                    if (!Connector.Read8(ADDR_Warrior, out byte charged1))
+                    {
+                        DelayEffect(request);
+                    }
+                    else if ((charged1) >= 0x01)
+                    {
+                        DelayEffect(request);
+                    }
+                    else
+                    {
+                        byte eqsword = 01;
+                        var war = RepeatAction(request,
+                        TimeSpan.FromSeconds(30),
+                        () => Connector.Read8(ADDR_Equip_Sword, out eqsword) && (eqsword > 00), /*Effect Start Condition*/
+                        () => Connector.Freeze8(ADDR_ShotLvl, 0x00), /*Start Action*/
+                        TimeSpan.FromSeconds(1), /*Retry Timer*/
+                        () => Connector.Read8(ADDR_INGAMEMENU, out byte gamemenu) && (gamemenu != 0x20) && (gamemenu != 0x10) && Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.Freeze8(ADDR_ShotLvl, 0x00), /*Refresh Condtion*/
+                        TimeSpan.FromMilliseconds(50), /*Refresh Retry Timer*/
+                        () => true, /*Action*/
+                        TimeSpan.FromSeconds(0.1),
+                        true);
+                        war.WhenStarted.Then(t => Connector.SendMessage($"{request.DisplayViewer} limited you to Base sword shots (30s)."));
+                        return;
+
+                    }
+                    return;
+
+                case "lvl2shotcharged":
+
+                    if (!Connector.Read8(ADDR_Warrior, out byte charged2))
+                    {
+                        DelayEffect(request);
+                    }
+                    else if ((charged2) >= 0x01)
+                    {
+                        DelayEffect(request);
+                    }
+                    else
+                    {
+                        byte eqsword = 01;
+                        var war = RepeatAction(request,
+                        TimeSpan.FromSeconds(30),
+                        () => Connector.Read8(ADDR_Equip_Sword, out eqsword) && (eqsword > 00), /*Effect Start Condition*/
+                        () => Connector.Freeze8(ADDR_ShotLvl, 0x01), /*Start Action*/
+                        TimeSpan.FromSeconds(1), /*Retry Timer*/
+                        () => Connector.Read8(ADDR_INGAMEMENU, out byte gamemenu) && (gamemenu != 0x20) && (gamemenu != 0x10) && Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.Freeze8(ADDR_ShotLvl, 0x01), /*Refresh Condtion*/
+                        TimeSpan.FromMilliseconds(50), /*Refresh Retry Timer*/
+                        () => true, /*Action*/
+                        TimeSpan.FromSeconds(0.1),
+                        true);
+                        war.WhenStarted.Then(t => Connector.SendMessage($"{request.DisplayViewer} limited/gave you to LVL2 sword shots (30s)."));
+                        return;
+
+                    }
+                    return;
+
+                case "lvl3shotcharged":
+
+                    if (!Connector.Read8(ADDR_Warrior, out byte charged3))
+                    {
+                        DelayEffect(request);
+                    }
+                    else if ((charged3) >= 0x01)
+                    {
+                        DelayEffect(request);
+                    }
+                    else
+                    {
+                        byte eqsword = 01;
+                        var war = RepeatAction(request,
+                        TimeSpan.FromSeconds(30),
+                        () => Connector.Read8(ADDR_Equip_Sword, out eqsword) && (eqsword > 00), /*Effect Start Condition*/
+                        () => Connector.Freeze8(ADDR_ShotLvl, 0x02), /*Start Action*/
+                        TimeSpan.FromSeconds(1), /*Retry Timer*/
+                        () => Connector.Read8(ADDR_INGAMEMENU, out byte gamemenu) && (gamemenu != 0x20) && (gamemenu != 0x10) && Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.Freeze8(ADDR_ShotLvl, 0x02), /*Refresh Condtion*/
+                        TimeSpan.FromMilliseconds(50), /*Refresh Retry Timer*/
+                        () => true, /*Action*/
+                        TimeSpan.FromSeconds(0.1),
+                        true);
+                        war.WhenStarted.Then(t => Connector.SendMessage($"{request.DisplayViewer} limited/gave you to LVL3 sword shots (30s)."));
+                        return;
+
+                    }
+                    return;
+
 
                 case "lvl1shot":
 
@@ -1936,39 +2028,39 @@ namespace CrowdControl.Games.Packs
                     FixPower(request);
                     return;
 
-                case "givewind":
-                    TryGiveWindPower(request);
-                    return;
+                //case "givewind":
+                //    TryGiveWindPower(request);
+                //    return;
 
-                case "givefire":
-                    TryGiveFirePower(request);
-                    return;
+                //case "givefire":
+                //    TryGiveFirePower(request);
+                //    return;
 
-                case "givewater":
-                    TryGiveWaterPower(request);
-                    return;
+                //case "givewater":
+                //    TryGiveWaterPower(request);
+                //    return;
 
-                case "givethunder":
-                    TryGiveThunderPower(request);
-                    return;
+                //case "givethunder":
+                //    TryGiveThunderPower(request);
+                //    return;
 
-                case "stealwind":
+                //case "stealwind":
 
-                    TryStealWindPower(request);
-                    return;
+                //    TryStealWindPower(request);
+                //    return;
 
 
-                case "stealfire":
-                    TryStealFirePower(request);
-                    return;
+                //case "stealfire":
+                //    TryStealFirePower(request);
+                //    return;
 
-                case "stealwater":
-                    TryStealWaterPower(request);
-                    return;
+                //case "stealwater":
+                //    TryStealWaterPower(request);
+                //    return;
 
-                case "stealthunder":
-                    TryStealThunderPower(request);
-                    return;
+                //case "stealthunder":
+                //    TryStealThunderPower(request);
+                //    return;
 
 
 
@@ -7263,6 +7355,24 @@ namespace CrowdControl.Games.Packs
                     {
                         Connector.Unfreeze(ADDR_INVIS);
                         Connector.Write8(ADDR_INVIS, 0x00);
+                        return result;
+                    }
+
+                case "lvl1shotcharged":
+                    {
+                        result = Connector.Unfreeze(ADDR_ShotLvl);
+                        return result;
+                    }
+
+                case "lvl2shotcharged":
+                    {
+                        result = Connector.Unfreeze(ADDR_ShotLvl);
+                        return result;
+                    }
+
+                case "lvl3shotcharged":
+                    {
+                        result = Connector.Unfreeze(ADDR_ShotLvl);
                         return result;
                     }
 
