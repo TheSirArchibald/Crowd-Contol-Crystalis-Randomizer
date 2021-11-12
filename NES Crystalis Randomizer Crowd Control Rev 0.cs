@@ -1267,9 +1267,9 @@ namespace CrowdControl.Games.Packs
 
                     // Projectile Effects
                     new Effect("Projectile Effects", "projectile", ItemKind.Folder),
-                    new Effect("Base Charge Shots only", "lvl1shotcharged", "projectile") {Price = 20, Description = "Temporary give/limit player to Lvl 1 projectile shots" },
-                    new Effect("Ball Charge Shots only", "lvl2shotcharged", "projectile") {Price = 20, Description = "Temporary give/limit player to Lvl 2 projectile shots" },
-                    new Effect("Bracelet Charge Shots only", "lvl3shotcharged", "projectile") {Price = 20, Description = "Temporary give player to Lvl 3 projectile shots" },
+                    new Effect("Base Charge Shots only", "lvl1shotcharged", "projectile") {Price = 10, Description = "Temporary give/limit player to Lvl 1 projectile shots" },
+                    new Effect("Ball Charge Shots only", "lvl2shotcharged", "projectile") {Price = 10, Description = "Temporary give/limit player to Lvl 2 projectile shots" },
+                    new Effect("Bracelet Charge Shots only", "lvl3shotcharged", "projectile") {Price = 10, Description = "Temporary give player to Lvl 3 projectile shots" },
                     new Effect("Warrior Ring Mode", "lvl1shot", "projectile") {Price = 4, Description = "Temporary give player Lvl 1 projectile shots" },
                     new Effect("LVL 2 Warrior Ring Mode", "lvl2shot", "projectile") {Price = 4, Description = "Temporarygive player Lvl 2 projectile shots" },
                     new Effect("TriShot Mode", "trishot", "projectile") {Price = 4, Description = "Temporary give player Lightning Bolt projectile shots" },
@@ -1368,7 +1368,7 @@ namespace CrowdControl.Games.Packs
                     new Effect("Give Fruit of Repun", "givefor","giveconsumable") {Price = 5, Description = "Give a Fruit of Repun to the player" },
                     new Effect("Give Fruit of Lime", "givefol","giveconsumable") {Price = 5, Description = "Give a Fruit of Lime to the player" },
                     new Effect("Give Opel Statue", "giveopel","giveconsumable") {Price = 10, Description = "Give an Opel Statue to the player" },
-                    new Effect("Give Fruit of Lime Care Package", "allfol","giveconsumable") {Price = 10, Description = "Give delightful care fruit of the Lime Care Package to the player" },
+                    new Effect("Give Fruit of Lime Care Package", "allfol","giveconsumable") {Price = 20, Description = "Give delightful care fruit of the Lime Care Package to the player" },
 
                     new Effect("Take Consumable","takeconsumable", ItemKind.Folder),
                     new Effect("Clear Inventory", "clear","takeconsumable") {Price = 20, Description = "Clear the player's consumable inventory" },
@@ -6770,7 +6770,7 @@ namespace CrowdControl.Games.Packs
                     {
                         byte windsword = 01;
                         var f = RepeatAction(request, TimeSpan.FromSeconds(15),
-                            () => Connector.Read8(ADDR_Equip_Sword, out windsword) && (windsword <= 05),
+                            () => Connector.Read8(ADDR_Equip_Sword, out windsword) && (windsword > 0),
                             () => Connector.SendMessage($"{request.DisplayViewer} forced you to use only use Wind Sword (15s)."), TimeSpan.FromSeconds(1),
                             () => Connector.IsNonZero8(ADDR_Equip_Sword), TimeSpan.FromSeconds(1),
                             () => Connector.Read8(ADDR_INGAMEMENU, out byte gamemenu) && (gamemenu != 0x20) && (gamemenu != 0x10) && Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.Write8(ADDR_Equip_Sword, 0x01), TimeSpan.FromSeconds(1), true, "sword");
@@ -6786,7 +6786,7 @@ namespace CrowdControl.Games.Packs
                     {
                         byte firesword = 02;
                         var g = RepeatAction(request, TimeSpan.FromSeconds(15),
-                            () => Connector.Read8(ADDR_Equip_Sword, out firesword) && (firesword <= 05),
+                            () => Connector.Read8(ADDR_Equip_Sword, out firesword) && (firesword > 0),
                             () => Connector.SendMessage($"{request.DisplayViewer} forced you to use only use Fire Sword (15s)."), TimeSpan.FromSeconds(1),
                             () => Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.IsNonZero8(ADDR_Equip_Sword), TimeSpan.FromSeconds(1),
                             () => Connector.Read8(ADDR_INGAMEMENU, out byte gamemenu) && (gamemenu != 0x20) && (gamemenu != 0x10) && Connector.Write8(ADDR_Equip_Sword, 0x02), TimeSpan.FromSeconds(1), true, "sword");
@@ -6802,7 +6802,7 @@ namespace CrowdControl.Games.Packs
                     {
                         byte watersword = 03;
                         var h = RepeatAction(request, TimeSpan.FromSeconds(15),
-                            () => Connector.Read8(ADDR_Equip_Sword, out watersword) && (watersword <= 05),
+                            () => Connector.Read8(ADDR_Equip_Sword, out watersword) && (watersword > 0),
                             () => Connector.SendMessage($"{request.DisplayViewer} forced you to use only use Water Sword (15s)."), TimeSpan.FromSeconds(1),
                             () => Connector.Read8(ADDR_INGAMEMENU, out byte gamemenu) && (gamemenu != 0x20) && (gamemenu != 0x10) && Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.IsNonZero8(ADDR_Equip_Sword), TimeSpan.FromSeconds(1),
                             () => Connector.Write8(ADDR_Equip_Sword, 0x03), TimeSpan.FromSeconds(1), true, "sword");
@@ -6818,7 +6818,7 @@ namespace CrowdControl.Games.Packs
                     {
                         byte thundersword = 04;
                         var j = RepeatAction(request, TimeSpan.FromSeconds(15),
-                            () => Connector.Read8(ADDR_Equip_Sword, out thundersword) && (thundersword <= 05),
+                            () => Connector.Read8(ADDR_Equip_Sword, out thundersword) && (thundersword > 0),
                             () => Connector.SendMessage($"{request.DisplayViewer} forced you to use only use Thunder Sword (15s)."), TimeSpan.FromSeconds(1),
                             () => Connector.Read8(ADDR_INGAMEMENU, out byte gamemenu) && (gamemenu != 0x20) && (gamemenu != 0x10) && Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.IsNonZero8(ADDR_Equip_Sword), TimeSpan.FromSeconds(1),
                             () => Connector.Write8(ADDR_Equip_Sword, 0x04), TimeSpan.FromSeconds(1), true, "sword");
@@ -6835,7 +6835,7 @@ namespace CrowdControl.Games.Packs
 
                         byte cysword = 05;
                         var k = RepeatAction(request, TimeSpan.FromSeconds(15),
-                            () => Connector.Read8(ADDR_Equip_Sword, out cysword) && (cysword <= 5),
+                            () => Connector.Read8(ADDR_Equip_Sword, out cysword) && (cysword > 0),
                             () => Connector.SendMessage($"{request.DisplayViewer} forced you to use only use Crystalis Sword (15s)."), TimeSpan.FromSeconds(1),
                             () => Connector.Read8(ADDR_INGAMEMENU, out byte gamemenu) && (gamemenu != 0x20) && (gamemenu != 0x10) && Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.IsNonZero8(ADDR_Equip_Sword), TimeSpan.FromSeconds(1),
                             () => Connector.Write8(ADDR_Equip_Sword, 0x05), TimeSpan.FromSeconds(1), true, "sword");
