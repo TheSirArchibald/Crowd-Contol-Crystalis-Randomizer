@@ -1559,16 +1559,16 @@ namespace CrowdControl.Games.Packs
                     {
                         byte eqsword = 01;
                         var war = RepeatAction(request,
-                        TimeSpan.FromSeconds(30),
+                        TimeSpan.FromSeconds(15),
                         () => Connector.Read8(ADDR_Equip_Sword, out eqsword) && (eqsword > 00), /*Effect Start Condition*/
-                        () => Connector.Freeze8(ADDR_ShotLvl, 0x00), /*Start Action*/
+                        () => Connector.Write8(ADDR_ShotLvl, 0x00), /*Start Action*/
                         TimeSpan.FromSeconds(1), /*Retry Timer*/
-                        () => Connector.Read8(ADDR_INGAMEMENU, out byte gamemenu) && (gamemenu != 0x20) && (gamemenu != 0x10) && Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.Freeze8(ADDR_ShotLvl, 0x00), /*Refresh Condtion*/
+                        () => Connector.Read8(ADDR_INGAMEMENU, out byte gamemenu) && (gamemenu != 0x20) && (gamemenu != 0x10) && Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.Write8(ADDR_ShotLvl, 0x00), /*Refresh Condtion*/
                         TimeSpan.FromMilliseconds(50), /*Refresh Retry Timer*/
                         () => true, /*Action*/
                         TimeSpan.FromSeconds(0.1),
-                        true);
-                        war.WhenStarted.Then(t => Connector.SendMessage($"{request.DisplayViewer} limited you to Base sword shots (30s)."));
+                        true, "charge");
+                        war.WhenStarted.Then(t => Connector.SendMessage($"{request.DisplayViewer} limited you to Base sword shots (15s)."));
                         return;
 
                     }
@@ -1588,16 +1588,16 @@ namespace CrowdControl.Games.Packs
                     {
                         byte eqsword = 01;
                         var war = RepeatAction(request,
-                        TimeSpan.FromSeconds(30),
+                        TimeSpan.FromSeconds(15),
                         () => Connector.Read8(ADDR_Equip_Sword, out eqsword) && (eqsword > 00), /*Effect Start Condition*/
-                        () => Connector.Freeze8(ADDR_ShotLvl, 0x01), /*Start Action*/
+                        () => Connector.Write8(ADDR_ShotLvl, 0x01), /*Start Action*/
                         TimeSpan.FromSeconds(1), /*Retry Timer*/
-                        () => Connector.Read8(ADDR_INGAMEMENU, out byte gamemenu) && (gamemenu != 0x20) && (gamemenu != 0x10) && Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.Freeze8(ADDR_ShotLvl, 0x01), /*Refresh Condtion*/
+                        () => Connector.Read8(ADDR_INGAMEMENU, out byte gamemenu) && (gamemenu != 0x20) && (gamemenu != 0x10) && Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.Write8(ADDR_ShotLvl, 0x01), /*Refresh Condtion*/
                         TimeSpan.FromMilliseconds(50), /*Refresh Retry Timer*/
                         () => true, /*Action*/
                         TimeSpan.FromSeconds(0.1),
-                        true);
-                        war.WhenStarted.Then(t => Connector.SendMessage($"{request.DisplayViewer} limited/gave you to LVL2 sword shots (30s)."));
+                        true, "charge");
+                        war.WhenStarted.Then(t => Connector.SendMessage($"{request.DisplayViewer} limited/gave you to LVL2 sword shots (15s)."));
                         return;
 
                     }
@@ -1617,16 +1617,16 @@ namespace CrowdControl.Games.Packs
                     {
                         byte eqsword = 01;
                         var war = RepeatAction(request,
-                        TimeSpan.FromSeconds(30),
+                        TimeSpan.FromSeconds(15),
                         () => Connector.Read8(ADDR_Equip_Sword, out eqsword) && (eqsword > 00), /*Effect Start Condition*/
-                        () => Connector.Freeze8(ADDR_ShotLvl, 0x02), /*Start Action*/
+                        () => Connector.Write8(ADDR_ShotLvl, 0x02), /*Start Action*/
                         TimeSpan.FromSeconds(1), /*Retry Timer*/
-                        () => Connector.Read8(ADDR_INGAMEMENU, out byte gamemenu) && (gamemenu != 0x20) && (gamemenu != 0x10) && Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.Freeze8(ADDR_ShotLvl, 0x02), /*Refresh Condtion*/
+                        () => Connector.Read8(ADDR_INGAMEMENU, out byte gamemenu) && (gamemenu != 0x20) && (gamemenu != 0x10) && Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.Write8(ADDR_ShotLvl, 0x02), /*Refresh Condtion*/
                         TimeSpan.FromMilliseconds(50), /*Refresh Retry Timer*/
                         () => true, /*Action*/
                         TimeSpan.FromSeconds(0.1),
-                        true);
-                        war.WhenStarted.Then(t => Connector.SendMessage($"{request.DisplayViewer} limited/gave you to LVL3 sword shots (30s)."));
+                        true, "charge");
+                        war.WhenStarted.Then(t => Connector.SendMessage($"{request.DisplayViewer} limited/gave you to LVL3 sword shots (15s)."));
                         return;
 
                     }
@@ -1655,7 +1655,7 @@ namespace CrowdControl.Games.Packs
                         TimeSpan.FromMilliseconds(50), /*Refresh Retry Timer*/
                         () => true, /*Action*/
                         TimeSpan.FromSeconds(0.1),
-                        true);
+                        true, "charge");
                         war.WhenStarted.Then(t => Connector.SendMessage($"{request.DisplayViewer} deployed Warrior Ring Effect (15s)."));
                         return;
 
@@ -1685,7 +1685,7 @@ namespace CrowdControl.Games.Packs
                         TimeSpan.FromMilliseconds(50), /*Refresh Retry Timer*/
                         () => true, /*Action*/
                         TimeSpan.FromSeconds(0.1),
-                        true);
+                        true, "charge");
                         war.WhenStarted.Then(t => Connector.SendMessage($"{request.DisplayViewer} deployed LVL2 Warrior Ring Effect (15s)."));
                         return;
 
@@ -1713,7 +1713,7 @@ namespace CrowdControl.Games.Packs
                         TimeSpan.FromMilliseconds(50), /*Refresh Retry Timer*/
                         () => true, /*Action*/
                         TimeSpan.FromSeconds(0.1),
-                        true);
+                        true, "charge");
                         war.WhenStarted.Then(t => Connector.SendMessage($"{request.DisplayViewer} deployed TriShot Effect (15s)."));
                         return;
 
@@ -1741,7 +1741,7 @@ namespace CrowdControl.Games.Packs
                         TimeSpan.FromMilliseconds(50), /*Refresh Retry Timer*/
                         () => true, /*Action*/
                         TimeSpan.FromSeconds(0.1),
-                        true);
+                        true, "charge");
                         war.WhenStarted.Then(t => Connector.SendMessage($"{request.DisplayViewer} deployed Thunder Shot Effect (15s)."));
                         return;
                     }
@@ -1769,7 +1769,7 @@ namespace CrowdControl.Games.Packs
                         TimeSpan.FromMilliseconds(50), /*Refresh Retry Timer*/
                         () => true, /*Action*/
                         TimeSpan.FromSeconds(0.1),
-                        true);
+                        true, "charge");
                         war.WhenStarted.Then(t => Connector.SendMessage($"{request.DisplayViewer} deployed Thunder Shot Effect (15s)."));
                         return;
                     }
@@ -7360,19 +7360,22 @@ namespace CrowdControl.Games.Packs
 
                 case "lvl1shotcharged":
                     {
-                        result = Connector.Unfreeze(ADDR_ShotLvl);
+                        result = Connector.Unfreeze(ADDR_ShotLvl)
+                        && Connector.Unfreeze(ADDR_Warrior);
                         return result;
                     }
 
                 case "lvl2shotcharged":
                     {
-                        result = Connector.Unfreeze(ADDR_ShotLvl);
+                        result = Connector.Unfreeze(ADDR_ShotLvl)
+                        && Connector.Unfreeze(ADDR_Warrior);
                         return result;
                     }
 
                 case "lvl3shotcharged":
                     {
-                        result = Connector.Unfreeze(ADDR_ShotLvl);
+                        result = Connector.Unfreeze(ADDR_ShotLvl)
+                        && Connector.Unfreeze(ADDR_Warrior);
                         return result;
                     }
 
