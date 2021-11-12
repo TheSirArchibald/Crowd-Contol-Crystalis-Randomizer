@@ -478,6 +478,12 @@ namespace CrowdControl.Games.Packs
                 return false;
             }
 
+            if ((cscale) == 0x00)
+            {
+                DelayEffect(request);
+                return false;
+            }
+            
             if ((cscale + scale) == 0x2F)
             {
                 DelayEffect(request);
@@ -1201,6 +1207,7 @@ namespace CrowdControl.Games.Packs
                     new Effect("Heal Player to Full", "healplayer") {Price = 10, Description = "Player will be healed to full health"},
                     new Effect("Hurt Player (Scaled %)", "hurtplayer") {Price = 10, Description = "Player will be hurt"},
                     new Effect("Fix Power Upgrade", "fixpower") {Price = 0, Description = "Temporary fix for power upgrade"},
+                    new Effect("Fix Scaling", "fixscale") {Price = 0, Description = "Temporary fix for over scaling"},
                     new Effect("Kill Player", "kill") {Price = 40, Description = "Instantly Kill the Player"},
                     new Effect("Free Shopping", "freeshops") {Price = 10, Description = "Temporary make Item/Armor Shops free"},
                     new Effect("Mado Screen Shake Mode", "screenshakemode") {Price = 10, Description = "Temporary make the screen shake"},
@@ -7004,6 +7011,28 @@ namespace CrowdControl.Games.Packs
                         {
                             Connector.Write8(ADDR_U2HOOK, 0x01);
                             Connector.SendMessage($"{request.DisplayViewer} decreased the difficulty.");
+                            Connector.Write8(ADDR_U1HOOK, 0x01);
+                            Respond(request, EffectStatus.Success);
+                        }
+                        return;
+                    }
+
+                case "fixscale":   //Note fixed for UI update to be pushed soon
+                    {
+                        if (!Connector.Read8(ADDR_SCALING, out byte fixscale))
+                        {
+                            DelayEffect(request);
+                        }
+
+                        else if ((fixscale) <= 0x2F)
+                        {
+                            DelayEffect(request);
+                        }
+                        else
+                        {
+                            Connector.Write8(ADDR_SCALING, 0x2F); 
+                            Connector.Write8(ADDR_U2HOOK, 0x01);
+                            Connector.SendMessage($"{request.DisplayViewer} fixed scaling.");
                             Connector.Write8(ADDR_U1HOOK, 0x01);
                             Respond(request, EffectStatus.Success);
                         }
