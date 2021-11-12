@@ -1207,8 +1207,8 @@ namespace CrowdControl.Games.Packs
                     // General
                     new Effect("Heal Player to Full", "healplayer") {Price = 10, Description = "Player will be healed to full health"},
                     new Effect("Hurt Player (Scaled %)", "hurtplayer") {Price = 10, Description = "Player will be hurt"},
-                    new Effect("Fix Power Upgrade", "fixpower") {Price = 0, Description = "Temporary fix for power upgrade"},
-                    new Effect("Fix Scaling", "fixscale") {Price = 0, Description = "Temporary fix for over scaling"},
+                    //new Effect("Fix Power Upgrade", "fixpower") {Price = 0, Description = "Temporary fix for power upgrade"},
+                    //new Effect("Fix Scaling", "fixscale") {Price = 0, Description = "Temporary fix for over scaling"},
                     new Effect("Kill Player", "kill") {Price = 40, Description = "Instantly Kill the Player"},
                     new Effect("Free Shopping", "freeshops") {Price = 10, Description = "Temporary make Item/Armor Shops free"},
                     new Effect("Mado Screen Shake Mode", "screenshakemode") {Price = 10, Description = "Temporary make the screen shake"},
@@ -1219,9 +1219,9 @@ namespace CrowdControl.Games.Packs
                     //new Effect("Reset", "reset"),   
 
                     //Scaling and Leveling
-                    new Effect("Scaling and Leveling", "sandl", ItemKind.Folder),
-                    new Effect("Scaling Increase", "scaleup", "sandl") {Price = 10, Description = "Increase Player's Scaling by one"},
-                    new Effect("Scaling Decrease", "scaledown", "sandl") {Price = 10, Description = "Decrease Player's Scaling by one"},
+                    new Effect("Level", "sandl", ItemKind.Folder),
+                    //new Effect("Scaling Increase", "scaleup", "sandl") {Price = 10, Description = "Increase Player's Scaling by one"},
+                    //new Effect("Scaling Decrease", "scaledown", "sandl") {Price = 10, Description = "Decrease Player's Scaling by one"},
                     new Effect("Level Increase", "levelup", "sandl") {Price = 10, Description = "Increase Player's Level by one"},
                     new Effect("Level Decrease", "leveldown", "sandl") {Price = 10, Description = "Decrease Player's Level by one"},
                                         
@@ -7263,51 +7263,51 @@ namespace CrowdControl.Games.Packs
                         return;
                     }
 
-                case "scaleup":  //Note bug in UI fix currenlty not working right
-                    {
-                        if (TryAlterScale(request, 1))
-                        {
-                            Connector.Write8(ADDR_U2HOOK, 0x01);
-                            Connector.SendMessage($"{request.DisplayViewer} increased the difficulty.");
-                            Connector.Write8(ADDR_U1HOOK, 0x01);
-                            Respond(request, EffectStatus.Success);
-                        }
-                        return;
-                    }
+                //case "scaleup":  //Note bug in UI fix currenlty not working right
+                //    {
+                //        if (TryAlterScale(request, 1))
+                //        {
+                //            Connector.Write8(ADDR_U2HOOK, 0x01);
+                //            Connector.SendMessage($"{request.DisplayViewer} increased the difficulty.");
+                //            Connector.Write8(ADDR_U1HOOK, 0x01);
+                //            Respond(request, EffectStatus.Success);
+                //        }
+                //        return;
+                //    }
 
-                case "scaledown":   //Note bug in UI fix currenlty not working right
-                    {
-                        if (TryAlterScale(request, -1))
-                        {
-                            Connector.Write8(ADDR_U2HOOK, 0x01);
-                            Connector.SendMessage($"{request.DisplayViewer} decreased the difficulty.");
-                            Connector.Write8(ADDR_U1HOOK, 0x01);
-                            Respond(request, EffectStatus.Success);
-                        }
-                        return;
-                    }
+                //case "scaledown":   //Note bug in UI fix currenlty not working right
+                //    {
+                //        if (TryAlterScale(request, -1))
+                //        {
+                //            Connector.Write8(ADDR_U2HOOK, 0x01);
+                //            Connector.SendMessage($"{request.DisplayViewer} decreased the difficulty.");
+                //            Connector.Write8(ADDR_U1HOOK, 0x01);
+                //            Respond(request, EffectStatus.Success);
+                //        }
+                //        return;
+                //    }
 
-                case "fixscale":   //Note fixed for UI update to be pushed soon
-                    {
-                        if (!Connector.Read8(ADDR_SCALING, out byte fixscale))
-                        {
-                            DelayEffect(request);
-                        }
+                //case "fixscale":   //Note fixed for UI update to be pushed soon
+                //    {
+                //        if (!Connector.Read8(ADDR_SCALING, out byte fixscale))
+                //        {
+                //            DelayEffect(request);
+                //        }
 
-                        else if ((fixscale) <= 0x2F)
-                        {
-                            DelayEffect(request);
-                        }
-                        else
-                        {
-                            Connector.Write8(ADDR_SCALING, 0x2F); 
-                            Connector.Write8(ADDR_U2HOOK, 0x01);
-                            Connector.SendMessage($"{request.DisplayViewer} fixed scaling.");
-                            Connector.Write8(ADDR_U1HOOK, 0x01);
-                            Respond(request, EffectStatus.Success);
-                        }
-                        return;
-                    }
+                //        else if ((fixscale) <= 0x2F)
+                //        {
+                //            DelayEffect(request);
+                //        }
+                //        else
+                //        {
+                //            Connector.Write8(ADDR_SCALING, 0x2F); 
+                //            Connector.Write8(ADDR_U2HOOK, 0x01);
+                //            Connector.SendMessage($"{request.DisplayViewer} fixed scaling.");
+                //            Connector.Write8(ADDR_U1HOOK, 0x01);
+                //            Respond(request, EffectStatus.Success);
+                //        }
+                //        return;
+                //    }
 
                 case "blackout":
                     {
