@@ -1317,7 +1317,8 @@ namespace CrowdControl.Games.Packs
                     
                                         
                     //Shields
-                    new Effect("Give Shield","giveshield", ItemKind.Folder),
+                    new Effect("Shields","giveshield", ItemKind.Folder),
+                    new Effect("Steal Best Shield", "stealbestshield","giveshield") {Price = 5, Description = "Steal best shield from the player" },
                     new Effect("Send Carapace Shield", "carpshield","giveshield") {Price = 5, Description = "Give the Carapace Shield to the player" },
                     new Effect("Send Bronze Shield", "broshield","giveshield") {Price = 5, Description = "Give the Bronze Shield to the player" },
                     new Effect("Send Platinum Shield", "platshield","giveshield") {Price = 5, Description = "Give the Platinum Shield to the player" },
@@ -1328,7 +1329,8 @@ namespace CrowdControl.Games.Packs
                     new Effect("Send Psycho Shield", "pshield","giveshield") {Price = 30, Description = "Give the Psycho Shield to the player" },
                    
                     //Armor
-                    new Effect("Give Armor","givearmor", ItemKind.Folder),
+                    new Effect("Armors","givearmor", ItemKind.Folder),
+                    new Effect("Steal Best Armor", "stealbestarmor","givearmor") {Price = 5, Description = "Steal best armor from the player" },
                     new Effect("Send Tanned Hide ", "tanhide","givearmor") {Price = 5, Description = "Give the Tanned Hide to the player" },
                     new Effect("Send Leather Armor ", "leaarmor","givearmor") {Price = 5, Description = "Give the Leather Armor to the player" },
                     new Effect("Send Bronze Armor ", "broarmor","givearmor") {Price = 5, Description = "Give the Bronze Armor to the player" },
@@ -2812,6 +2814,182 @@ namespace CrowdControl.Games.Packs
                         return;
                     }
 
+                case "stealbestarmor":
+                    {
+                        //Slot 1 Check
+                        if (!Connector.Read8(ADDR_ArmorSlot4, out byte pshield4))
+                        {
+                            DelayEffect(request);
+                        }
+                        else if ((pshield4) == 0xFF)
+                        {
+                            //Slot 2 Check
+                            if (!Connector.Read8(ADDR_ArmorSlot3, out byte pshield3))
+                            {
+                                DelayEffect(request);
+                            }
+
+                            else if ((pshield3) == 0xFF)
+                            {
+                                //Slot 3 Check
+                                if (!Connector.Read8(ADDR_ArmorSlot2, out byte pshield2))
+                                {
+                                    DelayEffect(request);
+                                }
+
+                                else if ((pshield2) == 0xFF)
+                                {
+                                    //Slot 4 Check
+                                    if (!Connector.Read8(ADDR_ArmorSlot1, out byte pshield1))
+                                    {
+                                        DelayEffect(request);
+                                    }
+
+                                    else if ((pshield1) == 0xFF)
+                                    {
+                                        DelayEffect(request);
+                                    }
+                                    //Slot 4 Write
+                                    else if (!Connector.SetBits(ADDR_ArmorSlot1, 0xFF, out _))
+                                    {
+                                        DelayEffect(request);
+                                    }
+                                    else
+                                    {
+                                        Connector.Write8(ADDR_ArmorSlot1, 0xFF);
+                                        Respond(request, EffectStatus.Success);
+                                        Connector.SendMessage($"{request.DisplayViewer} stole your best armor.");
+                                    }
+                                    return;
+                                }
+                                //Slot 3 Write
+                                else if (!Connector.SetBits(ADDR_ArmorSlot2, 0xFF, out _))
+                                {
+                                    DelayEffect(request);
+                                }
+                                else
+                                {
+                                    Connector.Write8(ADDR_ArmorSlot2, 0xFF);
+                                    Respond(request, EffectStatus.Success);
+                                    Connector.SendMessage($"{request.DisplayViewer} stole your best armor.");
+                                }
+                                return;
+                            }
+                            //Slot 2 Write
+                            else if (!Connector.SetBits(ADDR_ArmorSlot3, 0xFF, out _))
+                            {
+                                DelayEffect(request);
+                            }
+                            else
+                            {
+                                Connector.Write8(ADDR_ArmorSlot3, 0xFF);
+                                Respond(request, EffectStatus.Success);
+                                Connector.SendMessage($"{request.DisplayViewer} stole your best armor.");
+                            }
+                            return;
+                        }
+                        //Slot 1 Write
+                        else if (!Connector.SetBits(ADDR_ArmorSlot4, 0xFF, out _))
+                        {
+                            DelayEffect(request);
+                        }
+                        else
+                        {
+                            Connector.Write8(ADDR_ArmorSlot4, 0xFF);
+                            Respond(request, EffectStatus.Success);
+                            Connector.SendMessage($"{request.DisplayViewer} stole your best armor.");
+                        }
+                        return;
+                    }
+
+                case "stealbestshield":
+                    {
+                        //Slot 1 Check
+                        if (!Connector.Read8(ADDR_ShieldSlot4, out byte pshield4))
+                        {
+                            DelayEffect(request);
+                        }
+                        else if ((pshield4) == 0xFF)
+                        {
+                            //Slot 2 Check
+                            if (!Connector.Read8(ADDR_ShieldSlot3, out byte pshield3))
+                            {
+                                DelayEffect(request);
+                            }
+                                                     
+                            else if ((pshield3) == 0xFF)
+                            {
+                                //Slot 3 Check
+                                if (!Connector.Read8(ADDR_ShieldSlot2, out byte pshield2))
+                                {
+                                    DelayEffect(request);
+                                }
+                               
+                                else if ((pshield2) == 0xFF)
+                                {
+                                    //Slot 4 Check
+                                    if (!Connector.Read8(ADDR_ShieldSlot1, out byte pshield1))
+                                    {
+                                        DelayEffect(request);
+                                    }
+                                    
+                                    else if ((pshield1) == 0xFF)
+                                    {
+                                        DelayEffect(request);
+                                    }
+                                    //Slot 4 Write
+                                    else if (!Connector.SetBits(ADDR_ShieldSlot1, 0xFF, out _))
+                                    {
+                                        DelayEffect(request);
+                                    }
+                                    else
+                                    {
+                                        Connector.Write8(ADDR_ShieldSlot1, 0xFF);
+                                        Respond(request, EffectStatus.Success);
+                                        Connector.SendMessage($"{request.DisplayViewer} stole your best shield.");
+                                    }
+                                    return;
+                                }
+                                //Slot 3 Write
+                                else if (!Connector.SetBits(ADDR_ShieldSlot2, 0xFF, out _))
+                                {
+                                    DelayEffect(request);
+                                }
+                                else
+                                {
+                                    Connector.Write8(ADDR_ShieldSlot2, 0xFF);
+                                    Respond(request, EffectStatus.Success);
+                                    Connector.SendMessage($"{request.DisplayViewer} stole your best shield.");
+                                }
+                                return;
+                            }
+                            //Slot 2 Write
+                            else if (!Connector.SetBits(ADDR_ShieldSlot3, 0xFF, out _))
+                            {
+                                DelayEffect(request);
+                            }
+                            else
+                            {
+                                Connector.Write8(ADDR_ShieldSlot3, 0xFF);
+                                Respond(request, EffectStatus.Success);
+                                Connector.SendMessage($"{request.DisplayViewer} stole your best shield.");
+                            }
+                            return;
+                        }
+                        //Slot 1 Write
+                        else if (!Connector.SetBits(ADDR_ShieldSlot4, 0xFF, out _))
+                        {
+                            DelayEffect(request);
+                        }
+                        else
+                        {
+                            Connector.Write8(ADDR_ShieldSlot4, 0xFF);
+                            Respond(request, EffectStatus.Success);
+                            Connector.SendMessage($"{request.DisplayViewer} stole your best shield.");
+                        }
+                        return;
+                    }
+
                 case "carpshield":
                     {
                         //Slot 1 Check
@@ -2878,7 +3056,7 @@ namespace CrowdControl.Games.Packs
                                     return;
                                 }
                                 //Slot 3 Write
-                                else if (!Connector.SetBits(ADDR_ArmorSlot3, 0x0D, out _))
+                                else if (!Connector.SetBits(ADDR_ShieldSlot3, 0x0D, out _))
                                 {
                                     DelayEffect(request);
                                 }
@@ -2983,7 +3161,7 @@ namespace CrowdControl.Games.Packs
                                     return;
                                 }
                                 //Slot 3 Write
-                                else if (!Connector.SetBits(ADDR_ArmorSlot3, 0x0E, out _))
+                                else if (!Connector.SetBits(ADDR_ShieldSlot3, 0x0E, out _))
                                 {
                                     DelayEffect(request);
                                 }
@@ -3088,7 +3266,7 @@ namespace CrowdControl.Games.Packs
                                     return;
                                 }
                                 //Slot 3 Write
-                                else if (!Connector.SetBits(ADDR_ArmorSlot3, 0x0F, out _))
+                                else if (!Connector.SetBits(ADDR_ShieldSlot3, 0x0F, out _))
                                 {
                                     DelayEffect(request);
                                 }
@@ -3193,7 +3371,7 @@ namespace CrowdControl.Games.Packs
                                     return;
                                 }
                                 //Slot 3 Write
-                                else if (!Connector.SetBits(ADDR_ArmorSlot3, 0x10, out _))
+                                else if (!Connector.SetBits(ADDR_ShieldSlot3, 0x10, out _))
                                 {
                                     DelayEffect(request);
                                 }
@@ -3298,7 +3476,7 @@ namespace CrowdControl.Games.Packs
                                     return;
                                 }
                                 //Slot 3 Write
-                                else if (!Connector.SetBits(ADDR_ArmorSlot3, 0x11, out _))
+                                else if (!Connector.SetBits(ADDR_ShieldSlot3, 0x11, out _))
                                 {
                                     DelayEffect(request);
                                 }
@@ -3403,7 +3581,7 @@ namespace CrowdControl.Games.Packs
                                     return;
                                 }
                                 //Slot 3 Write
-                                else if (!Connector.SetBits(ADDR_ArmorSlot3, 0x13, out _))
+                                else if (!Connector.SetBits(ADDR_ShieldSlot3, 0x13, out _))
                                 {
                                     DelayEffect(request);
                                 }
@@ -3508,7 +3686,7 @@ namespace CrowdControl.Games.Packs
                                     return;
                                 }
                                 //Slot 3 Write
-                                else if (!Connector.SetBits(ADDR_ArmorSlot3, 0x14, out _))
+                                else if (!Connector.SetBits(ADDR_ShieldSlot3, 0x14, out _))
                                 {
                                     DelayEffect(request);
                                 }
@@ -3613,7 +3791,7 @@ namespace CrowdControl.Games.Packs
                                     return;
                                 }
                                 //Slot 3 Write
-                                else if (!Connector.SetBits(ADDR_ArmorSlot3, 0x12, out _))
+                                else if (!Connector.SetBits(ADDR_ShieldSlot3, 0x12, out _))
                                 {
                                     DelayEffect(request);
                                 }
