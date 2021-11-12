@@ -1466,14 +1466,7 @@ namespace CrowdControl.Games.Packs
                         () => { Connector.SendMessage($"{request.DisplayViewer} wild warped you."); });
                         return;
                     }
-
-
-                //{
-                //    Connector.Write8(ADDR_U2HOOK, 0x03);
-                //    Connector.SendMessage($"{request.DisplayViewer} wild warped you.");
-                //    Connector.Write8(ADDR_U1HOOK, 0x01);
-                //    return;
-                //}                    
+                  
 
                 case "kill":
                     {
