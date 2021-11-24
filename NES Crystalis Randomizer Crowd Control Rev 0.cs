@@ -7489,22 +7489,7 @@ namespace CrowdControl.Games.Packs
 
                 case "levelup":   //Note fixed for UI update to be pushed soon
                     {
-                        if (!Connector.Read8(ADDR_CURRENT_AREA, out byte areas))
-                        {
-                            DelayEffect(request);
-                        }
-                        //Boss area excluded because it is too troll.
-                        if ((areas) == 0x0A)
-                        {
-                            DelayEffect(request);
-                            return;
-                        }
-
-                        if ((areas) == 0x1A)
-                        {
-                            DelayEffect(request);
-                            return;
-                        }
+                        
                         
                         if (!Connector.Read8(ADDR_LEVEL, out byte playerlevel))
                         {
