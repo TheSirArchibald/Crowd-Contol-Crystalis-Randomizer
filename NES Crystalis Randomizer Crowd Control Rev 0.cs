@@ -7724,45 +7724,45 @@ namespace CrowdControl.Games.Packs
 
                 case "lvl2shotcharged":
                     {
-                        result = Connector.Unfreeze(ADDR_ShotLvl)
+                        result = Connector.Unfreeze(ADDR_ShotLvl) && Connector.Write8(ADDR_ShotLvl, 0x00)
                         && Connector.Unfreeze(ADDR_Warrior);
                         return result;
                     }
 
                 case "lvl3shotcharged":
                     {
-                        result = Connector.Unfreeze(ADDR_ShotLvl)
+                        result = Connector.Unfreeze(ADDR_ShotLvl) && Connector.Write8(ADDR_ShotLvl, 0x00)
                         && Connector.Unfreeze(ADDR_Warrior);
                         return result;
                     }
 
                 case "lvl1shot":
                     {
-                        result = Connector.Unfreeze(ADDR_Warrior);
+                        result = Connector.Unfreeze(ADDR_Warrior) && Connector.Write8(ADDR_Warrior, 0x00);
                         return result;
                     }
 
                 case "lvl2shot":
                     {
-                        result = Connector.Unfreeze(ADDR_Warrior);
+                        result = Connector.Unfreeze(ADDR_Warrior) && Connector.Write8(ADDR_Warrior, 0x00);
                         return result;
                     }
 
                 case "trishot":
                     {
-                        result = Connector.Unfreeze(ADDR_Warrior);
+                        result = Connector.Unfreeze(ADDR_Warrior) && Connector.Write8(ADDR_Warrior, 0x00);
                         return result;
                     }
 
                 case "thundershot":
                     {
-                        result = Connector.Unfreeze(ADDR_Warrior);
+                        result = Connector.Unfreeze(ADDR_Warrior) && Connector.Write8(ADDR_Warrior, 0x00);
                         return result;
                     }
 
                 case "lagshot":
                     {
-                        result = Connector.Unfreeze(ADDR_Warrior);
+                        result = Connector.Unfreeze(ADDR_Warrior) && Connector.Write8(ADDR_Warrior, 0x00);
                         return result;
                     }
 
@@ -7822,7 +7822,7 @@ namespace CrowdControl.Games.Packs
                 case "swordless":
                     {
                         Connector.Unfreeze(ADDR_Equip_Sword);
-                        Connector.SendMessage($"{request.DisplayViewer}'s gave back your Swords.");
+                        Connector.SendMessage($"{request.DisplayViewer}'s gave back your Swords. Please requip one.");
                         return result;
                     }
 
