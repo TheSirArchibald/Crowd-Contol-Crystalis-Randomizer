@@ -1227,7 +1227,7 @@ namespace CrowdControl.Games.Packs
                     //Magic
                     new Effect("Magic", "magic", ItemKind.Folder),
                     new Effect("Refill Magic to Full", "magicup", "magic") {Price = 10, Description = "Refill Player's Magic to Full"},
-                    new Effect("Take Magic (Scaled %)", "magicdown", "magic") {Price = 4, Description = "Steal some of Player's Magic" },
+                    new Effect("Take Magic (Scaled %)", "magicdown", "magic") {Price = 5, Description = "Steal some of Player's Magic" },
                     //Money
                     new Effect("Money", "money", ItemKind.Folder),
                     new Effect("Give Money (50 Gold)", "givemoney50", "money") {Price = 2, Description = "Give 50 gold to the Player" },
@@ -1269,22 +1269,22 @@ namespace CrowdControl.Games.Packs
                     new Effect("Base Charge Shots only", "lvl1shotcharged", "projectile") {Price = 10, Description = "Temporary give/limit player to Lvl 1 projectile shots" },
                     new Effect("Ball Charge Shots only", "lvl2shotcharged", "projectile") {Price = 10, Description = "Temporary give/limit player to Lvl 2 projectile shots" },
                     new Effect("Bracelet Charge Shots only", "lvl3shotcharged", "projectile") {Price = 10, Description = "Temporary give player to Lvl 3 projectile shots" },
-                    new Effect("Warrior Ring Mode", "lvl1shot", "projectile") {Price = 4, Description = "Temporary give player Lvl 1 projectile shots" },
-                    new Effect("LVL 2 Warrior Ring Mode", "lvl2shot", "projectile") {Price = 4, Description = "Temporarygive player Lvl 2 projectile shots" },
-                    new Effect("TriShot Mode", "trishot", "projectile") {Price = 4, Description = "Temporary give player Lightning Bolt projectile shots" },
-                    new Effect("Thunder Mode", "thundershot", "projectile") {Price = 4, Description = "Temporary give player Thunder projectile shots" },
-                    new Effect("Lag Storm Mode", "lagshot", "projectile") {Price = 4, Description = "Temporary give player Storm projectile shots" },
+                    new Effect("Warrior Ring Mode", "lvl1shot", "projectile") {Price = 5, Description = "Temporary give player Lvl 1 projectile shots" },
+                    new Effect("LVL 2 Warrior Ring Mode", "lvl2shot", "projectile") {Price = 5, Description = "Temporarygive player Lvl 2 projectile shots" },
+                    new Effect("TriShot Mode", "trishot", "projectile") {Price = 5, Description = "Temporary give player Lightning Bolt projectile shots" },
+                    new Effect("Thunder Mode", "thundershot", "projectile") {Price = 5, Description = "Temporary give player Thunder projectile shots" },
+                    new Effect("Lag Storm Mode", "lagshot", "projectile") {Price = 5, Description = "Temporary give player Storm projectile shots" },
 
                    
                     // Movement Effects
                     new Effect("Movement Effects", "moveeffect", ItemKind.Folder),
-                    new Effect("Jump Mode", "jump", "moveeffect") {Price = 4, Description = "Temporary make the player jump" },
-                    new Effect("Flight Mode", "flightmode", "moveeffect") {Price = 4, Description = "Temporary make the player fly" },
-                    new Effect("Heavy Mode", "heavy", "moveeffect") {Price = 4, Description = "Temporary make the player walk slower" },
+                    new Effect("Jump Mode", "jump", "moveeffect") {Price = 5, Description = "Temporary make the player jump" },
+                    new Effect("Flight Mode", "flightmode", "moveeffect") {Price = 5, Description = "Temporary make the player fly" },
+                    new Effect("Heavy Mode", "heavy", "moveeffect") {Price = 5, Description = "Temporary make the player walk slower" },
                     
                     // Status Conditions
                     new Effect("Change Condition", "changecondition", ItemKind.Folder),
-                    new Effect("Cure Player", "recover", "changecondition")  {Price = 4, Description = "Instantly cure all aliment affecting the player" },
+                    new Effect("Cure Player", "recover", "changecondition")  {Price = 5, Description = "Instantly cure all aliment affecting the player" },
                     new Effect("UnTimed Posion", "poison", "changecondition")  {Price = 10, Description = "Instantly poison the player" },
                     new Effect("UnTimed Paralysis", "paralysis", "changecondition")  {Price = 10, Description = "Instantly paralysis the player" },
                     new Effect("UnTimed Slime", "slime", "changecondition")  {Price = 10, Description = "Instantly slime the player" },
@@ -2087,9 +2087,9 @@ namespace CrowdControl.Games.Packs
                         return;
                     }
 
-                case "fixpower":
-                    FixPower(request);
-                    return;
+                // case "fixpower":
+                //     FixPower(request);
+                //     return;
 
                 //case "givewind":
                 //    TryGiveWindPower(request);
