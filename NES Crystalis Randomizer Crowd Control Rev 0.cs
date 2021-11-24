@@ -1610,11 +1610,11 @@ namespace CrowdControl.Games.Packs
 
                 case "lvl1shotcharged":
 
-                    if (!Connector.Read8(ADDR_Warrior, out byte charged1))
+                    if (!Connector.Read8(ADDR_ShotLvl, out byte charged1))
                     {
                         DelayEffect(request);
                     }
-                    else if ((charged1) >= 0x01)
+                    else if ((charged1) == 0x00)
                     {
                         DelayEffect(request);
                     }
@@ -1639,11 +1639,11 @@ namespace CrowdControl.Games.Packs
 
                 case "lvl2shotcharged":
 
-                    if (!Connector.Read8(ADDR_Warrior, out byte charged2))
+                    if (!Connector.Read8(ADDR_ShotLvl, out byte charged2))
                     {
                         DelayEffect(request);
                     }
-                    else if ((charged2) >= 0x01)
+                    else if ((charged2) == 0x01)
                     {
                         DelayEffect(request);
                     }
@@ -1668,11 +1668,11 @@ namespace CrowdControl.Games.Packs
 
                 case "lvl3shotcharged":
 
-                    if (!Connector.Read8(ADDR_Warrior, out byte charged3))
+                    if (!Connector.Read8(ADDR_ShotLvl, out byte charged3))
                     {
                         DelayEffect(request);
                     }
-                    else if ((charged3) >= 0x01)
+                    else if ((charged3) == 0x02)
                     {
                         DelayEffect(request);
                     }
