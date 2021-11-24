@@ -316,7 +316,7 @@ namespace CrowdControl.Games.Packs
                 () => Connector.IsNonZero8(ADDR_CURRENT_AREA), /*Effect Start Condition*/
                 () => Connector.Freeze8(ADDR_Blackout1, 0x9A) && Connector.Write8(ADDR_Controller, 0x20), /*Start Action*/
                 TimeSpan.FromSeconds(1), /*Retry Timer*/
-                () => Connector.Read8(ADDR_INGAMEMENU, out byte gamemenu) && (gamemenu != 0x20) && (gamemenu != 0x10) && Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.Freeze8(ADDR_Blackout1, 0x9A) && Connector.IsNonZero8(ADDR_CURRENT_AREA), /*Refresh Condtion*/
+                () =>  Connector.IsNonZero8(ADDR_HP) && Connector.Read8(ADDR_INGAMEMENU, out byte gamemenu) && (gamemenu != 0x20) && (gamemenu != 0x10) && Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.Freeze8(ADDR_Blackout1, 0x9A) && Connector.IsNonZero8(ADDR_CURRENT_AREA), /*Refresh Condtion*/
                 TimeSpan.FromMilliseconds(100), /*Refresh Retry Timer*/
                 () => true, /*Action*/
                 TimeSpan.FromSeconds(0.5),
@@ -332,7 +332,7 @@ namespace CrowdControl.Games.Packs
                 () => Connector.IsNonZero8(ADDR_CURRENT_AREA), /*Effect Start Condition*/
                 () => Connector.Freeze8(ADDR_Blackout3, 0x9A) && Connector.Freeze8(ADDR_Blackout1, 0x9A) && Connector.Write8(ADDR_Controller, 0x20), /*Start Action*/
                 TimeSpan.FromSeconds(1), /*Retry Timer*/
-                () => Connector.Read8(ADDR_INGAMEMENU, out byte gamemenu) && (gamemenu != 0x20) && (gamemenu != 0x10) && Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.Freeze8(ADDR_Blackout3, 0x9A) && Connector.Freeze8(ADDR_Blackout1, 0x9A) && Connector.IsNonZero8(ADDR_CURRENT_AREA), /*Refresh Condtion*/
+                () => Connector.IsNonZero8(ADDR_HP) && Connector.Read8(ADDR_INGAMEMENU, out byte gamemenu) && (gamemenu != 0x20) && (gamemenu != 0x10) && Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.Freeze8(ADDR_Blackout3, 0x9A) && Connector.Freeze8(ADDR_Blackout1, 0x9A) && Connector.IsNonZero8(ADDR_CURRENT_AREA), /*Refresh Condtion*/
                 TimeSpan.FromMilliseconds(100), /*Refresh Retry Timer*/
                 () => true, /*Action*/
                 TimeSpan.FromSeconds(0.5),
@@ -347,7 +347,7 @@ namespace CrowdControl.Games.Packs
                 () => Connector.IsNonZero8(ADDR_CURRENT_AREA), /*Effect Start Condition*/
                 () => Connector.Freeze8(ADDR_Blackout1, 0x9A) && Connector.Write8(ADDR_Controller, 0x20), /*Start Action*/
                 TimeSpan.FromSeconds(1), /*Retry Timer*/
-                () => Connector.Read8(ADDR_INGAMEMENU, out byte gamemenu) && (gamemenu != 0x20) && (gamemenu != 0x10) && Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.Freeze8(ADDR_Blackout1, 0x9A) && Connector.IsNonZero8(ADDR_CURRENT_AREA), /*Refresh Condtion*/
+                () => Connector.IsNonZero8(ADDR_HP) && Connector.Read8(ADDR_INGAMEMENU, out byte gamemenu) && (gamemenu != 0x20) && (gamemenu != 0x10) && Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.Freeze8(ADDR_Blackout1, 0x9A) && Connector.IsNonZero8(ADDR_CURRENT_AREA), /*Refresh Condtion*/
                 TimeSpan.FromMilliseconds(100), /*Refresh Retry Timer*/
                 () => true, /*Action*/
                 TimeSpan.FromSeconds(0.5),
@@ -363,7 +363,7 @@ namespace CrowdControl.Games.Packs
                 () => Connector.IsNonZero8(ADDR_CURRENT_AREA), /*Effect Start Condition*/
                 () => Connector.Freeze8(ADDR_Blackout1, 0x9A) && Connector.Freeze8(ADDR_Blackout2, 0x9A) && Connector.Write8(ADDR_Controller, 0x20), /*Start Action*/
                 TimeSpan.FromSeconds(1), /*Retry Timer*/
-                () => Connector.Read8(ADDR_INGAMEMENU, out byte gamemenu) && (gamemenu != 0x20) && (gamemenu != 0x10) && Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.Freeze8(ADDR_Blackout1, 0x9A) && Connector.Freeze8(ADDR_Blackout2, 0x9A) && Connector.IsNonZero8(ADDR_CURRENT_AREA), /*Refresh Condtion*/
+                () => Connector.IsNonZero8(ADDR_HP) && Connector.Read8(ADDR_INGAMEMENU, out byte gamemenu) && (gamemenu != 0x20) && (gamemenu != 0x10) && Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.Freeze8(ADDR_Blackout1, 0x9A) && Connector.Freeze8(ADDR_Blackout2, 0x9A) && Connector.IsNonZero8(ADDR_CURRENT_AREA), /*Refresh Condtion*/
                 TimeSpan.FromMilliseconds(100), /*Refresh Retry Timer*/
                 () => true, /*Action*/
                 TimeSpan.FromSeconds(0.5),
@@ -379,7 +379,7 @@ namespace CrowdControl.Games.Packs
                 () => Connector.IsNonZero8(ADDR_CURRENT_AREA), /*Effect Start Condition*/
                 () => Connector.Freeze8(ADDR_Blackout1, 0x9A) && Connector.Write8(ADDR_Controller, 0x20), /*Start Action*/
                 TimeSpan.FromSeconds(1), /*Retry Timer*/
-                () => Connector.Read8(ADDR_INGAMEMENU, out byte gamemenu) && (gamemenu != 0x20) && (gamemenu != 0x10) && Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.Freeze8(ADDR_Blackout1, 0x9A) && Connector.IsNonZero8(ADDR_CURRENT_AREA), /*Refresh Condtion*/
+                () => Connector.IsNonZero8(ADDR_HP) && Connector.Read8(ADDR_INGAMEMENU, out byte gamemenu) && (gamemenu != 0x20) && (gamemenu != 0x10) && Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.Freeze8(ADDR_Blackout1, 0x9A) && Connector.IsNonZero8(ADDR_CURRENT_AREA), /*Refresh Condtion*/
                 TimeSpan.FromMilliseconds(100), /*Refresh Retry Timer*/
                 () => true, /*Action*/
                 TimeSpan.FromSeconds(0.5),
@@ -395,7 +395,7 @@ namespace CrowdControl.Games.Packs
                 () => Connector.IsNonZero8(ADDR_CURRENT_AREA), /*Effect Start Condition*/
                 () => Connector.Freeze8(ADDR_Blackout1, 0x9A) && Connector.Write8(ADDR_Controller, 0x20), /*Start Action*/
                 TimeSpan.FromSeconds(1), /*Retry Timer*/
-                () => Connector.Read8(ADDR_INGAMEMENU, out byte gamemenu) && (gamemenu != 0x20) && (gamemenu != 0x10) && Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.Freeze8(ADDR_Blackout1, 0x9A) && Connector.IsNonZero8(ADDR_CURRENT_AREA), /*Refresh Condtion*/
+                () => Connector.IsNonZero8(ADDR_HP) && Connector.Read8(ADDR_INGAMEMENU, out byte gamemenu) && (gamemenu != 0x20) && (gamemenu != 0x10) && Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.Freeze8(ADDR_Blackout1, 0x9A) && Connector.IsNonZero8(ADDR_CURRENT_AREA), /*Refresh Condtion*/
                 TimeSpan.FromMilliseconds(100), /*Refresh Retry Timer*/
                 () => true, /*Action*/
                 TimeSpan.FromSeconds(0.5),
@@ -411,7 +411,7 @@ namespace CrowdControl.Games.Packs
                 () => Connector.IsNonZero8(ADDR_CURRENT_AREA), /*Effect Start Condition*/
                 () => Connector.Freeze8(ADDR_Blackout1, 0x9A) && Connector.Freeze8(ADDR_Blackout2, 0x9A) && Connector.Write8(ADDR_Controller, 0x20), /*Start Action*/
                 TimeSpan.FromSeconds(1), /*Retry Timer*/
-                () => Connector.Read8(ADDR_INGAMEMENU, out byte gamemenu) && (gamemenu != 0x20) && (gamemenu != 0x10) && Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.Freeze8(ADDR_Blackout1, 0x9A) && Connector.Freeze8(ADDR_Blackout2, 0x9A) && Connector.IsNonZero8(ADDR_CURRENT_AREA), /*Refresh Condtion*/
+                () => Connector.IsNonZero8(ADDR_HP) && Connector.Read8(ADDR_INGAMEMENU, out byte gamemenu) && (gamemenu != 0x20) && (gamemenu != 0x10) && Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.Freeze8(ADDR_Blackout1, 0x9A) && Connector.Freeze8(ADDR_Blackout2, 0x9A) && Connector.IsNonZero8(ADDR_CURRENT_AREA), /*Refresh Condtion*/
                 TimeSpan.FromMilliseconds(100), /*Refresh Retry Timer*/
                 () => true, /*Action*/
                 TimeSpan.FromSeconds(0.5),
@@ -427,7 +427,7 @@ namespace CrowdControl.Games.Packs
                 () => Connector.IsNonZero8(ADDR_CURRENT_AREA), /*Effect Start Condition*/
                 () => Connector.Freeze8(ADDR_Blackout1, 0x9A) && Connector.Write8(ADDR_Controller, 0x20), /*Start Action*/
                 TimeSpan.FromSeconds(1), /*Retry Timer*/
-                () => Connector.Read8(ADDR_INGAMEMENU, out byte gamemenu) && (gamemenu != 0x20) && (gamemenu != 0x10) && Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.Freeze8(ADDR_Blackout1, 0x9A) && Connector.IsNonZero8(ADDR_CURRENT_AREA), /*Refresh Condtion*/
+                () => Connector.IsNonZero8(ADDR_HP) && Connector.Read8(ADDR_INGAMEMENU, out byte gamemenu) && (gamemenu != 0x20) && (gamemenu != 0x10) && Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.Freeze8(ADDR_Blackout1, 0x9A) && Connector.IsNonZero8(ADDR_CURRENT_AREA), /*Refresh Condtion*/
                 TimeSpan.FromMilliseconds(100), /*Refresh Retry Timer*/
                 () => true, /*Action*/
                 TimeSpan.FromSeconds(0.5),
@@ -443,7 +443,7 @@ namespace CrowdControl.Games.Packs
                 () => Connector.IsNonZero8(ADDR_CURRENT_AREA), /*Effect Start Condition*/
                 () => Connector.Freeze8(ADDR_Blackout1, 0x9A) && Connector.Write8(ADDR_Controller, 0x20), /*Start Action*/
                 TimeSpan.FromSeconds(1), /*Retry Timer*/
-                () => Connector.Read8(ADDR_INGAMEMENU, out byte gamemenu) && (gamemenu != 0x20) && (gamemenu != 0x10) && Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.Freeze8(ADDR_Blackout1, 0x9A) && Connector.IsNonZero8(ADDR_CURRENT_AREA), /*Refresh Condtion*/
+                () => Connector.IsNonZero8(ADDR_HP) && Connector.Read8(ADDR_INGAMEMENU, out byte gamemenu) && (gamemenu != 0x20) && (gamemenu != 0x10) && Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.Freeze8(ADDR_Blackout1, 0x9A) && Connector.IsNonZero8(ADDR_CURRENT_AREA), /*Refresh Condtion*/
                 TimeSpan.FromMilliseconds(100), /*Refresh Retry Timer*/
                 () => true, /*Action*/
                 TimeSpan.FromSeconds(0.5),
@@ -459,7 +459,7 @@ namespace CrowdControl.Games.Packs
                 () => Connector.IsNonZero8(ADDR_CURRENT_AREA), /*Effect Start Condition*/
                 () => Connector.Freeze8(ADDR_Blackout1, 0x9A) && Connector.Freeze8(ADDR_Blackout2, 0x9A) && Connector.Freeze8(ADDR_Blackout3, 0x9A) && Connector.Write8(ADDR_Controller, 0x20), /*Start Action*/
                 TimeSpan.FromSeconds(1), /*Retry Timer*/
-                () => Connector.Read8(ADDR_INGAMEMENU, out byte gamemenu) && (gamemenu != 0x20) && (gamemenu != 0x10) && Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.Freeze8(ADDR_Blackout1, 0x9A) && Connector.Freeze8(ADDR_Blackout3, 0x9A) && Connector.Freeze8(ADDR_Blackout3, 0x9A) && Connector.IsNonZero8(ADDR_CURRENT_AREA), /*Refresh Condtion*/
+                () => Connector.IsNonZero8(ADDR_HP) && Connector.Read8(ADDR_INGAMEMENU, out byte gamemenu) && (gamemenu != 0x20) && (gamemenu != 0x10) && Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.Freeze8(ADDR_Blackout1, 0x9A) && Connector.Freeze8(ADDR_Blackout3, 0x9A) && Connector.Freeze8(ADDR_Blackout3, 0x9A) && Connector.IsNonZero8(ADDR_CURRENT_AREA), /*Refresh Condtion*/
                 TimeSpan.FromMilliseconds(100), /*Refresh Retry Timer*/
                 () => true, /*Action*/
                 TimeSpan.FromSeconds(0.5),
@@ -1308,10 +1308,10 @@ namespace CrowdControl.Games.Packs
 
                     // Sword Effects Timed
                     new Effect("Sword Effects","sword", ItemKind.Folder),
-                    new Effect("Steal Wind Sword (Timed)", "removewindsword", "sword")  {Price = 10, Description = "Temporary steal the Wind Sword from the player" },
-                    new Effect("Steal Fire Sword (Timed)", "removefiresword", "sword")  {Price = 10, Description = "Temporary steal the Fire Sword from the player" },
-                    new Effect("Steal Water Sword (Timed)", "removewatersword", "sword")  {Price = 10, Description = "Temporary steal the Water Sword from the player" },
-                    new Effect("Steal Thunder Sword (Timed)", "removethundersword", "sword")  {Price = 10, Description = "Temporary steal the Thunder Sword from the player" },
+                    new Effect("Steal Swords (Timed)", "swordless", "sword")  {Price = 10, Description = "Temporary steal the Swords from the player" },
+                    // new Effect("Steal Fire Sword (Timed)", "removefiresword", "sword")  {Price = 10, Description = "Temporary steal the Fire Sword from the player" },
+                    // new Effect("Steal Water Sword (Timed)", "removewatersword", "sword")  {Price = 10, Description = "Temporary steal the Water Sword from the player" },
+                    // new Effect("Steal Thunder Sword (Timed)", "removethundersword", "sword")  {Price = 10, Description = "Temporary steal the Thunder Sword from the player" },
                     new Effect("Equip Wind Sword (Timed)", "windsword", "sword")  {Price = 10, Description = "Temporary force equip the Wind Sword" },
                     new Effect("Equip Fire Sword (Timed)", "firesword", "sword")  {Price = 10, Description = "Temporary force equip the Fire Sword" },
                     new Effect("Equip Water Sword (Timed)", "watersword", "sword")  {Price = 10, Description = "Temporary force equip the Water Sword" },
@@ -1404,7 +1404,7 @@ namespace CrowdControl.Games.Packs
         public override Game Game { get; } = new Game(104, "Crystalis", "Crystalis", "NES", ConnectorType.NESConnector);
 
         protected override bool IsReady(EffectRequest request)
-            => Connector.IsZero8(0x004A) && Connector.Read8(0x01F9, out byte b) && (b < 0xFF);  /*Main Menu = FF*/
+            => Connector.IsZero8(0x004A) && Connector.Read8(0x01F9, out byte b) && (b < 0xFF) && Connector.Read8(ADDR_HP, out byte gamehp) && (gamehp > 0x00);  /*Main Menu = FF*/
 
         protected override void RequestData(DataRequest request) => Respond(request, request.Key, null, false, $"Variable name \"{request.Key}\" not known");
 
@@ -1425,7 +1425,7 @@ namespace CrowdControl.Games.Packs
                         () => Connector.IsZero8(ADDR_INVIS), /*Effect Start Condition*/
                         () => Connector.Freeze8(ADDR_INVIS, 0xFA) && Connector.Write8(ADDR_Controller, 0x20), /*Start Action*/
                         TimeSpan.FromSeconds(1), /*Retry Timer*/
-                        () => Connector.Read8(ADDR_INGAMEMENU, out byte gamemenu) && (gamemenu != 0x20) && (gamemenu != 0x10) && Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.Freeze8(ADDR_INVIS, 0xFA), /*Refresh Condtion*/
+                        () => Connector.IsNonZero8(ADDR_HP) && Connector.Read8(ADDR_INGAMEMENU, out byte gamemenu) && (gamemenu != 0x20) && (gamemenu != 0x10) && Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.Freeze8(ADDR_INVIS, 0xFA), /*Refresh Condtion*/
                         TimeSpan.FromMilliseconds(50), /*Refresh Retry Timer*/
                         () => true, /*Action*/
                         TimeSpan.FromSeconds(0.5),
@@ -1554,7 +1554,7 @@ namespace CrowdControl.Games.Packs
                         () => Connector.IsZero8(ADDR_Jump), /*Effect Start Condition*/
                         () => Connector.Freeze8(ADDR_Jump, 0x20), /*Start Action*/
                         TimeSpan.FromSeconds(1), /*Retry Timer*/
-                        () => Connector.Read8(ADDR_INGAMEMENU, out byte gamemenu) && (gamemenu != 0x20) && (gamemenu != 0x10) && Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.Freeze8(ADDR_Jump, 0x20) && Connector.IsNonZero8(ADDR_Jump), /*Refresh Condtion*/
+                        () => Connector.IsNonZero8(ADDR_HP) && Connector.Read8(ADDR_INGAMEMENU, out byte gamemenu) && (gamemenu != 0x20) && (gamemenu != 0x10) && Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.Freeze8(ADDR_Jump, 0x20) && Connector.IsNonZero8(ADDR_Jump), /*Refresh Condtion*/
                         TimeSpan.FromMilliseconds(500), /*Refresh Retry Timer*/
                         () => true, /*Action*/
                         TimeSpan.FromSeconds(0.5),
@@ -1571,7 +1571,7 @@ namespace CrowdControl.Games.Packs
                         () => Connector.IsZero8(ADDR_ScreenHit1), /*Effect Start Condition*/
                         () => Connector.Freeze8(ADDR_ScreenHit1, 0x02), /*Start Action*/
                         TimeSpan.FromSeconds(1), /*Retry Timer*/
-                        () => Connector.Read8(ADDR_INGAMEMENU, out byte gamemenu) && (gamemenu != 0x20) && (gamemenu != 0x10) && Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.Write8(ADDR_ScreenHit2, 0x02), /*Refresh Condtion*/
+                        () => Connector.IsNonZero8(ADDR_HP) && Connector.Read8(ADDR_INGAMEMENU, out byte gamemenu) && (gamemenu != 0x20) && (gamemenu != 0x10) && Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.Write8(ADDR_ScreenHit2, 0x02), /*Refresh Condtion*/
                         TimeSpan.FromMilliseconds(50), /*Refresh Retry Timer*/
                         () => true, /*Action*/
                         TimeSpan.FromSeconds(0.1),
@@ -1583,12 +1583,23 @@ namespace CrowdControl.Games.Packs
 
                 case "heavy":
                     {
+                        if (!Connector.Read8(ADDR_Condition, out byte slimecheck))
+                        {
+                            DelayEffect(request);
+                        }
+                        
+                        if ((slimecheck) == 0x04)
+                        {
+                            DelayEffect(request);
+                            return;
+                        }
+                        
                         var heavy = RepeatAction(request,
                         TimeSpan.FromSeconds(15),
                         () => Connector.Read8(ADDR_Speed, out byte b) && (b >= 0x06), /*Effect Start Condition*/
                         () => Connector.Write8(ADDR_Speed, 0x03), /*Start Action*/
                         TimeSpan.FromSeconds(1), /*Retry Timer*/
-                        () => Connector.Read8(ADDR_INGAMEMENU, out byte gamemenu) && (gamemenu != 0x20) && (gamemenu != 0x10) && Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.Write8(ADDR_Speed, 0x03), /*Refresh Condtion*/
+                        () => Connector.IsNonZero8(ADDR_HP) && Connector.Read8(ADDR_INGAMEMENU, out byte gamemenu) && (gamemenu != 0x20) && (gamemenu != 0x10) && Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.Write8(ADDR_Speed, 0x03), /*Refresh Condtion*/
                         TimeSpan.FromMilliseconds(50), /*Refresh Retry Timer*/
                         () => true, /*Action*/
                         TimeSpan.FromSeconds(0.1),
@@ -1615,7 +1626,7 @@ namespace CrowdControl.Games.Packs
                         () => Connector.Read8(ADDR_Equip_Sword, out eqsword) && (eqsword > 00), /*Effect Start Condition*/
                         () => Connector.Write8(ADDR_ShotLvl, 0x00), /*Start Action*/
                         TimeSpan.FromSeconds(1), /*Retry Timer*/
-                        () => Connector.Read8(ADDR_INGAMEMENU, out byte gamemenu) && (gamemenu != 0x20) && (gamemenu != 0x10) && Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.Write8(ADDR_ShotLvl, 0x00), /*Refresh Condtion*/
+                        () => Connector.IsNonZero8(ADDR_HP) && Connector.Read8(ADDR_INGAMEMENU, out byte gamemenu) && (gamemenu != 0x20) && (gamemenu != 0x10) && Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.Write8(ADDR_ShotLvl, 0x00), /*Refresh Condtion*/
                         TimeSpan.FromMilliseconds(50), /*Refresh Retry Timer*/
                         () => true, /*Action*/
                         TimeSpan.FromSeconds(0.1),
@@ -1644,7 +1655,7 @@ namespace CrowdControl.Games.Packs
                         () => Connector.Read8(ADDR_Equip_Sword, out eqsword) && (eqsword > 00), /*Effect Start Condition*/
                         () => Connector.Write8(ADDR_ShotLvl, 0x01), /*Start Action*/
                         TimeSpan.FromSeconds(1), /*Retry Timer*/
-                        () => Connector.Read8(ADDR_INGAMEMENU, out byte gamemenu) && (gamemenu != 0x20) && (gamemenu != 0x10) && Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.Write8(ADDR_ShotLvl, 0x01), /*Refresh Condtion*/
+                        () => Connector.IsNonZero8(ADDR_HP) && Connector.Read8(ADDR_INGAMEMENU, out byte gamemenu) && (gamemenu != 0x20) && (gamemenu != 0x10) && Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.Write8(ADDR_ShotLvl, 0x01), /*Refresh Condtion*/
                         TimeSpan.FromMilliseconds(50), /*Refresh Retry Timer*/
                         () => true, /*Action*/
                         TimeSpan.FromSeconds(0.1),
@@ -1673,7 +1684,7 @@ namespace CrowdControl.Games.Packs
                         () => Connector.Read8(ADDR_Equip_Sword, out eqsword) && (eqsword > 00), /*Effect Start Condition*/
                         () => Connector.Write8(ADDR_ShotLvl, 0x02), /*Start Action*/
                         TimeSpan.FromSeconds(1), /*Retry Timer*/
-                        () => Connector.Read8(ADDR_INGAMEMENU, out byte gamemenu) && (gamemenu != 0x20) && (gamemenu != 0x10) && Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.Write8(ADDR_ShotLvl, 0x02), /*Refresh Condtion*/
+                        () => Connector.IsNonZero8(ADDR_HP) && Connector.Read8(ADDR_INGAMEMENU, out byte gamemenu) && (gamemenu != 0x20) && (gamemenu != 0x10) && Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.Write8(ADDR_ShotLvl, 0x02), /*Refresh Condtion*/
                         TimeSpan.FromMilliseconds(50), /*Refresh Retry Timer*/
                         () => true, /*Action*/
                         TimeSpan.FromSeconds(0.1),
@@ -1703,7 +1714,7 @@ namespace CrowdControl.Games.Packs
                         () => Connector.Read8(ADDR_Equip_Sword, out eqsword) && (eqsword > 00), /*Effect Start Condition*/
                         () => Connector.Freeze8(ADDR_Warrior, 0x08), /*Start Action*/
                         TimeSpan.FromSeconds(1), /*Retry Timer*/
-                        () => Connector.Read8(ADDR_INGAMEMENU, out byte gamemenu) && (gamemenu != 0x20) && (gamemenu != 0x10) && Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.Freeze8(ADDR_Warrior, 0x08), /*Refresh Condtion*/
+                        () => Connector.IsNonZero8(ADDR_HP) && Connector.Read8(ADDR_INGAMEMENU, out byte gamemenu) && (gamemenu != 0x20) && (gamemenu != 0x10) && Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.Freeze8(ADDR_Warrior, 0x08), /*Refresh Condtion*/
                         TimeSpan.FromMilliseconds(50), /*Refresh Retry Timer*/
                         () => true, /*Action*/
                         TimeSpan.FromSeconds(0.1),
@@ -1733,7 +1744,7 @@ namespace CrowdControl.Games.Packs
                         () => Connector.Read8(ADDR_Equip_Sword, out eqsword) && (eqsword > 00), /*Effect Start Condition*/
                         () => Connector.Freeze8(ADDR_Warrior, 0x10), /*Start Action*/
                         TimeSpan.FromSeconds(1), /*Retry Timer*/
-                        () => Connector.Read8(ADDR_INGAMEMENU, out byte gamemenu) && (gamemenu != 0x20) && (gamemenu != 0x10) && Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.Freeze8(ADDR_Warrior, 0x10), /*Refresh Condtion*/
+                        () => Connector.IsNonZero8(ADDR_HP) && Connector.Read8(ADDR_INGAMEMENU, out byte gamemenu) && (gamemenu != 0x20) && (gamemenu != 0x10) && Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.Freeze8(ADDR_Warrior, 0x10), /*Refresh Condtion*/
                         TimeSpan.FromMilliseconds(50), /*Refresh Retry Timer*/
                         () => true, /*Action*/
                         TimeSpan.FromSeconds(0.1),
@@ -1761,7 +1772,7 @@ namespace CrowdControl.Games.Packs
                         () => Connector.Read8(ADDR_Equip_Sword, out eqsword) && (eqsword > 00), /*Effect Start Condition*/
                         () => Connector.Freeze8(ADDR_Warrior, 0x68), /*Start Action*/
                         TimeSpan.FromSeconds(1), /*Retry Timer*/
-                        () => Connector.Read8(ADDR_INGAMEMENU, out byte gamemenu) && (gamemenu != 0x20) && (gamemenu != 0x10) && Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.Freeze8(ADDR_Warrior, 0x68), /*Refresh Condtion*/
+                        () => Connector.IsNonZero8(ADDR_HP) && Connector.Read8(ADDR_INGAMEMENU, out byte gamemenu) && (gamemenu != 0x20) && (gamemenu != 0x10) && Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.Freeze8(ADDR_Warrior, 0x68), /*Refresh Condtion*/
                         TimeSpan.FromMilliseconds(50), /*Refresh Retry Timer*/
                         () => true, /*Action*/
                         TimeSpan.FromSeconds(0.1),
@@ -1789,7 +1800,7 @@ namespace CrowdControl.Games.Packs
                         () => Connector.Read8(ADDR_Equip_Sword, out eqsword) && (eqsword > 00), /*Effect Start Condition*/
                         () => Connector.Freeze8(ADDR_Warrior, 0x70), /*Start Action*/
                         TimeSpan.FromSeconds(1), /*Retry Timer*/
-                        () => Connector.Read8(ADDR_INGAMEMENU, out byte gamemenu) && (gamemenu != 0x20) && (gamemenu != 0x10) && Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.Freeze8(ADDR_Warrior, 0x70), /*Refresh Condtion*/
+                        () => Connector.IsNonZero8(ADDR_HP) && Connector.Read8(ADDR_INGAMEMENU, out byte gamemenu) && (gamemenu != 0x20) && (gamemenu != 0x10) && Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.Freeze8(ADDR_Warrior, 0x70), /*Refresh Condtion*/
                         TimeSpan.FromMilliseconds(50), /*Refresh Retry Timer*/
                         () => true, /*Action*/
                         TimeSpan.FromSeconds(0.1),
@@ -1817,7 +1828,7 @@ namespace CrowdControl.Games.Packs
                         () => Connector.Read8(ADDR_Equip_Sword, out eqsword) && (eqsword > 00), /*Effect Start Condition*/
                         () => Connector.Freeze8(ADDR_Warrior, 0x78), /*Start Action*/
                         TimeSpan.FromSeconds(1), /*Retry Timer*/
-                        () => Connector.Read8(ADDR_INGAMEMENU, out byte gamemenu) && (gamemenu != 0x20) && (gamemenu != 0x10) && Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.Freeze8(ADDR_Warrior, 0x78), /*Refresh Condtion*/
+                        () => Connector.IsNonZero8(ADDR_HP) && Connector.Read8(ADDR_INGAMEMENU, out byte gamemenu) && (gamemenu != 0x20) && (gamemenu != 0x10) && Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.Freeze8(ADDR_Warrior, 0x78), /*Refresh Condtion*/
                         TimeSpan.FromMilliseconds(50), /*Refresh Retry Timer*/
                         () => true, /*Action*/
                         TimeSpan.FromSeconds(0.1),
@@ -1881,7 +1892,7 @@ namespace CrowdControl.Games.Packs
                         () => Connector.Read8(ADDR_Condition, out byte b) && (b == 0x00), /*Effect Start Condition*/
                         () => Connector.Write8(ADDR_Condition, 0x01), /*Start Action*/
                         TimeSpan.FromSeconds(1), /*Retry Timer*/
-                        () => Connector.Read8(ADDR_INGAMEMENU, out byte gamemenu) && (gamemenu != 0x20) && (gamemenu != 0x10) && Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.Write8(ADDR_Condition, 0x01), /*Refresh Condtion*/
+                        () => Connector.IsNonZero8(ADDR_HP) && Connector.Read8(ADDR_INGAMEMENU, out byte gamemenu) && (gamemenu != 0x20) && (gamemenu != 0x10) && Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.Write8(ADDR_Condition, 0x01), /*Refresh Condtion*/
                         TimeSpan.FromMilliseconds(50), /*Refresh Retry Timer*/
                         () => true, /*Action*/
                         TimeSpan.FromSeconds(0.1),
@@ -1944,7 +1955,7 @@ namespace CrowdControl.Games.Packs
                         () => Connector.Read8(ADDR_Condition, out byte b) && (b == 0x00), /*Effect Start Condition*/
                         () => Connector.Write8(ADDR_Condition, 0x03), /*Start Action*/
                         TimeSpan.FromSeconds(1), /*Retry Timer*/
-                        () => Connector.Read8(ADDR_INGAMEMENU, out byte gamemenu) && (gamemenu != 0x20) && (gamemenu != 0x10) && Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.Write8(ADDR_Condition, 0x03), /*Refresh Condtion*/
+                        () => Connector.IsNonZero8(ADDR_HP) && Connector.Read8(ADDR_INGAMEMENU, out byte gamemenu) && (gamemenu != 0x20) && (gamemenu != 0x10) && Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.Write8(ADDR_Condition, 0x03), /*Refresh Condtion*/
                         TimeSpan.FromMilliseconds(50), /*Refresh Retry Timer*/
                         () => true, /*Action*/
                         TimeSpan.FromSeconds(0.1),
@@ -2066,7 +2077,7 @@ namespace CrowdControl.Games.Packs
                         () => Connector.IsZero8(ADDR_Condition), /*Effect Start Condition*/
                         () => Connector.Freeze8(ADDR_Condition, 0x04), /*Start Action*/
                         TimeSpan.FromSeconds(1), /*Retry Timer*/
-                        () => Connector.Read8(ADDR_INGAMEMENU, out byte gamemenu) && (gamemenu != 0x20) && (gamemenu != 0x10) && Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.Write8(ADDR_Condition, 0x04) && Connector.Freeze8(ADDR_Condition, 0x04) && Connector.IsNonZero8(ADDR_Condition), /*Refresh Condtion*/
+                        () => Connector.IsNonZero8(ADDR_HP) && Connector.Read8(ADDR_INGAMEMENU, out byte gamemenu) && (gamemenu != 0x20) && (gamemenu != 0x10) && Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.Write8(ADDR_Condition, 0x04) && Connector.Freeze8(ADDR_Condition, 0x04) && Connector.IsNonZero8(ADDR_Condition), /*Refresh Condtion*/
                         TimeSpan.FromMilliseconds(500), /*Refresh Retry Timer*/
                         () => true, /*Action*/
                         TimeSpan.FromSeconds(0.5),
@@ -6836,10 +6847,10 @@ namespace CrowdControl.Games.Packs
                             () => Connector.Read8(ADDR_Equip_Sword, out windsword) && (windsword > 0),
                             () => Connector.SendMessage($"{request.DisplayViewer} forced you to use only use Wind Sword (15s)."), TimeSpan.FromSeconds(1),
                             () => Connector.IsNonZero8(ADDR_Equip_Sword), TimeSpan.FromSeconds(1),
-                            () => Connector.Read8(ADDR_INGAMEMENU, out byte gamemenu) && (gamemenu != 0x20) && (gamemenu != 0x10) && Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.Write8(ADDR_Equip_Sword, 0x01), TimeSpan.FromSeconds(1), true, "sword");
+                            () => Connector.IsNonZero8(ADDR_HP) && Connector.Read8(ADDR_INGAMEMENU, out byte gamemenu) && (gamemenu != 0x20) && (gamemenu != 0x10) && Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.Write8(ADDR_Equip_Sword, 0x01), TimeSpan.FromSeconds(1), true, "sword");
                         f.WhenCompleted.Then(t =>
                         {
-                            Connector.Write8(ADDR_Equip_Sword, 0x01);
+                            Connector.Write8(ADDR_Equip_Sword, windsword);
                             Connector.SendMessage("Locked Sword Removed. Reequip Sword");
                         });
                         return;
@@ -6851,11 +6862,11 @@ namespace CrowdControl.Games.Packs
                         var g = RepeatAction(request, TimeSpan.FromSeconds(15),
                             () => Connector.Read8(ADDR_Equip_Sword, out firesword) && (firesword > 0),
                             () => Connector.SendMessage($"{request.DisplayViewer} forced you to use only use Fire Sword (15s)."), TimeSpan.FromSeconds(1),
-                            () => Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.IsNonZero8(ADDR_Equip_Sword), TimeSpan.FromSeconds(1),
-                            () => Connector.Read8(ADDR_INGAMEMENU, out byte gamemenu) && (gamemenu != 0x20) && (gamemenu != 0x10) && Connector.Write8(ADDR_Equip_Sword, 0x02), TimeSpan.FromSeconds(1), true, "sword");
+                            () => Connector.IsNonZero8(ADDR_Equip_Sword), TimeSpan.FromSeconds(1),
+                            () => Connector.IsNonZero8(ADDR_HP) && Connector.Read8(ADDR_INGAMEMENU, out byte gamemenu) && (gamemenu != 0x20) && (gamemenu != 0x10) && Connector.Write8(ADDR_Equip_Sword, 0x02), TimeSpan.FromSeconds(1), true, "sword");
                         g.WhenCompleted.Then(t =>
                         {
-                            Connector.Write8(ADDR_Equip_Sword, 0x02);
+                            Connector.Write8(ADDR_Equip_Sword, firesword);
                             Connector.SendMessage("Locked Sword Removed. Reequip Sword");
                         });
                         return;
@@ -6867,8 +6878,8 @@ namespace CrowdControl.Games.Packs
                         var h = RepeatAction(request, TimeSpan.FromSeconds(15),
                             () => Connector.Read8(ADDR_Equip_Sword, out watersword) && (watersword > 0),
                             () => Connector.SendMessage($"{request.DisplayViewer} forced you to use only use Water Sword (15s)."), TimeSpan.FromSeconds(1),
-                            () => Connector.Read8(ADDR_INGAMEMENU, out byte gamemenu) && (gamemenu != 0x20) && (gamemenu != 0x10) && Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.IsNonZero8(ADDR_Equip_Sword), TimeSpan.FromSeconds(1),
-                            () => Connector.Write8(ADDR_Equip_Sword, 0x03), TimeSpan.FromSeconds(1), true, "sword");
+                            () => Connector.IsNonZero8(ADDR_Equip_Sword), TimeSpan.FromSeconds(1),
+                            () => Connector.IsNonZero8(ADDR_HP) && Connector.Read8(ADDR_INGAMEMENU, out byte gamemenu) && (gamemenu != 0x20) && (gamemenu != 0x10) && Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.Write8(ADDR_Equip_Sword, 0x03), TimeSpan.FromSeconds(1), true, "sword");
                         h.WhenCompleted.Then(t =>
                         {
                             Connector.Write8(ADDR_Equip_Sword, watersword);
@@ -6883,8 +6894,8 @@ namespace CrowdControl.Games.Packs
                         var j = RepeatAction(request, TimeSpan.FromSeconds(15),
                             () => Connector.Read8(ADDR_Equip_Sword, out thundersword) && (thundersword > 0),
                             () => Connector.SendMessage($"{request.DisplayViewer} forced you to use only use Thunder Sword (15s)."), TimeSpan.FromSeconds(1),
-                            () => Connector.Read8(ADDR_INGAMEMENU, out byte gamemenu) && (gamemenu != 0x20) && (gamemenu != 0x10) && Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.IsNonZero8(ADDR_Equip_Sword), TimeSpan.FromSeconds(1),
-                            () => Connector.Write8(ADDR_Equip_Sword, 0x04), TimeSpan.FromSeconds(1), true, "sword");
+                            () => Connector.IsNonZero8(ADDR_Equip_Sword), TimeSpan.FromSeconds(1),
+                            () => Connector.IsNonZero8(ADDR_HP) && Connector.Read8(ADDR_INGAMEMENU, out byte gamemenu) && (gamemenu != 0x20) && (gamemenu != 0x10) && Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.Write8(ADDR_Equip_Sword, 0x04), TimeSpan.FromSeconds(1), true, "sword");
                         j.WhenCompleted.Then(t =>
                         {
                             Connector.Write8(ADDR_Equip_Sword, thundersword);
@@ -6900,84 +6911,101 @@ namespace CrowdControl.Games.Packs
                         var k = RepeatAction(request, TimeSpan.FromSeconds(15),
                             () => Connector.Read8(ADDR_Equip_Sword, out cysword) && (cysword > 0),
                             () => Connector.SendMessage($"{request.DisplayViewer} forced you to use only use Crystalis Sword (15s)."), TimeSpan.FromSeconds(1),
-                            () => Connector.Read8(ADDR_INGAMEMENU, out byte gamemenu) && (gamemenu != 0x20) && (gamemenu != 0x10) && Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.IsNonZero8(ADDR_Equip_Sword), TimeSpan.FromSeconds(1),
-                            () => Connector.Write8(ADDR_Equip_Sword, 0x05), TimeSpan.FromSeconds(1), true, "sword");
+                            () => Connector.IsNonZero8(ADDR_Equip_Sword), TimeSpan.FromSeconds(1),
+                            () => Connector.Read8(ADDR_INGAMEMENU, out byte gamemenu) && (gamemenu != 0x20) && (gamemenu != 0x10) && Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.Write8(ADDR_Equip_Sword, 0x05), TimeSpan.FromSeconds(1), true, "sword");
                         k.WhenCompleted.Then(t =>
                         {
-                            Connector.Write8(ADDR_Equip_Sword, 0x00);
+                            Connector.Write8(ADDR_Equip_Sword, cysword);
                             Connector.SendMessage("Locked Sword Removed. Reequip Sword");
                         });
                         return;
                     }
 
-                case "removewindsword":
+                case "swordless":
                     {
+                        byte removesword = 00;
                         var rwsword = RepeatAction(request,
                         TimeSpan.FromSeconds(15),
-                        () => Connector.Read8(ADDR_SwordSlot1, out byte b) && (b == 0x00), /*Effect Start Condition*/
-                        () => Connector.Write8(ADDR_SwordSlot1, 0xFF) && Connector.Write8(ADDR_Equip_Sword, 0x00), /*Start Action*/
+                        () => Connector.Read8(ADDR_Equip_Sword, out byte removesword) && (removesword > 0x00), /*Effect Start Condition*/
+                        () => Connector.Write8(ADDR_Equip_Sword, 0x00) && Connector.Freeze8(ADDR_Equip_Sword, 0x00), /*Start Action*/
                         TimeSpan.FromSeconds(1), /*Retry Timer*/
-                        () => Connector.Read8(ADDR_INGAMEMENU, out byte gamemenu) && (gamemenu != 0x20) && (gamemenu != 0x10) && Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.Write8(ADDR_SwordSlot1, 0xFF), /*Refresh Condtion*/
+                        () => Connector.IsNonZero8(ADDR_HP) && Connector.Read8(ADDR_INGAMEMENU, out byte gamemenu) && (gamemenu != 0x20) && (gamemenu != 0x10) && Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.Write8(ADDR_Equip_Sword, 0x00), /*Refresh Condtion*/
                         TimeSpan.FromMilliseconds(50), /*Refresh Retry Timer*/
                         () => true, /*Action*/
                         TimeSpan.FromSeconds(0.1),
                         true, "sword");
-                        rwsword.WhenStarted.Then(t => Connector.SendMessage($"{request.DisplayViewer} stole your Sword of Wind (15s)."));
+                        rwsword.WhenStarted.Then(t => 
+                        {
+                            Connector.Write8(ADDR_Equip_Sword, removesword);
+                        Connector.SendMessage($"{request.DisplayViewer} stole your Swords (15s).");
+                        }
+                                                );
                         return;
                     }
 
-                case "removefiresword":
-                    {
-                        var rfsword = RepeatAction(request,
-                        TimeSpan.FromSeconds(15),
-                        () => Connector.Read8(ADDR_SwordSlot2, out byte b) && (b == 0x01), /*Effect Start Condition*/
-                        () => Connector.Write8(ADDR_SwordSlot2, 0xFF) && Connector.Write8(ADDR_Equip_Sword, 0x00), /*Start Action*/
-                        TimeSpan.FromSeconds(1), /*Retry Timer*/
-                        () => Connector.Read8(ADDR_INGAMEMENU, out byte gamemenu) && (gamemenu != 0x20) && (gamemenu != 0x10) && Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.Write8(ADDR_SwordSlot2, 0xFF), /*Refresh Condtion*/
-                        TimeSpan.FromMilliseconds(50), /*Refresh Retry Timer*/
-                        () => true, /*Action*/
-                        TimeSpan.FromSeconds(0.1),
-                        true, "sword");
-                        rfsword.WhenStarted.Then(t => Connector.SendMessage($"{request.DisplayViewer} stole your Sword of Fire (15s)."));
-                        return;
-                    }
+                // case "removefiresword":
+                //     {
+                //         var rfsword = RepeatAction(request,
+                //         TimeSpan.FromSeconds(15),
+                //         () => Connector.Read8(ADDR_SwordSlot2, out byte b) && (b == 0x01), /*Effect Start Condition*/
+                //         () => Connector.Write8(ADDR_SwordSlot2, 0xFF) && Connector.Write8(ADDR_Equip_Sword, 0x00), /*Start Action*/
+                //         TimeSpan.FromSeconds(1), /*Retry Timer*/
+                //         () => Connector.IsNonZero8(ADDR_HP) && Connector.Read8(ADDR_INGAMEMENU, out byte gamemenu) && (gamemenu != 0x20) && (gamemenu != 0x10) && Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.Write8(ADDR_SwordSlot2, 0xFF), /*Refresh Condtion*/
+                //         TimeSpan.FromMilliseconds(50), /*Refresh Retry Timer*/
+                //         () => true, /*Action*/
+                //         TimeSpan.FromSeconds(0.1),
+                //         true, "sword");
+                //         rfsword.WhenStarted.Then(t => Connector.SendMessage($"{request.DisplayViewer} stole your Sword of Fire (15s)."));
+                //         return;
+                //     }
 
-                case "removewatersword":
-                    {
-                        var rwwsword = RepeatAction(request,
-                        TimeSpan.FromSeconds(15),
-                        () => Connector.Read8(ADDR_SwordSlot3, out byte b) && (b == 0x02), /*Effect Start Condition*/
-                        () => Connector.Write8(ADDR_SwordSlot3, 0xFF) && Connector.Write8(ADDR_Equip_Sword, 0x00), /*Start Action*/
-                        TimeSpan.FromSeconds(1), /*Retry Timer*/
-                        () => Connector.Read8(ADDR_INGAMEMENU, out byte gamemenu) && (gamemenu != 0x20) && (gamemenu != 0x10) && Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.Write8(ADDR_SwordSlot3, 0xFF), /*Refresh Condtion*/
-                        TimeSpan.FromMilliseconds(50), /*Refresh Retry Timer*/
-                        () => true, /*Action*/
-                        TimeSpan.FromSeconds(0.1),
-                        true, "sword");
-                        rwwsword.WhenStarted.Then(t => Connector.SendMessage($"{request.DisplayViewer} stole your Sword of Water (15s)."));
-                        return;
-                    }
+                // case "removewatersword":
+                //     {
+                //         var rwwsword = RepeatAction(request,
+                //         TimeSpan.FromSeconds(15),
+                //         () => Connector.Read8(ADDR_SwordSlot3, out byte b) && (b == 0x02), /*Effect Start Condition*/
+                //         () => Connector.Write8(ADDR_SwordSlot3, 0xFF) && Connector.Write8(ADDR_Equip_Sword, 0x00), /*Start Action*/
+                //         TimeSpan.FromSeconds(1), /*Retry Timer*/
+                //         () => Connector.IsNonZero8(ADDR_HP) && Connector.Read8(ADDR_INGAMEMENU, out byte gamemenu) && (gamemenu != 0x20) && (gamemenu != 0x10) && Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.Write8(ADDR_SwordSlot3, 0xFF), /*Refresh Condtion*/
+                //         TimeSpan.FromMilliseconds(50), /*Refresh Retry Timer*/
+                //         () => true, /*Action*/
+                //         TimeSpan.FromSeconds(0.1),
+                //         true, "sword");
+                //         rwwsword.WhenStarted.Then(t => Connector.SendMessage($"{request.DisplayViewer} stole your Sword of Water (15s)."));
+                //         return;
+                //     }
 
-                case "removethundersword":
-                    {
-                        var rtsword = RepeatAction(request,
-                        TimeSpan.FromSeconds(15),
-                        () => Connector.Read8(ADDR_SwordSlot4, out byte b) && (b == 0x03), /*Effect Start Condition*/
-                        () => Connector.Write8(ADDR_SwordSlot4, 0xFF) && Connector.Write8(ADDR_Equip_Sword, 0x00), /*Start Action*/
-                        TimeSpan.FromSeconds(1), /*Retry Timer*/
-                        () => Connector.Read8(ADDR_INGAMEMENU, out byte gamemenu) && (gamemenu != 0x20) && (gamemenu != 0x10) && Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.Write8(ADDR_SwordSlot4, 0xFF), /*Refresh Condtion*/
-                        TimeSpan.FromMilliseconds(50), /*Refresh Retry Timer*/
-                        () => true, /*Action*/
-                        TimeSpan.FromSeconds(0.1),
-                        true, "sword");
-                        rtsword.WhenStarted.Then(t => Connector.SendMessage($"{request.DisplayViewer} stole your Sword of Thunder (15s)."));
-                        return;
-                    }
+                // case "removethundersword":
+                //     {
+                //         var rtsword = RepeatAction(request,
+                //         TimeSpan.FromSeconds(15),
+                //         () => Connector.Read8(ADDR_SwordSlot4, out byte b) && (b == 0x03), /*Effect Start Condition*/
+                //         () => Connector.Write8(ADDR_SwordSlot4, 0xFF) && Connector.Write8(ADDR_Equip_Sword, 0x00), /*Start Action*/
+                //         TimeSpan.FromSeconds(1), /*Retry Timer*/
+                //         () => Connector.IsNonZero8(ADDR_HP) && Connector.Read8(ADDR_INGAMEMENU, out byte gamemenu) && (gamemenu != 0x20) && (gamemenu != 0x10) && Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.Write8(ADDR_SwordSlot4, 0xFF), /*Refresh Condtion*/
+                //         TimeSpan.FromMilliseconds(50), /*Refresh Retry Timer*/
+                //         () => true, /*Action*/
+                //         TimeSpan.FromSeconds(0.1),
+                //         true, "sword");
+                //         rtsword.WhenStarted.Then(t => Connector.SendMessage($"{request.DisplayViewer} stole your Sword of Thunder (15s)."));
+                //         return;
+                //     }
 
                 case "healvamp1":
                     {
                         byte Vamp1 = 0x0A;
 
+                        if (!Connector.Read8(ADDR_HP, out byte PLAYERHP))
+                        {
+                            DelayEffect(request);
+                        }
+                        
+                        if ((PLAYERHP) == 0x00)
+                        {
+                            DelayEffect(request);
+                            return;
+                        }
+                        
                         if (TryBossLocation(request, Vamp1))
                         {
                             {
@@ -6995,6 +7023,17 @@ namespace CrowdControl.Games.Packs
                     {
                         byte Bug = 0x1A;
 
+                        if (!Connector.Read8(ADDR_HP, out byte PLAYERHP))
+                        {
+                            DelayEffect(request);
+                        }
+                        
+                        if ((PLAYERHP) == 0x00)
+                        {
+                            DelayEffect(request);
+                            return;
+                        }
+                        
                         if (TryBossLocation(request, Bug))
                         {
                             {
@@ -7012,6 +7051,17 @@ namespace CrowdControl.Games.Packs
                     {
                         byte Kelby = 0x28;
 
+                        if (!Connector.Read8(ADDR_HP, out byte PLAYERHP))
+                        {
+                            DelayEffect(request);
+                        }
+                        
+                        if ((PLAYERHP) == 0x00)
+                        {
+                            DelayEffect(request);
+                            return;
+                        }
+                        
                         if (TryBossLocation(request, Kelby))
                         {
                             {
@@ -7029,6 +7079,17 @@ namespace CrowdControl.Games.Packs
                     {
                         byte Vamp2 = 0x6C;
 
+                        if (!Connector.Read8(ADDR_HP, out byte PLAYERHP))
+                        {
+                            DelayEffect(request);
+                        }
+                        
+                        if ((PLAYERHP) == 0x00)
+                        {
+                            DelayEffect(request);
+                            return;
+                        }
+                        
                         if (TryBossLocation(request, Vamp2))
                         {
                             {
@@ -7046,6 +7107,17 @@ namespace CrowdControl.Games.Packs
                     {
                         byte Sabera = 0x6E;
 
+                        if (!Connector.Read8(ADDR_HP, out byte PLAYERHP))
+                        {
+                            DelayEffect(request);
+                        }
+                        
+                        if ((PLAYERHP) == 0x00)
+                        {
+                            DelayEffect(request);
+                            return;
+                        }
+                        
                         if (TryBossLocation(request, Sabera))
                         {
                             {
@@ -7063,6 +7135,17 @@ namespace CrowdControl.Games.Packs
                     {
                         byte Mado = 0xF2;
 
+                        if (!Connector.Read8(ADDR_HP, out byte PLAYERHP))
+                        {
+                            DelayEffect(request);
+                        }
+                        
+                        if ((PLAYERHP) == 0x00)
+                        {
+                            DelayEffect(request);
+                            return;
+                        }
+                        
                         if (TryBossLocation(request, Mado))
                         {
                             {
@@ -7080,6 +7163,17 @@ namespace CrowdControl.Games.Packs
                     {
                         byte Kelby2 = 0xA9;
 
+                        if (!Connector.Read8(ADDR_HP, out byte PLAYERHP))
+                        {
+                            DelayEffect(request);
+                        }
+                        
+                        if ((PLAYERHP) == 0x00)
+                        {
+                            DelayEffect(request);
+                            return;
+                        }
+                        
                         if (TryBossLocation(request, Kelby2))
                         {
                             {
@@ -7097,6 +7191,17 @@ namespace CrowdControl.Games.Packs
                     {
                         byte Sabera2 = 0xAC;
 
+                        if (!Connector.Read8(ADDR_HP, out byte PLAYERHP))
+                        {
+                            DelayEffect(request);
+                        }
+                        
+                        if ((PLAYERHP) == 0x00)
+                        {
+                            DelayEffect(request);
+                            return;
+                        }
+                        
                         if (TryBossLocation(request, Sabera2))
                         {
                             {
@@ -7114,6 +7219,17 @@ namespace CrowdControl.Games.Packs
                     {
                         byte Mado2 = 0xB9;
 
+                        if (!Connector.Read8(ADDR_HP, out byte PLAYERHP))
+                        {
+                            DelayEffect(request);
+                        }
+                        
+                        if ((PLAYERHP) == 0x00)
+                        {
+                            DelayEffect(request);
+                            return;
+                        }
+                        
                         if (TryBossLocation(request, Mado2))
                         {
                             {
@@ -7131,6 +7247,17 @@ namespace CrowdControl.Games.Packs
                     {
                         byte Karmine = 0xB6;
 
+                        if (!Connector.Read8(ADDR_HP, out byte PLAYERHP))
+                        {
+                            DelayEffect(request);
+                        }
+                        
+                        if ((PLAYERHP) == 0x00)
+                        {
+                            DelayEffect(request);
+                            return;
+                        }
+                        
                         if (TryBossLocation(request, Karmine))
                         {
                             {
@@ -7148,6 +7275,17 @@ namespace CrowdControl.Games.Packs
                     {
                         byte Draygon = 0x9F;
 
+                        if (!Connector.Read8(ADDR_HP, out byte PLAYERHP))
+                        {
+                            DelayEffect(request);
+                        }
+                        
+                        if ((PLAYERHP) == 0x00)
+                        {
+                            DelayEffect(request);
+                            return;
+                        }
+                        
                         if (TryBossLocation(request, Draygon))
                         {
                             {
@@ -7165,6 +7303,17 @@ namespace CrowdControl.Games.Packs
                     {
                         byte Draygon2 = 0xA6;
 
+                        if (!Connector.Read8(ADDR_HP, out byte PLAYERHP))
+                        {
+                            DelayEffect(request);
+                        }
+                        
+                        if ((PLAYERHP) == 0x00)
+                        {
+                            DelayEffect(request);
+                            return;
+                        }
+                        
                         if (TryBossLocation(request, Draygon2))
                         {
                             {
@@ -7182,6 +7331,17 @@ namespace CrowdControl.Games.Packs
                     {
                         byte Dyna = 0x5F;
 
+                        if (!Connector.Read8(ADDR_HP, out byte PLAYERHP))
+                        {
+                            DelayEffect(request);
+                        }
+                        
+                        if ((PLAYERHP) == 0x00)
+                        {
+                            DelayEffect(request);
+                            return;
+                        }
+                        
                         if (TryBossLocation(request, Dyna))
                         {
                             {
@@ -7197,6 +7357,17 @@ namespace CrowdControl.Games.Packs
 
                 case "magicup": //Note fixed for UI update to be pushed soon
                     {
+                        if (!Connector.Read8(ADDR_HP, out byte PLAYERHP))
+                        {
+                            DelayEffect(request);
+                        }
+                        
+                        if ((PLAYERHP) == 0x00)
+                        {
+                            DelayEffect(request);
+                            return;
+                        }
+                        
                         if (TryGiveMP(request))
                         {
                             Connector.Write8(ADDR_U2HOOK, 0x01);
@@ -7208,6 +7379,17 @@ namespace CrowdControl.Games.Packs
 
                 case "magicdown": //Note fixed for UI update to be pushed soon
                     {
+                        if (!Connector.Read8(ADDR_HP, out byte PLAYERHP))
+                        {
+                            DelayEffect(request);
+                        }
+                        
+                        if ((PLAYERHP) == 0x00)
+                        {
+                            DelayEffect(request);
+                            return;
+                        }
+                        
                         if (TryTakeMP(request, 6))
                         {
                             Connector.Write8(ADDR_U2HOOK, 0x01);
@@ -7219,6 +7401,17 @@ namespace CrowdControl.Games.Packs
 
                 case "healplayer": //Note fixed for UI update to be pushed soon
                     {
+                        if (!Connector.Read8(ADDR_HP, out byte PLAYERHP))
+                        {
+                            DelayEffect(request);
+                        }
+                        
+                        if ((PLAYERHP) == 0x00)
+                        {
+                            DelayEffect(request);
+                            return;
+                        }
+                        
                         if (TryHealPlayerHealth(request))
                         {
                             Connector.Write8(ADDR_U2HOOK, 0x01);
@@ -7497,7 +7690,7 @@ namespace CrowdControl.Games.Packs
                              && Connector.Freeze8(ADDR_SHOP_ITEM4_PRICE1, 0)
                              && Connector.Freeze8(ADDR_SHOP_ITEM4_PRICE2, 0),       /*Start Action*/
                         TimeSpan.FromSeconds(1),                                    /*Retry Timer*/
-                        () => Connector.Read8(ADDR_INGAMEMENU, out byte gamemenu) && (gamemenu != 0x20) && (gamemenu != 0x10) && Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.IsZero8(ADDR_SHOP_ITEM1_PRICE1),            /*Refresh Condtion*/
+                        () => Connector.IsNonZero8(ADDR_HP) && Connector.Read8(ADDR_INGAMEMENU, out byte gamemenu) && (gamemenu != 0x20) && (gamemenu != 0x10) && Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.IsZero8(ADDR_SHOP_ITEM1_PRICE1),            /*Refresh Condtion*/
                         TimeSpan.FromMilliseconds(500),                             /*Refresh Retry Timer*/
                         () => true, /*Action*/
                         TimeSpan.FromSeconds(0.5),
@@ -7626,10 +7819,10 @@ namespace CrowdControl.Games.Packs
                         return result;
                     }
 
-                case "removewindsword":
+                case "swordless":
                     {
-                        Connector.Write8(ADDR_SwordSlot1, 0x00);
-                        Connector.SendMessage($"{request.DisplayViewer}'s gave back your Sword of Wind.");
+                        Connector.Unfreeze(ADDR_Equip_Sword);
+                        Connector.SendMessage($"{request.DisplayViewer}'s gave back your Swords.");
                         return result;
                     }
 
