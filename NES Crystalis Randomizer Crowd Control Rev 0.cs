@@ -57,6 +57,7 @@ namespace CrowdControl.Games.Packs
         private const ushort ADDR_SPRITE_STATUS_BASE = 0x000;
         private const ushort ADDR_SPRITE_POS_Y_LOW_BASE = 0x000;
         private const ushort ADDR_SPRITE_POS_Y_HIGH_BASE = 0x000;
+        private const ushort ADDR_ACTION = 0x0600;
 
         //UI
         private const ushort ADDR_Money1 = 0x0702;
@@ -82,7 +83,7 @@ namespace CrowdControl.Games.Packs
         private const ushort ADDR_U2HOOK = 0x6221;
 
         // Powerup
-        private const ushort ADDR_ShotLvl = 0x0719; 
+        private const ushort ADDR_ShotLvl = 0x0719;
         private const ushort ADDR_SwordSlot1 = 0x6430;
         private const ushort ADDR_SwordSlot2 = 0x6431;
         private const ushort ADDR_SwordSlot3 = 0x6432;
@@ -316,7 +317,7 @@ namespace CrowdControl.Games.Packs
                 () => Connector.IsNonZero8(ADDR_CURRENT_AREA), /*Effect Start Condition*/
                 () => Connector.Freeze8(ADDR_Blackout1, 0x9A) && Connector.Write8(ADDR_Controller, 0x20), /*Start Action*/
                 TimeSpan.FromSeconds(1), /*Retry Timer*/
-                () =>  Connector.IsNonZero8(ADDR_HP) && Connector.Read8(ADDR_INGAMEMENU, out byte gamemenu) && (gamemenu != 0x20) && (gamemenu != 0x10) && Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.Freeze8(ADDR_Blackout1, 0x9A) && Connector.IsNonZero8(ADDR_CURRENT_AREA), /*Refresh Condtion*/
+                () => Connector.IsNonZero8(ADDR_HP) && Connector.Read8(ADDR_INGAMEMENU, out byte gamemenu) && (gamemenu != 0x20) && (gamemenu != 0x10) && Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.Freeze8(ADDR_Blackout1, 0x9A) && Connector.IsNonZero8(ADDR_CURRENT_AREA), /*Refresh Condtion*/
                 TimeSpan.FromMilliseconds(100), /*Refresh Retry Timer*/
                 () => true, /*Action*/
                 TimeSpan.FromSeconds(0.5),
@@ -484,7 +485,7 @@ namespace CrowdControl.Games.Packs
                 DelayEffect(request);
                 return false;
             }
-            
+
             if ((cscale + scale) == 0x2F)
             {
                 DelayEffect(request);
@@ -788,7 +789,7 @@ namespace CrowdControl.Games.Packs
             return false;
         }
 
-       
+
         private bool TryBossLocation([NotNull] EffectRequest request, byte boss)
         {
             if (!Connector.Read8(ADDR_CURRENT_AREA, out byte bosslocation))
@@ -1274,12 +1275,14 @@ namespace CrowdControl.Games.Packs
                     new Effect("TriShot Mode", "trishot", "projectile") {Price = 5, Description = "Temporary give player Lightning Bolt projectile shots" },
                     new Effect("Thunder Mode", "thundershot", "projectile") {Price = 5, Description = "Temporary give player Thunder projectile shots" },
                     new Effect("Lag Storm Mode", "lagshot", "projectile") {Price = 5, Description = "Temporary give player Storm projectile shots" },
-
+                    new Effect("Joust Mode", "joust", "projectile") {Price = 5, Description = "Temporary make the player hold out his sword" },
+                    
                    
                     // Movement Effects
                     new Effect("Movement Effects", "moveeffect", ItemKind.Folder),
                     new Effect("Jump Mode", "jump", "moveeffect") {Price = 5, Description = "Temporary make the player jump" },
                     new Effect("Flight Mode", "flightmode", "moveeffect") {Price = 5, Description = "Temporary make the player fly" },
+                    new Effect("Speed Mode", "speed", "moveeffect") {Price = 5, Description = "Temporary make the player walk faster" },
                     new Effect("Heavy Mode", "heavy", "moveeffect") {Price = 5, Description = "Temporary make the player walk slower" },
                     
                     // Status Conditions
@@ -1420,6 +1423,17 @@ namespace CrowdControl.Games.Packs
             {
                 case "invis":
                     {
+                        if (!Connector.Read8(ADDR_HP, out byte PLAYERHP))
+                        {
+                            DelayEffect(request);
+                        }
+
+                        if ((PLAYERHP) == 0x00)
+                        {
+                            DelayEffect(request);
+                            return;
+                        }
+                        
                         var invs = RepeatAction(request,
                         TimeSpan.FromSeconds(45),
                         () => Connector.IsZero8(ADDR_INVIS), /*Effect Start Condition*/
@@ -1437,13 +1451,25 @@ namespace CrowdControl.Games.Packs
                 case "ohko":  //Need to fix how I do a constant update the HUD
                     {
 
+                        if (!Connector.Read8(ADDR_HP, out byte PLAYERHP))
+                        {
+                            DelayEffect(request);
+                        }
+
+                        if ((PLAYERHP) == 0x00)
+                        {
+                            DelayEffect(request);
+                            return;
+                        }
+                        
+                        
                         byte origHP = 01;
                         var w = RepeatAction(request, TimeSpan.FromSeconds(30),
                             () => Connector.Read8(ADDR_HP, out origHP) && (origHP > 1),
                             () => Connector.Write8(ADDR_HP, 0x01),
                             TimeSpan.FromSeconds(1),
                             () => Connector.Write8(ADDR_U2HOOK, 0x01) && Connector.Write8(ADDR_U1HOOK, 0x01) && Connector.Read8(ADDR_INGAMEMENU, out byte gamemenu) && (gamemenu != 0x20) && (gamemenu != 0x10) && Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.IsNonZero8(ADDR_HP), TimeSpan.FromSeconds(1),
-                            () => Connector.Write8(ADDR_HP, 0x01), TimeSpan.FromSeconds(2), true, "health");
+                            () => Connector.Write8(ADDR_HP, 0x01), TimeSpan.FromSeconds(2), true, "damage");
                         w.WhenStarted.Then(t => Connector.SendMessage($"{request.DisplayViewer} sent One Hit KO Mode (30s)."));
                         w.WhenCompleted.Then(t =>
                         {
@@ -1459,24 +1485,36 @@ namespace CrowdControl.Games.Packs
 
                 case "wild":
                     {
+
+                        if (!Connector.Read8(ADDR_HP, out byte PLAYERHP))
+                        {
+                            DelayEffect(request);
+                        }
+
+                        if ((PLAYERHP) == 0x00)
+                        {
+                            DelayEffect(request);
+                            return;
+                        }
+                        
                         
                         if (!Connector.Read8(ADDR_CURRENT_AREA, out byte areas))
                         {
                             DelayEffect(request);
                         }
-                        
+
                         if ((areas) == 0xA7)
                         {
                             DelayEffect(request);
                             return;
                         }
-                        
+
                         if ((areas) == 0x58)
                         {
                             DelayEffect(request);
                             return;
                         }
-                        
+
                         if ((areas) == 0x59)
                         {
                             DelayEffect(request);
@@ -1525,10 +1563,21 @@ namespace CrowdControl.Games.Packs
                         () => { Connector.SendMessage($"{request.DisplayViewer} wild warped you."); });
                         return;
                     }
-                  
+
 
                 case "kill":
                     {
+                        if (!Connector.Read8(ADDR_HP, out byte PLAYERHP))
+                        {
+                            DelayEffect(request);
+                        }
+
+                        if ((PLAYERHP) == 0x00)
+                        {
+                            DelayEffect(request);
+                            return;
+                        }
+
                         TryEffect(request,
                         () => Connector.IsNonZero8(ADDR_HP),
                         () => Connector.Write8(ADDR_HP, 0),
@@ -1538,17 +1587,68 @@ namespace CrowdControl.Games.Packs
 
                 case "jump":
                     {
+                        if (!Connector.Read8(ADDR_HP, out byte PLAYERHP))
+                        {
+                            DelayEffect(request);
+                        }
+
+                        if ((PLAYERHP) == 0x00)
+                        {
+                            DelayEffect(request);
+                            return;
+                        }
+
                         RepeatAction(request, TimeSpan.FromSeconds(15),
                       () => Connector.IsZero8(ADDR_Jump),
                       () => Connector.Write8(ADDR_Jump, 32) && Connector.SendMessage($"{request.DisplayViewer} has granted you jump mode (15s)."), TimeSpan.FromSeconds(0.5),
                       () => true, TimeSpan.FromSeconds(5),
-                      () => Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.Write8(ADDR_Jump, 32), TimeSpan.FromSeconds(0.5), true)
+                      () => Connector.IsNonZero8(ADDR_HP) && Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.Write8(ADDR_Jump, 32), TimeSpan.FromSeconds(0.5), true)
                       .WhenCompleted.ContinueWith(t => Connector.SendMessage($"{request.DisplayViewer} has removed your jump mode."));
                         return;
                     }
 
+                case "joust":
+                    {
+                        if (!Connector.Read8(ADDR_HP, out byte PLAYERHP))
+                        {
+                            DelayEffect(request);
+                        }
+
+                        if ((PLAYERHP) == 0x00)
+                        {
+                            DelayEffect(request);
+                            return;
+                        }
+
+                        var joust = RepeatAction(request,
+                        TimeSpan.FromSeconds(15),
+                        () => Connector.IsZero8(ADDR_ACTION), /*Effect Start Condition*/
+                        () => Connector.Freeze8(ADDR_ACTION, 0x0F), /*Start Action*/
+                        TimeSpan.FromSeconds(1), /*Retry Timer*/
+                        () => Connector.IsNonZero8(ADDR_HP) && Connector.Read8(ADDR_INGAMEMENU, out byte gamemenu) && (gamemenu != 0x20) && (gamemenu != 0x10) && Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.Freeze8(ADDR_ACTION, 0x0F), /*Refresh Condtion*/
+                        TimeSpan.FromMilliseconds(500), /*Refresh Retry Timer*/
+                        () => true, /*Action*/
+                        TimeSpan.FromSeconds(0.5),
+                        true, "charge");
+                        joust.WhenStarted.Then(t => Connector.SendMessage($"{request.DisplayViewer} started joust mode (15s)."));
+                        joust.WhenCompleted.Then(t => Connector.SendMessage($"{request.DisplayViewer}'s removed joust mode."));
+                        return;
+                    }
+
+
                 case "flightmode":  //Note Screen scroll weird in x only direction but up and down and diagronally work great.
                     {
+                        if (!Connector.Read8(ADDR_HP, out byte PLAYERHP))
+                        {
+                            DelayEffect(request);
+                        }
+
+                        if ((PLAYERHP) == 0x00)
+                        {
+                            DelayEffect(request);
+                            return;
+                        }
+                        
                         var flight = RepeatAction(request,
                         TimeSpan.FromSeconds(15),
                         () => Connector.IsZero8(ADDR_Jump), /*Effect Start Condition*/
@@ -1566,6 +1666,17 @@ namespace CrowdControl.Games.Packs
 
                 case "screenshakemode":  //Note Screen scroll weird in x only direction but up and down and diagronally work great.
                     {
+                        if (!Connector.Read8(ADDR_HP, out byte PLAYERHP))
+                        {
+                            DelayEffect(request);
+                        }
+
+                        if ((PLAYERHP) == 0x00)
+                        {
+                            DelayEffect(request);
+                            return;
+                        }
+                        
                         var shake = RepeatAction(request,
                         TimeSpan.FromSeconds(15),
                         () => Connector.IsZero8(ADDR_ScreenHit1), /*Effect Start Condition*/
@@ -1581,19 +1692,68 @@ namespace CrowdControl.Games.Packs
                         return;
                     }
 
-                case "heavy":
+                case "speed":
                     {
-                        if (!Connector.Read8(ADDR_Condition, out byte slimecheck))
+                        if (!Connector.Read8(ADDR_HP, out byte PLAYERHP))
                         {
                             DelayEffect(request);
                         }
-                        
-                        if ((slimecheck) == 0x04)
+
+                        if ((PLAYERHP) == 0x00)
+                        {
+                            DelayEffect(request);
+                            return;
+                        }
+
+                        //if (!Connector.Read8(ADDR_Condition, out byte slimecheck))
+                        //{
+                        //    DelayEffect(request);
+                        //}
+
+                        //if ((slimecheck) == 0x04)
+                        //{
+                        //    DelayEffect(request);
+                        //    return;
+                        //}
+
+                        var speed = RepeatAction(request,
+                        TimeSpan.FromSeconds(15),
+                        () => Connector.Read8(ADDR_Speed, out byte b) && (b < 0x07), /*Effect Start Condition*/
+                        () => Connector.Write8(ADDR_Speed, 0x07), /*Start Action*/
+                        TimeSpan.FromSeconds(1), /*Retry Timer*/
+                        () => Connector.IsNonZero8(ADDR_HP) && Connector.Read8(ADDR_INGAMEMENU, out byte gamemenu) && (gamemenu != 0x20) && (gamemenu != 0x10) && Connector.Read8(ADDR_MENU, out byte menu) && (menu != 0xFF) && Connector.Write8(ADDR_Speed, 0x07), /*Refresh Condtion*/
+                        TimeSpan.FromMilliseconds(50), /*Refresh Retry Timer*/
+                        () => true, /*Action*/
+                        TimeSpan.FromSeconds(0.1),
+                        true, "speed");
+                        speed.WhenStarted.Then(t => Connector.SendMessage($"{request.DisplayViewer} increased your speed (15s)."));
+                        return;
+                    }
+                
+                case "heavy":
+                    {
+                        if (!Connector.Read8(ADDR_HP, out byte PLAYERHP))
+                        {
+                            DelayEffect(request);
+                        }
+
+                        if ((PLAYERHP) == 0x00)
                         {
                             DelayEffect(request);
                             return;
                         }
                         
+                        if (!Connector.Read8(ADDR_Condition, out byte slimecheck))
+                        {
+                            DelayEffect(request);
+                        }
+
+                        if ((slimecheck) == 0x04)
+                        {
+                            DelayEffect(request);
+                            return;
+                        }
+
                         var heavy = RepeatAction(request,
                         TimeSpan.FromSeconds(15),
                         () => Connector.Read8(ADDR_Speed, out byte b) && (b >= 0x06), /*Effect Start Condition*/
@@ -1603,13 +1763,24 @@ namespace CrowdControl.Games.Packs
                         TimeSpan.FromMilliseconds(50), /*Refresh Retry Timer*/
                         () => true, /*Action*/
                         TimeSpan.FromSeconds(0.1),
-                        true);
+                        true, "speed");
                         heavy.WhenStarted.Then(t => Connector.SendMessage($"{request.DisplayViewer} lowered your speed (15s)."));
                         return;
                     }
 
                 case "lvl1shotcharged":
 
+                    if (!Connector.Read8(ADDR_HP, out byte PLAYERHP1))
+                    {
+                        DelayEffect(request);
+                    }
+
+                    if ((PLAYERHP1) == 0x00)
+                    {
+                        DelayEffect(request);
+                        return;
+                    }
+                    
                     if (!Connector.Read8(ADDR_ShotLvl, out byte charged1))
                     {
                         DelayEffect(request);
@@ -1638,6 +1809,17 @@ namespace CrowdControl.Games.Packs
                     return;
 
                 case "lvl2shotcharged":
+
+                    if (!Connector.Read8(ADDR_HP, out byte PLAYERHP2))
+                    {
+                        DelayEffect(request);
+                    }
+
+                    if ((PLAYERHP2) == 0x00)
+                    {
+                        DelayEffect(request);
+                        return;
+                    }
 
                     if (!Connector.Read8(ADDR_ShotLvl, out byte charged2))
                     {
@@ -1668,6 +1850,17 @@ namespace CrowdControl.Games.Packs
 
                 case "lvl3shotcharged":
 
+                    if (!Connector.Read8(ADDR_HP, out byte PLAYERHP3))
+                    {
+                        DelayEffect(request);
+                    }
+
+                    if ((PLAYERHP3) == 0x00)
+                    {
+                        DelayEffect(request);
+                        return;
+                    }
+                    
                     if (!Connector.Read8(ADDR_ShotLvl, out byte charged3))
                     {
                         DelayEffect(request);
@@ -1698,6 +1891,16 @@ namespace CrowdControl.Games.Packs
 
                 case "lvl1shot":
 
+                    if (!Connector.Read8(ADDR_HP, out byte PLAYERHP4))
+                    {
+                        DelayEffect(request);
+                    }
+
+                    if ((PLAYERHP4) == 0x00)
+                    {
+                        DelayEffect(request);
+                        return;
+                    }
                     if (!Connector.Read8(ADDR_Warrior, out byte charge))
                     {
                         DelayEffect(request);
@@ -1728,6 +1931,17 @@ namespace CrowdControl.Games.Packs
                 case "lvl2shot":
 
 
+                    if (!Connector.Read8(ADDR_HP, out byte PLAYERHP5))
+                    {
+                        DelayEffect(request);
+                    }
+
+                    if ((PLAYERHP5) == 0x00)
+                    {
+                        DelayEffect(request);
+                        return;
+                    }
+                    
                     if (!Connector.Read8(ADDR_Warrior, out byte charge1))
                     {
                         DelayEffect(request);
@@ -1756,6 +1970,18 @@ namespace CrowdControl.Games.Packs
                     return;
 
                 case "trishot":
+                    
+                    if (!Connector.Read8(ADDR_HP, out byte PLAYERHP6))
+                    {
+                        DelayEffect(request);
+                    }
+
+                    if ((PLAYERHP6) == 0x00)
+                    {
+                        DelayEffect(request);
+                        return;
+                    }
+
                     if (!Connector.Read8(ADDR_Warrior, out byte charge2))
                     {
                         DelayEffect(request);
@@ -1784,6 +2010,17 @@ namespace CrowdControl.Games.Packs
                     return;
 
                 case "thundershot":
+                    if (!Connector.Read8(ADDR_HP, out byte PLAYERHP7))
+                    {
+                        DelayEffect(request);
+                    }
+
+                    if ((PLAYERHP7) == 0x00)
+                    {
+                        DelayEffect(request);
+                        return;
+                    }
+                    
                     if (!Connector.Read8(ADDR_Warrior, out byte charge3))
                     {
                         DelayEffect(request);
@@ -1812,6 +2049,17 @@ namespace CrowdControl.Games.Packs
 
 
                 case "lagshot":
+                    if (!Connector.Read8(ADDR_HP, out byte PLAYERHP8))
+                    {
+                        DelayEffect(request);
+                    }
+
+                    if ((PLAYERHP8) == 0x00)
+                    {
+                        DelayEffect(request);
+                        return;
+                    }
+                    
                     if (!Connector.Read8(ADDR_Warrior, out byte charge4))
                     {
                         DelayEffect(request);
@@ -1841,6 +2089,17 @@ namespace CrowdControl.Games.Packs
 
                 case "recover":
                     {
+                        if (!Connector.Read8(ADDR_HP, out byte PLAYERHP))
+                        {
+                            DelayEffect(request);
+                        }
+
+                        if ((PLAYERHP) == 0x00)
+                        {
+                            DelayEffect(request);
+                            return;
+                        }
+                        
                         if (!Connector.Read8(ADDR_Condition, out byte con))
                         {
                             DelayEffect(request);
@@ -1864,6 +2123,17 @@ namespace CrowdControl.Games.Packs
 
                 case "paralysis":
                     {
+                        if (!Connector.Read8(ADDR_HP, out byte PLAYERHP))
+                        {
+                            DelayEffect(request);
+                        }
+
+                        if ((PLAYERHP) == 0x00)
+                        {
+                            DelayEffect(request);
+                            return;
+                        }
+                        
                         if (!Connector.Read8(ADDR_Condition, out byte con))
                         {
                             DelayEffect(request);
@@ -1887,6 +2157,17 @@ namespace CrowdControl.Games.Packs
 
                 case "timedparalysis":
                     {
+                        if (!Connector.Read8(ADDR_HP, out byte PLAYERHP))
+                        {
+                            DelayEffect(request);
+                        }
+
+                        if ((PLAYERHP) == 0x00)
+                        {
+                            DelayEffect(request);
+                            return;
+                        }
+                        
                         var cond = RepeatAction(request,
                         TimeSpan.FromSeconds(15),
                         () => Connector.Read8(ADDR_Condition, out byte b) && (b == 0x00), /*Effect Start Condition*/
@@ -1903,6 +2184,17 @@ namespace CrowdControl.Games.Packs
 
                 case "stone":
                     {
+                        if (!Connector.Read8(ADDR_HP, out byte PLAYERHP))
+                        {
+                            DelayEffect(request);
+                        }
+
+                        if ((PLAYERHP) == 0x00)
+                        {
+                            DelayEffect(request);
+                            return;
+                        }
+                        
                         if (!Connector.Read8(ADDR_Stone, out byte stone))
                         {
                             DelayEffect(request);
@@ -1927,6 +2219,17 @@ namespace CrowdControl.Games.Packs
 
                 case "poison":
                     {
+                        if (!Connector.Read8(ADDR_HP, out byte PLAYERHP))
+                        {
+                            DelayEffect(request);
+                        }
+
+                        if ((PLAYERHP) == 0x00)
+                        {
+                            DelayEffect(request);
+                            return;
+                        }
+                        
                         if (!Connector.Read8(ADDR_Condition, out byte con))
                         {
                             DelayEffect(request);
@@ -1950,6 +2253,17 @@ namespace CrowdControl.Games.Packs
 
                 case "timedpoison":
                     {
+                        if (!Connector.Read8(ADDR_HP, out byte PLAYERHP))
+                        {
+                            DelayEffect(request);
+                        }
+
+                        if ((PLAYERHP) == 0x00)
+                        {
+                            DelayEffect(request);
+                            return;
+                        }
+                        
                         var cond = RepeatAction(request,
                         TimeSpan.FromSeconds(15),
                         () => Connector.Read8(ADDR_Condition, out byte b) && (b == 0x00), /*Effect Start Condition*/
@@ -1959,13 +2273,24 @@ namespace CrowdControl.Games.Packs
                         TimeSpan.FromMilliseconds(50), /*Refresh Retry Timer*/
                         () => true, /*Action*/
                         TimeSpan.FromSeconds(0.1),
-                        true);
+                        true, "damage");
                         cond.WhenStarted.Then(t => Connector.SendMessage($"{request.DisplayViewer} poisoned you (15s)."));
                         return;
                     }
 
                 case "slime":   //Note will need to fail at boss area since it would lock you there or death.
                     {
+                        if (!Connector.Read8(ADDR_HP, out byte PLAYERHP))
+                        {
+                            DelayEffect(request);
+                        }
+
+                        if ((PLAYERHP) == 0x00)
+                        {
+                            DelayEffect(request);
+                            return;
+                        }
+                        
                         if (!Connector.Read8(ADDR_CURRENT_AREA, out byte areas))
                         {
                             DelayEffect(request);
@@ -2072,6 +2397,17 @@ namespace CrowdControl.Games.Packs
 
                 case "timedslime":
                     {
+                        if (!Connector.Read8(ADDR_HP, out byte PLAYERHP))
+                        {
+                            DelayEffect(request);
+                        }
+
+                        if ((PLAYERHP) == 0x00)
+                        {
+                            DelayEffect(request);
+                            return;
+                        }
+                        
                         var slime = RepeatAction(request,
                         TimeSpan.FromSeconds(15),
                         () => Connector.IsZero8(ADDR_Condition), /*Effect Start Condition*/
@@ -2130,6 +2466,17 @@ namespace CrowdControl.Games.Packs
                 case "barmor":
                     {
                         //Slot 1 Check
+                        if (!Connector.Read8(ADDR_HP, out byte PLAYERHP))
+                        {
+                            DelayEffect(request);
+                        }
+
+                        if ((PLAYERHP) == 0x00)
+                        {
+                            DelayEffect(request);
+                            return;
+                        }
+                        
                         if (!Connector.Read8(ADDR_ArmorSlot1, out byte barmor1))
                         {
                             DelayEffect(request);
@@ -2237,6 +2584,17 @@ namespace CrowdControl.Games.Packs
                 case "parmor":
                     {
                         //Slot 1 Check
+                        if (!Connector.Read8(ADDR_HP, out byte PLAYERHP))
+                        {
+                            DelayEffect(request);
+                        }
+
+                        if ((PLAYERHP) == 0x00)
+                        {
+                            DelayEffect(request);
+                            return;
+                        }
+                        
                         if (!Connector.Read8(ADDR_ArmorSlot1, out byte parmor1))
                         {
                             DelayEffect(request);
@@ -2342,6 +2700,17 @@ namespace CrowdControl.Games.Packs
                 case "tanhide":
                     {
                         //Slot 1 Check
+                        if (!Connector.Read8(ADDR_HP, out byte PLAYERHP))
+                        {
+                            DelayEffect(request);
+                        }
+
+                        if ((PLAYERHP) == 0x00)
+                        {
+                            DelayEffect(request);
+                            return;
+                        }
+                        
                         if (!Connector.Read8(ADDR_ArmorSlot1, out byte parmor1))
                         {
                             DelayEffect(request);
@@ -2447,6 +2816,17 @@ namespace CrowdControl.Games.Packs
                 case "leaarmor":
                     {
                         //Slot 1 Check
+                        if (!Connector.Read8(ADDR_HP, out byte PLAYERHP))
+                        {
+                            DelayEffect(request);
+                        }
+
+                        if ((PLAYERHP) == 0x00)
+                        {
+                            DelayEffect(request);
+                            return;
+                        }
+                        
                         if (!Connector.Read8(ADDR_ArmorSlot1, out byte parmor1))
                         {
                             DelayEffect(request);
@@ -2552,6 +2932,17 @@ namespace CrowdControl.Games.Packs
                 case "broarmor":
                     {
                         //Slot 1 Check
+                        if (!Connector.Read8(ADDR_HP, out byte PLAYERHP))
+                        {
+                            DelayEffect(request);
+                        }
+
+                        if ((PLAYERHP) == 0x00)
+                        {
+                            DelayEffect(request);
+                            return;
+                        }
+                        
                         if (!Connector.Read8(ADDR_ArmorSlot1, out byte parmor1))
                         {
                             DelayEffect(request);
@@ -2657,6 +3048,17 @@ namespace CrowdControl.Games.Packs
                 case "platarmor":
                     {
                         //Slot 1 Check
+                        if (!Connector.Read8(ADDR_HP, out byte PLAYERHP))
+                        {
+                            DelayEffect(request);
+                        }
+
+                        if ((PLAYERHP) == 0x00)
+                        {
+                            DelayEffect(request);
+                            return;
+                        }
+                        
                         if (!Connector.Read8(ADDR_ArmorSlot1, out byte parmor1))
                         {
                             DelayEffect(request);
@@ -2762,6 +3164,17 @@ namespace CrowdControl.Games.Packs
                 case "cerarmor":
                     {
                         //Slot 1 Check
+                        if (!Connector.Read8(ADDR_HP, out byte PLAYERHP))
+                        {
+                            DelayEffect(request);
+                        }
+
+                        if ((PLAYERHP) == 0x00)
+                        {
+                            DelayEffect(request);
+                            return;
+                        }
+                        
                         if (!Connector.Read8(ADDR_ArmorSlot1, out byte parmor1))
                         {
                             DelayEffect(request);
@@ -2867,6 +3280,17 @@ namespace CrowdControl.Games.Packs
                 case "soldiersuit":
                     {
                         //Slot 1 Check
+                        if (!Connector.Read8(ADDR_HP, out byte PLAYERHP))
+                        {
+                            DelayEffect(request);
+                        }
+
+                        if ((PLAYERHP) == 0x00)
+                        {
+                            DelayEffect(request);
+                            return;
+                        }
+                        
                         if (!Connector.Read8(ADDR_ArmorSlot1, out byte parmor1))
                         {
                             DelayEffect(request);
@@ -2972,6 +3396,17 @@ namespace CrowdControl.Games.Packs
                 case "stealbestarmor":
                     {
                         //Slot 1 Check
+                        if (!Connector.Read8(ADDR_HP, out byte PLAYERHP))
+                        {
+                            DelayEffect(request);
+                        }
+
+                        if ((PLAYERHP) == 0x00)
+                        {
+                            DelayEffect(request);
+                            return;
+                        }
+                        
                         if (!Connector.Read8(ADDR_ArmorSlot4, out byte pshield4))
                         {
                             DelayEffect(request);
@@ -3060,6 +3495,17 @@ namespace CrowdControl.Games.Packs
                 case "stealbestshield":
                     {
                         //Slot 1 Check
+                        if (!Connector.Read8(ADDR_HP, out byte PLAYERHP))
+                        {
+                            DelayEffect(request);
+                        }
+
+                        if ((PLAYERHP) == 0x00)
+                        {
+                            DelayEffect(request);
+                            return;
+                        }
+                        
                         if (!Connector.Read8(ADDR_ShieldSlot4, out byte pshield4))
                         {
                             DelayEffect(request);
@@ -3071,7 +3517,7 @@ namespace CrowdControl.Games.Packs
                             {
                                 DelayEffect(request);
                             }
-                                                     
+
                             else if ((pshield3) == 0xFF)
                             {
                                 //Slot 3 Check
@@ -3079,7 +3525,7 @@ namespace CrowdControl.Games.Packs
                                 {
                                     DelayEffect(request);
                                 }
-                               
+
                                 else if ((pshield2) == 0xFF)
                                 {
                                     //Slot 4 Check
@@ -3087,7 +3533,7 @@ namespace CrowdControl.Games.Packs
                                     {
                                         DelayEffect(request);
                                     }
-                                    
+
                                     else if ((pshield1) == 0xFF)
                                     {
                                         DelayEffect(request);
@@ -3148,6 +3594,17 @@ namespace CrowdControl.Games.Packs
                 case "carpshield":
                     {
                         //Slot 1 Check
+                        if (!Connector.Read8(ADDR_HP, out byte PLAYERHP))
+                        {
+                            DelayEffect(request);
+                        }
+
+                        if ((PLAYERHP) == 0x00)
+                        {
+                            DelayEffect(request);
+                            return;
+                        }
+                        
                         if (!Connector.Read8(ADDR_ShieldSlot1, out byte pshield1))
                         {
                             DelayEffect(request);
@@ -3253,6 +3710,17 @@ namespace CrowdControl.Games.Packs
                 case "broshield":
                     {
                         //Slot 1 Check
+                        if (!Connector.Read8(ADDR_HP, out byte PLAYERHP))
+                        {
+                            DelayEffect(request);
+                        }
+
+                        if ((PLAYERHP) == 0x00)
+                        {
+                            DelayEffect(request);
+                            return;
+                        }
+                        
                         if (!Connector.Read8(ADDR_ShieldSlot1, out byte pshield1))
                         {
                             DelayEffect(request);
@@ -3358,6 +3826,17 @@ namespace CrowdControl.Games.Packs
                 case "platshield":
                     {
                         //Slot 1 Check
+                        if (!Connector.Read8(ADDR_HP, out byte PLAYERHP))
+                        {
+                            DelayEffect(request);
+                        }
+
+                        if ((PLAYERHP) == 0x00)
+                        {
+                            DelayEffect(request);
+                            return;
+                        }
+                        
                         if (!Connector.Read8(ADDR_ShieldSlot1, out byte pshield1))
                         {
                             DelayEffect(request);
@@ -3463,6 +3942,17 @@ namespace CrowdControl.Games.Packs
                 case "mirrorshield":
                     {
                         //Slot 1 Check
+                        if (!Connector.Read8(ADDR_HP, out byte PLAYERHP))
+                        {
+                            DelayEffect(request);
+                        }
+
+                        if ((PLAYERHP) == 0x00)
+                        {
+                            DelayEffect(request);
+                            return;
+                        }
+                        
                         if (!Connector.Read8(ADDR_ShieldSlot1, out byte pshield1))
                         {
                             DelayEffect(request);
@@ -3568,6 +4058,17 @@ namespace CrowdControl.Games.Packs
                 case "cershield":
                     {
                         //Slot 1 Check
+                        if (!Connector.Read8(ADDR_HP, out byte PLAYERHP))
+                        {
+                            DelayEffect(request);
+                        }
+
+                        if ((PLAYERHP) == 0x00)
+                        {
+                            DelayEffect(request);
+                            return;
+                        }
+                        
                         if (!Connector.Read8(ADDR_ShieldSlot1, out byte pshield1))
                         {
                             DelayEffect(request);
@@ -3673,6 +4174,17 @@ namespace CrowdControl.Games.Packs
                 case "bshield":
                     {
                         //Slot 1 Check
+                        if (!Connector.Read8(ADDR_HP, out byte PLAYERHP))
+                        {
+                            DelayEffect(request);
+                        }
+
+                        if ((PLAYERHP) == 0x00)
+                        {
+                            DelayEffect(request);
+                            return;
+                        }
+                        
                         if (!Connector.Read8(ADDR_ShieldSlot1, out byte pshield1))
                         {
                             DelayEffect(request);
@@ -3778,6 +4290,17 @@ namespace CrowdControl.Games.Packs
                 case "pshield":
                     {
                         //Slot 1 Check
+                        if (!Connector.Read8(ADDR_HP, out byte PLAYERHP))
+                        {
+                            DelayEffect(request);
+                        }
+
+                        if ((PLAYERHP) == 0x00)
+                        {
+                            DelayEffect(request);
+                            return;
+                        }
+                        
                         if (!Connector.Read8(ADDR_ShieldSlot1, out byte pshield1))
                         {
                             DelayEffect(request);
@@ -3883,6 +4406,17 @@ namespace CrowdControl.Games.Packs
                 case "sshield":
                     {
                         //Slot 1 Check
+                        if (!Connector.Read8(ADDR_HP, out byte PLAYERHP))
+                        {
+                            DelayEffect(request);
+                        }
+
+                        if ((PLAYERHP) == 0x00)
+                        {
+                            DelayEffect(request);
+                            return;
+                        }
+                        
                         if (!Connector.Read8(ADDR_ShieldSlot1, out byte sshield1))
                         {
                             DelayEffect(request);
@@ -3987,6 +4521,17 @@ namespace CrowdControl.Games.Packs
 
                 case "clear":
                     {
+                        if (!Connector.Read8(ADDR_HP, out byte PLAYERHP))
+                        {
+                            DelayEffect(request);
+                        }
+
+                        if ((PLAYERHP) == 0x00)
+                        {
+                            DelayEffect(request);
+                            return;
+                        }
+                        
                         if (!Connector.Read8(ADDR_ConsumeSlot1, out byte concheck))
                         {
                             DelayEffect(request);
@@ -3997,7 +4542,7 @@ namespace CrowdControl.Games.Packs
                             DelayEffect(request);
                             return;
                         }
-                        
+
                         if (!Connector.Read8(ADDR_ConsumeSlot1, out byte con1))
                         {
                             DelayEffect(request);
@@ -4129,6 +4674,17 @@ namespace CrowdControl.Games.Packs
 
                 case "allfol":  //Note Community Joke for this most usless item
                     {
+                        if (!Connector.Read8(ADDR_HP, out byte PLAYERHP))
+                        {
+                            DelayEffect(request);
+                        }
+
+                        if ((PLAYERHP) == 0x00)
+                        {
+                            DelayEffect(request);
+                            return;
+                        }
+                        
                         if (!Connector.Read8(ADDR_ConsumeSlot1, out byte con1))
                         {
                             DelayEffect(request);
@@ -4256,6 +4812,17 @@ namespace CrowdControl.Games.Packs
                     {
                         byte item = 0x1D;
 
+                        if (!Connector.Read8(ADDR_HP, out byte PLAYERHP))
+                        {
+                            DelayEffect(request);
+                        }
+
+                        if ((PLAYERHP) == 0x00)
+                        {
+                            DelayEffect(request);
+                            return;
+                        }
+                        
                         if (!Connector.Read8(ADDR_ConsumeSlot1, out byte con1))
                         {
                             DelayEffect(request);
@@ -4400,6 +4967,17 @@ namespace CrowdControl.Games.Packs
                     {
                         var herb = 0x1D;
 
+                        if (!Connector.Read8(ADDR_HP, out byte PLAYERHP))
+                        {
+                            DelayEffect(request);
+                        }
+
+                        if ((PLAYERHP) == 0x00)
+                        {
+                            DelayEffect(request);
+                            return;
+                        }
+                        
                         if (!Connector.Read8(ADDR_ConsumeSlot1, out byte con1))
                         {
                             DelayEffect(request);
@@ -4544,6 +5122,17 @@ namespace CrowdControl.Games.Packs
 
                     {
                         byte item = 0x1E;
+                        if (!Connector.Read8(ADDR_HP, out byte PLAYERHP))
+                        {
+                            DelayEffect(request);
+                        }
+
+                        if ((PLAYERHP) == 0x00)
+                        {
+                            DelayEffect(request);
+                            return;
+                        }
+                        
                         if (!Connector.Read8(ADDR_ConsumeSlot1, out byte con1))
                         {
                             DelayEffect(request);
@@ -4688,6 +5277,17 @@ namespace CrowdControl.Games.Packs
                     {
                         var anti = 0x1E;
 
+                        if (!Connector.Read8(ADDR_HP, out byte PLAYERHP))
+                        {
+                            DelayEffect(request);
+                        }
+
+                        if ((PLAYERHP) == 0x00)
+                        {
+                            DelayEffect(request);
+                            return;
+                        }
+                        
                         if (!Connector.Read8(ADDR_ConsumeSlot1, out byte con1))
                         {
                             DelayEffect(request);
@@ -4832,6 +5432,17 @@ namespace CrowdControl.Games.Packs
                     {
                         byte item = 0x1F;
 
+                        if (!Connector.Read8(ADDR_HP, out byte PLAYERHP))
+                        {
+                            DelayEffect(request);
+                        }
+
+                        if ((PLAYERHP) == 0x00)
+                        {
+                            DelayEffect(request);
+                            return;
+                        }
+                        
                         if (!Connector.Read8(ADDR_ConsumeSlot1, out byte con1))
                         {
                             DelayEffect(request);
@@ -4976,6 +5587,17 @@ namespace CrowdControl.Games.Packs
                     {
                         var lp = 0x1F;
 
+                        if (!Connector.Read8(ADDR_HP, out byte PLAYERHP))
+                        {
+                            DelayEffect(request);
+                        }
+
+                        if ((PLAYERHP) == 0x00)
+                        {
+                            DelayEffect(request);
+                            return;
+                        }
+                        
                         if (!Connector.Read8(ADDR_ConsumeSlot1, out byte con1))
                         {
                             DelayEffect(request);
@@ -5120,6 +5742,17 @@ namespace CrowdControl.Games.Packs
                     {
                         byte item = 0x20;
 
+                        if (!Connector.Read8(ADDR_HP, out byte PLAYERHP))
+                        {
+                            DelayEffect(request);
+                        }
+
+                        if ((PLAYERHP) == 0x00)
+                        {
+                            DelayEffect(request);
+                            return;
+                        }
+                        
                         if (!Connector.Read8(ADDR_ConsumeSlot1, out byte con1))
                         {
                             DelayEffect(request);
@@ -5264,6 +5897,17 @@ namespace CrowdControl.Games.Packs
                     {
                         var fol = 0x20;
 
+                        if (!Connector.Read8(ADDR_HP, out byte PLAYERHP))
+                        {
+                            DelayEffect(request);
+                        }
+
+                        if ((PLAYERHP) == 0x00)
+                        {
+                            DelayEffect(request);
+                            return;
+                        }
+                        
                         if (!Connector.Read8(ADDR_ConsumeSlot1, out byte con1))
                         {
                             DelayEffect(request);
@@ -5408,6 +6052,17 @@ namespace CrowdControl.Games.Packs
                     {
                         byte item = 0x21;
 
+                        if (!Connector.Read8(ADDR_HP, out byte PLAYERHP))
+                        {
+                            DelayEffect(request);
+                        }
+
+                        if ((PLAYERHP) == 0x00)
+                        {
+                            DelayEffect(request);
+                            return;
+                        }
+                        
                         if (!Connector.Read8(ADDR_ConsumeSlot1, out byte con1))
                         {
                             DelayEffect(request);
@@ -5551,6 +6206,17 @@ namespace CrowdControl.Games.Packs
                 case "stealfop":
                     {
                         var fop = 0x21;
+                        if (!Connector.Read8(ADDR_HP, out byte PLAYERHP))
+                        {
+                            DelayEffect(request);
+                        }
+
+                        if ((PLAYERHP) == 0x00)
+                        {
+                            DelayEffect(request);
+                            return;
+                        }
+                        
                         if (!Connector.Read8(ADDR_ConsumeSlot1, out byte con1))
                         {
                             DelayEffect(request);
@@ -5695,6 +6361,17 @@ namespace CrowdControl.Games.Packs
                     {
                         byte item = 0x22;
 
+                        if (!Connector.Read8(ADDR_HP, out byte PLAYERHP))
+                        {
+                            DelayEffect(request);
+                        }
+
+                        if ((PLAYERHP) == 0x00)
+                        {
+                            DelayEffect(request);
+                            return;
+                        }
+                        
                         if (!Connector.Read8(ADDR_ConsumeSlot1, out byte con1))
                         {
                             DelayEffect(request);
@@ -5838,6 +6515,17 @@ namespace CrowdControl.Games.Packs
                 case "stealmr":
                     {
                         var mr = 0x22;
+                        if (!Connector.Read8(ADDR_HP, out byte PLAYERHP))
+                        {
+                            DelayEffect(request);
+                        }
+
+                        if ((PLAYERHP) == 0x00)
+                        {
+                            DelayEffect(request);
+                            return;
+                        }
+                        
                         if (!Connector.Read8(ADDR_ConsumeSlot1, out byte con1))
                         {
                             DelayEffect(request);
@@ -5982,6 +6670,17 @@ namespace CrowdControl.Games.Packs
                     {
                         byte item = 0x23;
 
+                        if (!Connector.Read8(ADDR_HP, out byte PLAYERHP))
+                        {
+                            DelayEffect(request);
+                        }
+
+                        if ((PLAYERHP) == 0x00)
+                        {
+                            DelayEffect(request);
+                            return;
+                        }
+                        
                         if (!Connector.Read8(ADDR_ConsumeSlot1, out byte con1))
                         {
                             DelayEffect(request);
@@ -6125,6 +6824,17 @@ namespace CrowdControl.Games.Packs
                 case "stealfor":
                     {
                         var fruitr = 0x23;
+                        if (!Connector.Read8(ADDR_HP, out byte PLAYERHP))
+                        {
+                            DelayEffect(request);
+                        }
+
+                        if ((PLAYERHP) == 0x00)
+                        {
+                            DelayEffect(request);
+                            return;
+                        }
+                        
                         if (!Connector.Read8(ADDR_ConsumeSlot1, out byte con1))
                         {
                             DelayEffect(request);
@@ -6269,6 +6979,17 @@ namespace CrowdControl.Games.Packs
                     {
                         byte item = 0x24;
 
+                        if (!Connector.Read8(ADDR_HP, out byte PLAYERHP))
+                        {
+                            DelayEffect(request);
+                        }
+
+                        if ((PLAYERHP) == 0x00)
+                        {
+                            DelayEffect(request);
+                            return;
+                        }
+                        
                         if (!Connector.Read8(ADDR_ConsumeSlot1, out byte con1))
                         {
                             DelayEffect(request);
@@ -6413,6 +7134,17 @@ namespace CrowdControl.Games.Packs
                     {
                         var wp = 0x24;
 
+                        if (!Connector.Read8(ADDR_HP, out byte PLAYERHP))
+                        {
+                            DelayEffect(request);
+                        }
+
+                        if ((PLAYERHP) == 0x00)
+                        {
+                            DelayEffect(request);
+                            return;
+                        }
+                        
                         if (!Connector.Read8(ADDR_ConsumeSlot1, out byte con1))
                         {
                             DelayEffect(request);
@@ -6557,6 +7289,17 @@ namespace CrowdControl.Games.Packs
                     {
                         byte item = 0x26;
 
+                        if (!Connector.Read8(ADDR_HP, out byte PLAYERHP))
+                        {
+                            DelayEffect(request);
+                        }
+
+                        if ((PLAYERHP) == 0x00)
+                        {
+                            DelayEffect(request);
+                            return;
+                        }
+                        
                         if (!Connector.Read8(ADDR_ConsumeSlot1, out byte con1))
                         {
                             DelayEffect(request);
@@ -6700,6 +7443,17 @@ namespace CrowdControl.Games.Packs
                 case "stealopel":
                     {
                         var opel = 0x26;
+                        if (!Connector.Read8(ADDR_HP, out byte PLAYERHP))
+                        {
+                            DelayEffect(request);
+                        }
+
+                        if ((PLAYERHP) == 0x00)
+                        {
+                            DelayEffect(request);
+                            return;
+                        }
+                        
                         if (!Connector.Read8(ADDR_ConsumeSlot1, out byte con1))
                         {
                             DelayEffect(request);
@@ -6842,6 +7596,17 @@ namespace CrowdControl.Games.Packs
 
                 case "windsword":
                     {
+                        if (!Connector.Read8(ADDR_HP, out byte PLAYERHP))
+                        {
+                            DelayEffect(request);
+                        }
+
+                        if ((PLAYERHP) == 0x00)
+                        {
+                            DelayEffect(request);
+                            return;
+                        }
+                        
                         byte windsword = 01;
                         var f = RepeatAction(request, TimeSpan.FromSeconds(15),
                             () => Connector.Read8(ADDR_Equip_Sword, out windsword) && (windsword > 0),
@@ -6858,6 +7623,16 @@ namespace CrowdControl.Games.Packs
 
                 case "firesword":
                     {
+                        if (!Connector.Read8(ADDR_HP, out byte PLAYERHP))
+                        {
+                            DelayEffect(request);
+                        }
+
+                        if ((PLAYERHP) == 0x00)
+                        {
+                            DelayEffect(request);
+                            return;
+                        }
                         byte firesword = 02;
                         var g = RepeatAction(request, TimeSpan.FromSeconds(15),
                             () => Connector.Read8(ADDR_Equip_Sword, out firesword) && (firesword > 0),
@@ -6874,6 +7649,16 @@ namespace CrowdControl.Games.Packs
 
                 case "watersword":
                     {
+                        if (!Connector.Read8(ADDR_HP, out byte PLAYERHP))
+                        {
+                            DelayEffect(request);
+                        }
+
+                        if ((PLAYERHP) == 0x00)
+                        {
+                            DelayEffect(request);
+                            return;
+                        }
                         byte watersword = 03;
                         var h = RepeatAction(request, TimeSpan.FromSeconds(15),
                             () => Connector.Read8(ADDR_Equip_Sword, out watersword) && (watersword > 0),
@@ -6890,6 +7675,16 @@ namespace CrowdControl.Games.Packs
 
                 case "thundersword":
                     {
+                        if (!Connector.Read8(ADDR_HP, out byte PLAYERHP))
+                        {
+                            DelayEffect(request);
+                        }
+
+                        if ((PLAYERHP) == 0x00)
+                        {
+                            DelayEffect(request);
+                            return;
+                        }
                         byte thundersword = 04;
                         var j = RepeatAction(request, TimeSpan.FromSeconds(15),
                             () => Connector.Read8(ADDR_Equip_Sword, out thundersword) && (thundersword > 0),
@@ -6907,6 +7702,16 @@ namespace CrowdControl.Games.Packs
                 case "crystalissword":
                     { // Note it only stabs for now.  Need to review if I can autofill projectile to match Dyna Fight.
 
+                        if (!Connector.Read8(ADDR_HP, out byte PLAYERHP))
+                        {
+                            DelayEffect(request);
+                        }
+
+                        if ((PLAYERHP) == 0x00)
+                        {
+                            DelayEffect(request);
+                            return;
+                        }
                         byte cysword = 05;
                         var k = RepeatAction(request, TimeSpan.FromSeconds(15),
                             () => Connector.Read8(ADDR_Equip_Sword, out cysword) && (cysword > 0),
@@ -6923,6 +7728,16 @@ namespace CrowdControl.Games.Packs
 
                 case "swordless":
                     {
+                        if (!Connector.Read8(ADDR_HP, out byte PLAYERHP))
+                        {
+                            DelayEffect(request);
+                        }
+
+                        if ((PLAYERHP) == 0x00)
+                        {
+                            DelayEffect(request);
+                            return;
+                        }
                         byte removesword = 00;
                         var rwsword = RepeatAction(request,
                         TimeSpan.FromSeconds(15),
@@ -6934,10 +7749,10 @@ namespace CrowdControl.Games.Packs
                         () => true, /*Action*/
                         TimeSpan.FromSeconds(0.1),
                         true, "sword");
-                        rwsword.WhenStarted.Then(t => 
+                        rwsword.WhenStarted.Then(t =>
                         {
                             Connector.Write8(ADDR_Equip_Sword, removesword);
-                        Connector.SendMessage($"{request.DisplayViewer} stole your Swords (15s).");
+                            Connector.SendMessage($"{request.DisplayViewer} stole your Swords (15s).");
                         }
                                                 );
                         return;
@@ -6999,13 +7814,13 @@ namespace CrowdControl.Games.Packs
                         {
                             DelayEffect(request);
                         }
-                        
+
                         if ((PLAYERHP) == 0x00)
                         {
                             DelayEffect(request);
                             return;
                         }
-                        
+
                         if (TryBossLocation(request, Vamp1))
                         {
                             {
@@ -7027,13 +7842,13 @@ namespace CrowdControl.Games.Packs
                         {
                             DelayEffect(request);
                         }
-                        
+
                         if ((PLAYERHP) == 0x00)
                         {
                             DelayEffect(request);
                             return;
                         }
-                        
+
                         if (TryBossLocation(request, Bug))
                         {
                             {
@@ -7055,13 +7870,13 @@ namespace CrowdControl.Games.Packs
                         {
                             DelayEffect(request);
                         }
-                        
+
                         if ((PLAYERHP) == 0x00)
                         {
                             DelayEffect(request);
                             return;
                         }
-                        
+
                         if (TryBossLocation(request, Kelby))
                         {
                             {
@@ -7083,13 +7898,13 @@ namespace CrowdControl.Games.Packs
                         {
                             DelayEffect(request);
                         }
-                        
+
                         if ((PLAYERHP) == 0x00)
                         {
                             DelayEffect(request);
                             return;
                         }
-                        
+
                         if (TryBossLocation(request, Vamp2))
                         {
                             {
@@ -7111,13 +7926,13 @@ namespace CrowdControl.Games.Packs
                         {
                             DelayEffect(request);
                         }
-                        
+
                         if ((PLAYERHP) == 0x00)
                         {
                             DelayEffect(request);
                             return;
                         }
-                        
+
                         if (TryBossLocation(request, Sabera))
                         {
                             {
@@ -7139,13 +7954,13 @@ namespace CrowdControl.Games.Packs
                         {
                             DelayEffect(request);
                         }
-                        
+
                         if ((PLAYERHP) == 0x00)
                         {
                             DelayEffect(request);
                             return;
                         }
-                        
+
                         if (TryBossLocation(request, Mado))
                         {
                             {
@@ -7167,13 +7982,13 @@ namespace CrowdControl.Games.Packs
                         {
                             DelayEffect(request);
                         }
-                        
+
                         if ((PLAYERHP) == 0x00)
                         {
                             DelayEffect(request);
                             return;
                         }
-                        
+
                         if (TryBossLocation(request, Kelby2))
                         {
                             {
@@ -7195,13 +8010,13 @@ namespace CrowdControl.Games.Packs
                         {
                             DelayEffect(request);
                         }
-                        
+
                         if ((PLAYERHP) == 0x00)
                         {
                             DelayEffect(request);
                             return;
                         }
-                        
+
                         if (TryBossLocation(request, Sabera2))
                         {
                             {
@@ -7223,13 +8038,13 @@ namespace CrowdControl.Games.Packs
                         {
                             DelayEffect(request);
                         }
-                        
+
                         if ((PLAYERHP) == 0x00)
                         {
                             DelayEffect(request);
                             return;
                         }
-                        
+
                         if (TryBossLocation(request, Mado2))
                         {
                             {
@@ -7251,13 +8066,13 @@ namespace CrowdControl.Games.Packs
                         {
                             DelayEffect(request);
                         }
-                        
+
                         if ((PLAYERHP) == 0x00)
                         {
                             DelayEffect(request);
                             return;
                         }
-                        
+
                         if (TryBossLocation(request, Karmine))
                         {
                             {
@@ -7279,13 +8094,13 @@ namespace CrowdControl.Games.Packs
                         {
                             DelayEffect(request);
                         }
-                        
+
                         if ((PLAYERHP) == 0x00)
                         {
                             DelayEffect(request);
                             return;
                         }
-                        
+
                         if (TryBossLocation(request, Draygon))
                         {
                             {
@@ -7307,13 +8122,13 @@ namespace CrowdControl.Games.Packs
                         {
                             DelayEffect(request);
                         }
-                        
+
                         if ((PLAYERHP) == 0x00)
                         {
                             DelayEffect(request);
                             return;
                         }
-                        
+
                         if (TryBossLocation(request, Draygon2))
                         {
                             {
@@ -7335,13 +8150,13 @@ namespace CrowdControl.Games.Packs
                         {
                             DelayEffect(request);
                         }
-                        
+
                         if ((PLAYERHP) == 0x00)
                         {
                             DelayEffect(request);
                             return;
                         }
-                        
+
                         if (TryBossLocation(request, Dyna))
                         {
                             {
@@ -7361,13 +8176,13 @@ namespace CrowdControl.Games.Packs
                         {
                             DelayEffect(request);
                         }
-                        
+
                         if ((PLAYERHP) == 0x00)
                         {
                             DelayEffect(request);
                             return;
                         }
-                        
+
                         if (TryGiveMP(request))
                         {
                             Connector.Write8(ADDR_U2HOOK, 0x01);
@@ -7383,13 +8198,13 @@ namespace CrowdControl.Games.Packs
                         {
                             DelayEffect(request);
                         }
-                        
+
                         if ((PLAYERHP) == 0x00)
                         {
                             DelayEffect(request);
                             return;
                         }
-                        
+
                         if (TryTakeMP(request, 6))
                         {
                             Connector.Write8(ADDR_U2HOOK, 0x01);
@@ -7405,13 +8220,13 @@ namespace CrowdControl.Games.Packs
                         {
                             DelayEffect(request);
                         }
-                        
+
                         if ((PLAYERHP) == 0x00)
                         {
                             DelayEffect(request);
                             return;
                         }
-                        
+
                         if (TryHealPlayerHealth(request))
                         {
                             Connector.Write8(ADDR_U2HOOK, 0x01);
@@ -7427,13 +8242,13 @@ namespace CrowdControl.Games.Packs
                         {
                             DelayEffect(request);
                         }
-                        
+
                         if ((PLAYERHP) <= 0x01)
                         {
                             DelayEffect(request);
                             return;
                         }
-                        
+
                         if (TryHurtPlayerHealth(request, 4))
                         {
                             Connector.Write8(ADDR_U2HOOK, 0x01);
@@ -7445,6 +8260,17 @@ namespace CrowdControl.Games.Packs
 
                 case "givemoney50": //Note fixed for UI update to be pushed soon
                     {
+                        if (!Connector.Read8(ADDR_HP, out byte PLAYERHP))
+                        {
+                            DelayEffect(request);
+                        }
+
+                        if ((PLAYERHP) == 0x00)
+                        {
+                            DelayEffect(request);
+                            return;
+                        }
+                        
                         if (TryGiveMoney(request, 50))
                         {
                             Connector.Write8(ADDR_U2HOOK, 0x01);
@@ -7456,6 +8282,17 @@ namespace CrowdControl.Games.Packs
 
                 case "givemoney100": //Note fixed for UI update to be pushed soon
                     {
+                        if (!Connector.Read8(ADDR_HP, out byte PLAYERHP))
+                        {
+                            DelayEffect(request);
+                        }
+
+                        if ((PLAYERHP) == 0x00)
+                        {
+                            DelayEffect(request);
+                            return;
+                        }
+                        
                         if (TryGiveMoney(request, 100))
                         {
                             Connector.Write8(ADDR_U2HOOK, 0x01);
@@ -7467,6 +8304,17 @@ namespace CrowdControl.Games.Packs
 
                 case "takemoney50": //Note fixed for UI update to be pushed soon
                     {
+                        if (!Connector.Read8(ADDR_HP, out byte PLAYERHP))
+                        {
+                            DelayEffect(request);
+                        }
+
+                        if ((PLAYERHP) == 0x00)
+                        {
+                            DelayEffect(request);
+                            return;
+                        }
+                        
                         if (TryStealMoney(request, 50))
                         {
                             Connector.Write8(ADDR_U2HOOK, 0x01);
@@ -7478,6 +8326,17 @@ namespace CrowdControl.Games.Packs
 
                 case "takemoney100": //Note fixed for UI update to be pushed soon
                     {
+                        if (!Connector.Read8(ADDR_HP, out byte PLAYERHP))
+                        {
+                            DelayEffect(request);
+                        }
+
+                        if ((PLAYERHP) == 0x00)
+                        {
+                            DelayEffect(request);
+                            return;
+                        }
+                        
                         if (TryStealMoney(request, 100))
                         {
                             Connector.Write8(ADDR_U2HOOK, 0x01);
@@ -7489,7 +8348,18 @@ namespace CrowdControl.Games.Packs
 
                 case "levelup":   //Note fixed for UI update to be pushed soon
                     {
-                        
+
+
+                        if (!Connector.Read8(ADDR_HP, out byte PLAYERHP))
+                        {
+                            DelayEffect(request);
+                        }
+
+                        if ((PLAYERHP) == 0x00)
+                        {
+                            DelayEffect(request);
+                            return;
+                        }
                         
                         if (!Connector.Read8(ADDR_LEVEL, out byte playerlevel))
                         {
@@ -7513,23 +8383,34 @@ namespace CrowdControl.Games.Packs
 
                 case "leveldown":  //Note fixed for UI update to be pushed soon
                     {
+                        if (!Connector.Read8(ADDR_HP, out byte PLAYERHP))
+                        {
+                            DelayEffect(request);
+                        }
+
+                        if ((PLAYERHP) == 0x00)
+                        {
+                            DelayEffect(request);
+                            return;
+                        }
+                        
                         if (!Connector.Read8(ADDR_CURRENT_AREA, out byte areas))
                         {
                             DelayEffect(request);
                         }
-                        
+
                         if ((areas) == 0xA7)
                         {
                             DelayEffect(request);
                             return;
                         }
-                        
+
                         if ((areas) == 0x58)
                         {
                             DelayEffect(request);
                             return;
                         }
-                        
+
                         if ((areas) == 0x59)
                         {
                             DelayEffect(request);
@@ -7571,7 +8452,7 @@ namespace CrowdControl.Games.Packs
                             DelayEffect(request);
                             return;
                         }
-                        
+
                         if (!Connector.Read8(ADDR_LEVEL, out byte playerlevel))
                         {
                             DelayEffect(request);
@@ -7639,6 +8520,17 @@ namespace CrowdControl.Games.Packs
 
                 case "blackout":
                     {
+                        if (!Connector.Read8(ADDR_HP, out byte PLAYERHP))
+                        {
+                            DelayEffect(request);
+                        }
+
+                        if ((PLAYERHP) == 0x00)
+                        {
+                            DelayEffect(request);
+                            return;
+                        }
+                        
                         if (TryBlackoutMode(request))
                         {
                             Connector.SendMessage($"{request.DisplayViewer} made cave and forts dark.");
@@ -7648,21 +8540,32 @@ namespace CrowdControl.Games.Packs
 
                 case "freeshops":   //Note need to fix the inns as they are currently zero outing money but everything else works.
                     {
-                        
-                        if (!Connector.Read8(ADDR_CURRENT_AREA, out byte areas))
+
+                        if (!Connector.Read8(ADDR_HP, out byte PLAYERHP))
                         {
                             DelayEffect(request);
                         }
-                        
-                        if (((areas) != 0x02) && (areas != 0x18) && (areas != 0x1C) && (areas != 0xD5) && (areas != 0x50) && (areas != 0x71) && (areas != 0x72) && (areas != 0x8E) && (areas != 0x8C) && (areas != 0x93))
+
+                        if ((PLAYERHP) == 0x00)
                         {
                             DelayEffect(request);
                             return;
                         }
                         
+                        if (!Connector.Read8(ADDR_CURRENT_AREA, out byte areas))
+                        {
+                            DelayEffect(request);
+                        }
 
-                    
-                      
+                        if (((areas) != 0x02) && (areas != 0x18) && (areas != 0x1C) && (areas != 0xD5) && (areas != 0x50) && (areas != 0x71) && (areas != 0x72) && (areas != 0x8E) && (areas != 0x8C) && (areas != 0x93))
+                        {
+                            DelayEffect(request);
+                            return;
+                        }
+
+
+
+
                         var shop = RepeatAction(request,
                         TimeSpan.FromSeconds(30),
                         () => Connector.IsNonZero8(ADDR_LEVEL),                     /*Effect Start Condition*/
@@ -7684,8 +8587,9 @@ namespace CrowdControl.Games.Packs
                         shop.WhenCompleted.Then(t => Connector.SendMessage($"{request.DisplayViewer}'s restored back to normal prices."));
                         return;
                     }
-            }}
-                    
+            }
+        }
+
 
         protected override bool StopEffect(EffectRequest request)
         {
@@ -7764,6 +8668,12 @@ namespace CrowdControl.Games.Packs
                         return result;
                     }
 
+                case "joust":
+                    {
+                        result = Connector.Unfreeze(ADDR_ACTION);
+                        return result;
+                    }
+                
                 case "flightmode":
                     {
                         result = Connector.Unfreeze(ADDR_Jump);
@@ -7776,6 +8686,13 @@ namespace CrowdControl.Games.Packs
                         return result;
                     }
 
+                case "speed":
+                    {
+                        Connector.Write8(ADDR_Speed, 0x06);
+                        Connector.SendMessage($"{request.DisplayViewer}'s restored your speed.");
+                        return result;
+                    }
+                
                 case "heavy":
                     {
                         Connector.Write8(ADDR_Speed, 0x06);
